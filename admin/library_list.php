@@ -415,7 +415,7 @@
                         <th>Chair Capacity</th>
                         <th>Open At</th>
                         <th>Close At</th>
-                        <th>Location</th>
+                        <th>Library Location</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -454,8 +454,8 @@
                                 echo '<button class="btn btn-toggle">Active</button>';
                             }
                             ?>
-                            <a href="edit_manage_table&chair.php?library_id=24842354" style="text-decoration: none;">
-                                <button class="btn btn-edit">Manage Table & Chair</button>
+                            <a href="view_table&chair.php?library_id=24842354" style="text-decoration: none;">
+                                <button class="btn btn-edit">View Table & Chair</button>
                             </a>
                         </td>
                     </tr>
@@ -493,6 +493,9 @@
                                 echo '<button class="btn btn-toggle">Active</button>';
                             }
                             ?>
+                            <a href="view_table&chair.php?library_id=24842354" style="text-decoration: none;">
+                                <button class="btn btn-edit">View Table & Chair</button>
+                            </a>
                         </td>
                     </tr>
 
@@ -503,11 +506,11 @@
     <div class="modal-overlay" id="deleteModal">
         <div class="modal-box">
             <div class="modal-header">
-                <h3>Delete Book</h3>
+                <h3>Delete Library Record</h3>
             </div>
 
             <div class="modal-body">
-                <p>⚠️ Are you sure you want to delete this book?</p>
+                <p>⚠️ Are you sure you want to delete this library record?</p>
                 <span>This action cannot be undone.</span>
             </div>
 

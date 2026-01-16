@@ -755,11 +755,11 @@
     <div class="modal-overlay" id="deleteModal">
         <div class="modal-box">
             <div class="modal-header">
-                <h3>Delete Book</h3>
+                <h3>Delete Book Record</h3>
             </div>
 
             <div class="modal-body">
-                <p>⚠️ Are you sure you want to delete this book?</p>
+                <p>⚠️ Are you sure you want to delete this book record?</p>
                 <span>This action cannot be undone.</span>
             </div>
 

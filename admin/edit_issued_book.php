@@ -57,7 +57,7 @@
 
         .form-grid {
             display: grid;
-            grid-template-columns: 260px 1fr;
+            grid-template-columns: 100% 1fr;
             gap: 30px;
         }
 
@@ -98,7 +98,7 @@
         /* Fields */
         .form-fields {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 18px;
         }
 
@@ -270,77 +270,39 @@
     <!-- MAIN CONTENT -->
     <div class="main-content">
 
-
-
         <div class="edit-card">
-            <form id="editBookForm" action="#" method="POST" enctype="multipart/form-data">
+            <form id="editIssuedBookForm" action="#" method="POST">
                 <div class="page-header">
                     <h2>Edit Issued Book</h2>
                     <p>Edit issued book details in your library system</p>
                 </div>
                 <div class="form-grid">
 
-                    <!-- Image -->
-                    <label class="image-box">
-                        <img id="previewImage" src="https://via.placeholder.com/160x220?text=Book+Cover"><br>
-                        <span>Click to upload book image</span>
-                        <input type="file" accept="image/*" id="imageInput" value="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg">
-                    </label>
-
                     <!-- Fields -->
                     <div class="form-fields">
 
                         <div class="form-group">
-                            <label>Title</label>
-                            <input type="text" id="title" value="Introduction to Java">
-                            <div class="error">Title is required</div>
+                            <label>Issue Date</label>
+                            <input type="date" id="issueDate" value="2026-01-12">
+                            <div class="error">Issue Date is required</div>
                         </div>
 
                         <div class="form-group">
-                            <label>Author</label>
-                            <input type="text" id="author" value="James Gosling">
-                            <div class="error">Author is required</div>
+                            <label>Due Date</label>
+                            <input type="date" id="dueDate" value="2026-02-28">
+                            <div class="error">Due Date is required</div>
                         </div>
 
                         <div class="form-group">
-                            <label>Category</label>
-                            <select id="category">
-                                <option value="">Select Category</option>
-                                <option selected>Programming</option>
-                                <option>Science</option>
-                                <option>Database</option>
-                                <option>Mathematics</option>
-                            </select>
-                            <div class="error">Select a category</div>
+                            <label>Return Date</label>
+                            <input type="date" id="returnDate" value="2026-03-01">
+                            <div class="error">Return Date is required</div>
                         </div>
 
                         <div class="form-group">
-                            <label>Year</label>
-                            <input type="number" id="year" value="2020">
-                            <div class="error">Enter valid year</div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Library</label>
-                            <select id="library">
-                                <option value="">Select Library</option>
-                                <option selected>Main Library</option>
-                                <option>Science Block</option>
-                                <option>Engineering Wing</option>
-                            </select>
-                            <div class="error">Select a library</div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Total Copies</label>
-                            <input type="number" id="total" value="4">
-                            <div class="error">Total must be greater than 0</div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Available Copies</label>
-                            <input type="number" id="available" value="2">
-                            <div class="error">Available ≤ Total</div>
+                            <label>Fine Amount</label>
+                            <input type="number" id="fineAmount" value="6562">
+                            <div class="error">Fine Amount is required</div>
                         </div>
 
                     </div>
@@ -361,16 +323,11 @@
     <?php include 'footer.php'; ?>
 
     <script>
-        const form = document.getElementById("editBookForm");
-        const title = document.getElementById("title");
-        const author = document.getElementById("author");
-        const category = document.getElementById("category");
-        const year = document.getElementById("year");
-        const library = document.getElementById("library");
-        const total = document.getElementById("total");
-        const available = document.getElementById("available");
-        const imageInput = document.getElementById("imageInput");
-        const previewImage = document.getElementById("previewImage");
+        const form = document.getElementById("editIssuedBookForm");
+        const issueDate = document.getElementById("issueDate");
+        const dueDate = document.getElementById("dueDate");
+        const returnDate = document.getElementById("returnDate");
+        const fineAmount = document.getElementById("fineAmount");
 
         function showError(input, message) {
             const error = input.nextElementSibling;
@@ -397,73 +354,23 @@
             }
         }
 
-        function validateSelect(input) {
-            if (input.value === "") {
-                showError(input, "Please select an option");
-                return false;
-            } else {
-                showSuccess(input);
-                return true;
-            }
-        }
-
-        function validateYear() {
-            const currentYear = new Date().getFullYear();
-            if (year.value < 1900 || year.value > currentYear) {
-                showError(year, "Enter valid year");
-                return false;
-            } else {
-                showSuccess(year);
-                return true;
-            }
-        }
-
-        function validateCopies() {
-            if (total.value <= 0) {
-                showError(total, "Total must be greater than 0");
-                return false;
-            } else {
-                showSuccess(total);
-            }
-
-            if (available.value < 0 || Number(available.value) > Number(total.value)) {
-                showError(available, "Available ≤ Total");
-                return false;
-            } else {
-                showSuccess(available);
-                return true;
-            }
-        }
-
-        title.addEventListener("input", () => validateText(title));
-        author.addEventListener("input", () => validateText(author));
-        category.addEventListener("change", () => validateSelect(category));
-        library.addEventListener("change", () => validateSelect(library));
-        year.addEventListener("input", validateYear);
-        total.addEventListener("input", validateCopies);
-        available.addEventListener("input", validateCopies);
-
-        imageInput.addEventListener("change", function(event) {
-            const reader = new FileReader();
-            reader.onload = () => previewImage.src = reader.result;
-            reader.readAsDataURL(event.target.files[0]);
-        });
+        issueDate.addEventListener("input", () => validateText(issueDate));
+        dueDate.addEventListener("input", () => validateText(dueDate));
+        returnDate.addEventListener("input", () => validateText(returnDate));
+        fineAmount.addEventListener("input", () => validateText(fineAmount));
 
         form.addEventListener("submit", function(e) {
             e.preventDefault();
 
             const isValid =
-                validateText(title) &
-                validateText(author) &
-                validateSelect(category) &
-                validateYear() &
-                validateSelect(library) &
-                validateCopies();
+                validateText(issueDate) &
+                validateText(dueDate) &
+                validateText(returnDate) &
+                validateText(fineAmount);
 
             if (isValid) {
-                alert("Book details updated successfully!");
-                window.location.href = "book_list.php";
-                previewImage.src = "https://via.placeholder.com/160x220?text=Book+Cover";
+                alert(" Issued book details updated successfully!");
+                window.location.href = "issued_book.php";
             }
         });
     </script>

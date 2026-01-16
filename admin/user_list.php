@@ -486,7 +486,13 @@
                             }
                             ?>
 
-                            <button class="btn btn-role">Change Role</button>
+                            <!-- ROLE SELECT -->
+                            <select class="btn btn-role">
+                                <option value="" selected disabled>Change Role</option>
+                                <option value="Guest">Guest User</option>
+                                <option value="User">User</option>
+                                <option value="Admin">Admin</option>
+                            </select>
 
                         </td>
                     </tr>
@@ -593,30 +599,41 @@
                     e.target.textContent = "Inactive";
                 }
             }
+        });
+
+        document.addEventListener("change", function(e) {
 
             if (e.target.classList.contains("btn-role")) {
+
+                const selectedRole = e.target.value;
+
+                // Do nothing if placeholder selected
+                if (selectedRole === "") return;
+
                 const row = e.target.closest("tr");
-                const roleSpan = row.querySelector(".roleSpan.user, .roleSpan.guest, .roleSpan.admin");
+                const roleSpan = row.querySelector(".roleSpan");
 
                 if (!roleSpan) return;
 
-                // Cycle through roles: User → Guest → Admin → User
-                if (roleSpan.classList.contains("user")) {
-                    roleSpan.classList.remove("user");
-                    roleSpan.classList.add("guest");
-                    roleSpan.textContent = "Guest User";
+                // Remove old role classes
+                roleSpan.classList.remove("user", "guest", "admin");
 
-                } else if (roleSpan.classList.contains("guest")) {
-                    roleSpan.classList.remove("guest");
-                    roleSpan.classList.add("admin");
-                    roleSpan.textContent = "Admin";
-
-                } else if (roleSpan.classList.contains("admin")) {
-                    roleSpan.classList.remove("admin");
+                // Apply new role
+                if (selectedRole === "User") {
                     roleSpan.classList.add("user");
                     roleSpan.textContent = "User";
+                } else if (selectedRole === "Guest") {
+                    roleSpan.classList.add("guest");
+                    roleSpan.textContent = "Guest User";
+                } else if (selectedRole === "Admin") {
+                    roleSpan.classList.add("admin");
+                    roleSpan.textContent = "Admin";
                 }
+
+                // Reset dropdown back to placeholder
+                e.target.value = "";
             }
+
         });
     </script>
 

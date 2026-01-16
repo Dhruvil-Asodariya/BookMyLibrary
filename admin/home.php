@@ -524,9 +524,7 @@
     </main>
 
     <!-- FOOTER -->
-    <footer class="footer">
-        © 2026 BookMyLibrary | Admin Panel
-    </footer>
+    <?php include 'footer.php'; ?>
 
     <!-- ---------- LIVE DATA & CHART SCRIPT ---------- -->
     <script>
