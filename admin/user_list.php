@@ -452,7 +452,7 @@
                     <tr>
                         <td>1</td>
                         <td><img src="../image/default_profile.png" class="cover"></td>
-                        <td><a href="#">#24842354</a></td>
+                        <td>24842354</td>
                         <td>John</td>
                         <td>Doe</td>
                         <td>john.doe@example.com</td>

@@ -824,7 +824,7 @@
 
         function confirmDelete() {
             closeDeleteModal();
-            alert("Book deleted successfully!");
+            alert("Book record deleted successfully!");
             // Here you can remove the row or call backend later
         }
 

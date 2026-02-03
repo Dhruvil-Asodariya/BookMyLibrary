@@ -381,6 +381,193 @@
                 font-size: 13px;
             }
         }
+
+        .book-id {
+            color: #2563eb;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .book-id:hover {
+            text-decoration: underline;
+        }
+
+        /* Backdrop */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Card */
+        .modal-card {
+            background: #ffffff;
+            width: 700px;
+            max-width: 95%;
+            border-radius: 14px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            animation: fadeSlide 0.25s ease;
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Header */
+        .modal-header-p {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header-p h3 {
+            font-size: 18px;
+            color: #0f172a;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        /* Pills container */
+        .pill-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Base pill */
+        .pill {
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        /* Role pill (Blue) */
+        .pill-role-guestUser {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .pill-role-user {
+            background-color: #e0f2fe;
+            color: #075985;
+        }
+
+        .pill-role-admin {
+            background-color: #ede9fe;
+            color: #5b21b6;
+        }
+
+        /* Status pills */
+        .pill-active {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .pill-inactive {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Close */
+        .close-icon {
+            font-size: 22px;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .close-icon:hover {
+            color: #ef4444;
+        }
+
+        /* Body */
+        .modal-body-p {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        /* Image */
+        .book-image img {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+
+        /* Details */
+        .book-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .detail span {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        .detail p {
+            margin-top: 4px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        /* Footer */
+        .modal-footer {
+            padding: 14px 20px;
+            border-top: 1px solid #e5e7eb;
+            text-align: right;
+        }
+
+        /* Buttons */
+        .btn-secondary {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #cbd5f5;
+            background: #f8fafc;
+            color: #1e293b;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e7ff;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .modal-body {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .book-details {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 
 </head>
@@ -423,8 +610,8 @@
                     <tr>
                         <td>1</td>
                         <td>24842354</td>
-                        <td><a href="#">#24842354</a></td>
-                        <td><a href="#">#24842354</a></td>
+                        <td><a href="#" class="book-link" onclick="openBookModal()">#24842354</a></td>
+                        <td><a href="#" class="user-link" onclick="openUserModal()">#24842353</a></td>
                         <td>12/01/2026</td>
                         <td>29/02/2026</td>
                         <td>29/02/2026</td>
@@ -440,6 +627,114 @@
             </table>
         </div>
     </div>
+
+    <div class="modal-backdrop" id="bookModal">
+        <div class="modal-card">
+
+            <div class="modal-header-p">
+                <h3>Book Details</h3>
+                <span class="close-icon" onclick="closeBookModal()">×</span>
+            </div>
+
+            <div class="modal-body-p">
+                <div class="book-image">
+                    <img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" alt="Book Image">
+                </div>
+
+                <div class="book-details">
+                    <div class="detail">
+                        <span>Book ID</span>
+                        <p>24842354</p>
+                    </div>
+                    <div class="detail">
+                        <span>Title</span>
+                        <p>Introduction to Java</p>
+                    </div>
+                    <div class="detail">
+                        <span>Author</span>
+                        <p>James Gosling</p>
+                    </div>
+                    <div class="detail">
+                        <span>Category</span>
+                        <p>Programming</p>
+                    </div>
+                    <div class="detail">
+                        <span>Publish Year</span>
+                        <p>2020</p>
+                    </div>
+                    <div class="detail">
+                        <span>Library Name</span>
+                        <p>Main Library</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeBookModal()">Close</button>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="userModal">
+        <div class="modal-card">
+
+            <div class="modal-header-p">
+                <div class="header-left">
+                    <h3>User Details</h3>
+
+                    <div class="pill-group">
+                        <span class="pill pill-role-guestUser">Guest User</span>
+                        <!-- <span class="pill pill-role-user">User</span> -->
+                        <!-- <span class="pill pill-role-admin">Admin</span> -->
+                        <span class="pill pill-active">Active</span>
+                        <!-- <span class="pill pill-inactive">Inactive</span> -->
+                    </div>
+                </div>
+
+                <span class="close-icon" onclick="closeUserModal()">×</span>
+            </div>
+
+            <div class="modal-body-p">
+                <div class="book-image">
+                    <img src="../image/default_profile.png" alt="Book Image">
+                </div>
+
+                <div class="book-details">
+                    <div class="detail">
+                        <span>User ID</span>
+                        <p>24842354</p>
+                    </div>
+                    <div class="detail">
+                        <span>First Name</span>
+                        <p>John</p>
+                    </div>
+                    <div class="detail">
+                        <span>Last Name</span>
+                        <p>Doe</p>
+                    </div>
+                    <div class="detail">
+                        <span>Email ID</span>
+                        <p>john.doe@example.com </p>
+                    </div>
+                    <div class="detail">
+                        <span>Contact Number</span>
+                        <p>9876543210</p>
+                    </div>
+                    <div class="detail">
+                        <span>Address</span>
+                        <p>123 Main St, Cityville</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeUserModal()">Close</button>
+            </div>
+
+        </div>
+    </div>
+
     <div class="modal-overlay" id="deleteModal">
         <div class="modal-box">
             <div class="modal-header">
@@ -514,6 +809,22 @@
             closeDeleteModal();
             alert("Issued book record deleted successfully!");
             // Here you can remove the row or call backend later
+        }
+
+        function openBookModal() {
+            document.getElementById("bookModal").style.display = "flex";
+        }
+
+        function closeBookModal() {
+            document.getElementById("bookModal").style.display = "none";
+        }
+
+        function openUserModal() {
+            document.getElementById("userModal").style.display = "flex";
+        }
+
+        function closeUserModal() {
+            document.getElementById("userModal").style.display = "none";
         }
     </script>
 

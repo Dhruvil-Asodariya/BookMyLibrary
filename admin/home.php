@@ -297,6 +297,26 @@
             opacity: 0.95;
         }
 
+        .chart-wrapper {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+            color: #fff;
+            height: 400px;
+            /* increase this */
+            width: 100%;
+        }
+
+        .chart-wrapper h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 16px;
+            font-weight: 500;
+            opacity: 0.95;
+        }
+
         /* ---------- FOOTER ---------- */
         .footer {
             background: rgba(15, 23, 42, 0.95);
@@ -516,7 +536,7 @@
                 <canvas id="booksChart"></canvas>
             </div>
 
-            <div class="chart-card">
+            <div class="chart-wrapper">
                 <h3>Fine Tracking</h3>
                 <canvas id="fineChart"></canvas>
             </div>

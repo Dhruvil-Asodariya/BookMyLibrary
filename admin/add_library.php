@@ -57,48 +57,14 @@
 
         .form-grid {
             display: grid;
-            grid-template-columns: 260px 1fr;
+            grid-template-columns: 100% 1fr;
             gap: 30px;
-        }
-
-        /* Image Upload */
-        .image-box {
-            border: 2px dashed #cbd5e1;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.2s ease;
-            height: fit-content;
-        }
-
-        .image-box:hover {
-            border-color: #2563eb;
-            background: #f8fafc;
-        }
-
-        .image-box img {
-            width: 160px;
-            height: 220px;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 1px solid #e5e7eb;
-            margin-bottom: 10px;
-        }
-
-        .image-box span {
-            font-size: 13px;
-            color: #64748b;
-        }
-
-        .image-box input {
-            display: none;
         }
 
         /* Fields */
         .form-fields {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 18px;
         }
 
@@ -287,9 +253,9 @@
         <nav class="breadcrumb">
             <a href="home.php" class="dashboard">Dashboard</a>
             <span class="separator">›</span>
-            <a href="book_list.php"><span class="dashboard">Book List</span></a>
+            <a href="library_list.php"><span class="dashboard">Library List</span></a>
             <span class="separator">›</span>
-            <span class="current">Add Book</span>
+            <span class="current">Add Library</span>
         </nav>
     </div>
 
@@ -299,74 +265,56 @@
 
 
         <div class="edit-card">
-            <form id="editBookForm">
+            <form id="editLibraryForm">
                 <div class="page-header">
-                    <h2>Add Book</h2>
-                    <p>Add book details in your library system</p>
+                    <h2>Add Library</h2>
+                    <p>Add library details in your library system</p>
                 </div>
                 <div class="form-grid">
-
-                    <!-- Image -->
-                    <label class="image-box">
-                        <img id="previewImage" src="https://via.placeholder.com/160x220?text=Book+Cover"><br>
-                        <span>Click to upload book image</span>
-                        <input type="file" accept="image/*" id="imageInput">
-                    </label>
 
                     <!-- Fields -->
                     <div class="form-fields">
 
                         <div class="form-group">
-                            <label>Title</label>
-                            <input type="text" id="title">
-                            <div class="error">Title is required</div>
+                            <label>Library Name</label>
+                            <input type="text" id="libraryName">
+                            <div class="error">Library Name is required</div>
                         </div>
 
                         <div class="form-group">
-                            <label>Author</label>
-                            <input type="text" id="author">
-                            <div class="error">Author is required</div>
+                            <label>Library Owner Name</label>
+                            <input type="text" id="libraryOwnerName">
+                            <div class="error">Library Owner Name is required</div>
                         </div>
 
                         <div class="form-group">
-                            <label>Category</label>
-                            <select id="category">
-                                <option value="">Select Category</option>
-                                <option>Programming</option>
-                                <option>Science</option>
-                                <option>Database</option>
-                                <option>Mathematics</option>
-                            </select>
-                            <div class="error">Select a category</div>
+                            <label>Table Capacity</label>
+                            <input type="number" id="tableCapacity">
+                            <div class="error">Table Capacity is required</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Chair Capacity</label>
+                            <input type="number" id="chairCapacity">
+                            <div class="error">Chair Capacity is required</div>
                         </div>
 
                         <div class="form-group">
-                            <label>Year</label>
-                            <input type="number" id="year">
-                            <div class="error">Enter valid year</div>
+                            <label>Open At</label>
+                            <input type="time" id="openAt">
+                            <div class="error">Open At is required</div>
                         </div>
 
                         <div class="form-group">
-                            <label>Library</label>
-                            <select id="library">
-                                <option value="">Select Library</option>
-                                <option>Main Library</option>
-                                <option>Science Block</option>
-                                <option>Engineering Wing</option>
-                            </select>
-                            <div class="error">Select a library</div>
+                            <label>Close At</label>
+                            <input type="time" id="closeAt">
+                            <div class="error">Close At is required</div>
                         </div>
 
                         <div class="form-group">
-                            <label>Total Copies</label>
-                            <input type="number" id="total">
-                            <div class="error">Total must be greater than 0</div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Available Copies</label>
-                            <input type="number" id="available">
-                            <div class="error">Available ≤ Total</div>
+                            <label>Library Location</label>
+                            <input type="text" id="libraryLocation">
+                            <div class="error">Library Location is required</div>
                         </div>
 
                     </div>
@@ -375,7 +323,7 @@
                 <!-- Buttons -->
                 <div class="actions">
                     <button type="reset" class="btn btn-cancel">Cancel</button>
-                    <button type="submit" class="btn btn-save">Add Book</button>
+                    <button type="submit" class="btn btn-save">Add Library</button>
                 </div>
 
             </form>
@@ -387,16 +335,14 @@
     <?php include 'footer.php'; ?>
 
     <script>
-        const form = document.getElementById("editBookForm");
-        const title = document.getElementById("title");
-        const author = document.getElementById("author");
-        const category = document.getElementById("category");
-        const year = document.getElementById("year");
-        const library = document.getElementById("library");
-        const total = document.getElementById("total");
-        const available = document.getElementById("available");
-        const imageInput = document.getElementById("imageInput");
-        const previewImage = document.getElementById("previewImage");
+        const form = document.getElementById("editLibraryForm");
+        const libraryName = document.getElementById("libraryName");
+        const libraryOwnerName = document.getElementById("libraryOwnerName");
+        const tableCapacity = document.getElementById("tableCapacity");
+        const chairCapacity = document.getElementById("chairCapacity");
+        const openAt = document.getElementById("openAt");
+        const closeAt = document.getElementById("closeAt");
+        const libraryLocation = document.getElementById("libraryLocation");
 
         function showError(input, message) {
             const error = input.nextElementSibling;
@@ -423,73 +369,29 @@
             }
         }
 
-        function validateSelect(input) {
-            if (input.value === "") {
-                showError(input, "Please select an option");
-                return false;
-            } else {
-                showSuccess(input);
-                return true;
-            }
-        }
-
-        function validateYear() {
-            const currentYear = new Date().getFullYear();
-            if (year.value < 1900 || year.value > currentYear) {
-                showError(year, "Enter valid year");
-                return false;
-            } else {
-                showSuccess(year);
-                return true;
-            }
-        }
-
-        function validateCopies() {
-            if (total.value <= 0) {
-                showError(total, "Total must be greater than 0");
-                return false;
-            } else {
-                showSuccess(total);
-            }
-
-            if (available.value < 0 || Number(available.value) > Number(total.value)) {
-                showError(available, "Available ≤ Total");
-                return false;
-            } else {
-                showSuccess(available);
-                return true;
-            }
-        }
-
-        title.addEventListener("input", () => validateText(title));
-        author.addEventListener("input", () => validateText(author));
-        category.addEventListener("change", () => validateSelect(category));
-        library.addEventListener("change", () => validateSelect(library));
-        year.addEventListener("input", validateYear);
-        total.addEventListener("input", validateCopies);
-        available.addEventListener("input", validateCopies);
-
-        imageInput.addEventListener("change", function(event) {
-            const reader = new FileReader();
-            reader.onload = () => previewImage.src = reader.result;
-            reader.readAsDataURL(event.target.files[0]);
-        });
+        libraryName.addEventListener("input", () => validateText(libraryName));
+        libraryOwnerName.addEventListener("input", () => validateText(libraryOwnerName));
+        tableCapacity.addEventListener("input", () => validateText(tableCapacity));
+        chairCapacity.addEventListener("input", () => validateText(chairCapacity));
+        openAt.addEventListener("input", () => validateText(openAt));
+        closeAt.addEventListener("input", () => validateText(closeAt));
+        libraryLocation.addEventListener("input", () => validateText(libraryLocation));
 
         form.addEventListener("submit", function(e) {
             e.preventDefault();
 
             const isValid =
-                validateText(title) &
-                validateText(author) &
-                validateSelect(category) &
-                validateYear() &
-                validateSelect(library) &
-                validateCopies();
+                validateText(libraryName) &
+                validateText(libraryOwnerName) &
+                validateText(tableCapacity) &
+                validateText(chairCapacity) &
+                validateText(openAt) &
+                validateText(closeAt) &
+                validateText(libraryLocation);
 
             if (isValid) {
-                alert("Book details added successfully!");
+                alert("Library details added successfully!");
                 form.reset();
-                previewImage.src = "https://via.placeholder.com/160x220?text=Book+Cover";
             }
         });
     </script>

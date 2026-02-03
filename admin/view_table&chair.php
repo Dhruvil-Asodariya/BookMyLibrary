@@ -9,7 +9,7 @@
     <style>
         * {
             box-sizing: border-box;
-            font-family: "Segoe UI", sans-serif;
+            font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
         }
 
         body {
@@ -305,70 +305,70 @@
 
         <!-- TABLE 1 -->
         <div class="table-unit">
-            <div class="chair top" data-price="150">C1<br><small>₹150</small></div>
-            <div class="chair left" data-price="150">C2<br><small>₹150</small></div>
-            <div class="chair right" data-price="150">C3<br><small>₹150</small></div>
-            <div class="chair bottom" data-price="150">C4<br><small>₹150</small></div>
+            <div class="chair top" data-price="150">C1<br></div>
+            <div class="chair left" data-price="150">C2<br></div>
+            <div class="chair right" data-price="150">C3<br></div>
+            <div class="chair bottom" data-price="150">C4<br></div>
             <div class="table">TABLE 1<br><span>4 Chairs</span></div>
         </div>
 
         <!-- TABLE 2 -->
         <div class="table-unit">
-            <div class="chair top" data-price="120">C1<br><small>₹120</small></div>
-            <div class="chair left booked" data-price="120">C2<br><small>₹120</small></div>
-            <div class="chair right" data-price="120">C3<br><small>₹120</small></div>
+            <div class="chair top" data-price="120">C1<br></div>
+            <div class="chair left booked" data-price="120">C2<br></div>
+            <div class="chair right" data-price="120">C3<br></div>
             <div class="table">TABLE 2<br><span>3 Chairs</span></div>
         </div>
 
         <!-- TABLE 3 -->
         <div class="table-unit">
-            <div class="chair top" data-price="180">C1<br><small>₹180</small></div>
-            <div class="chair left" data-price="180">C2<br><small>₹180</small></div>
-            <div class="chair right" data-price="180">C3<br><small>₹180</small></div>
-            <div class="chair bottom booked" data-price="180">C4<br><small>₹180</small></div>
+            <div class="chair top" data-price="180">C1<br></div>
+            <div class="chair left" data-price="180">C2<br></div>
+            <div class="chair right" data-price="180">C3<br></div>
+            <div class="chair bottom booked" data-price="180">C4<br></div>
             <div class="table">TABLE 3<br><span>4 Chairs</span></div>
         </div>
 
         <!-- TABLE 4 -->
         <div class="table-unit">
-            <div class="chair top" data-price="100">C1<br><small>₹100</small></div>
-            <div class="chair left" data-price="100">C2<br><small>₹100</small></div>
-            <div class="chair right" data-price="100">C3<br><small>₹100</small></div>
+            <div class="chair top" data-price="100">C1<br></div>
+            <div class="chair left" data-price="100">C2<br></div>
+            <div class="chair right" data-price="100">C3<br></div>
             <div class="table">TABLE 4<br><span>3 Chairs</span></div>
         </div>
 
         <!-- TABLE 1 -->
         <div class="table-unit">
-            <div class="chair top" data-price="150">C1<br><small>₹150</small></div>
-            <div class="chair left" data-price="150">C2<br><small>₹150</small></div>
-            <div class="chair right" data-price="150">C3<br><small>₹150</small></div>
-            <div class="chair bottom" data-price="150">C4<br><small>₹150</small></div>
-            <div class="table">TABLE 1<br><span>4 Chairs</span></div>
+            <div class="chair top" data-price="150">C1<br></div>
+            <div class="chair left" data-price="150">C2<br></div>
+            <div class="chair right" data-price="150">C3<br></div>
+            <div class="chair bottom" data-price="150">C4<br></div>
+            <div class="table">TABLE 5<br><span>4 Chairs</span></div>
         </div>
 
         <!-- TABLE 2 -->
         <div class="table-unit">
-            <div class="chair top" data-price="120">C1<br><small>₹120</small></div>
-            <div class="chair left booked" data-price="120">C2<br><small>₹120</small></div>
-            <div class="chair right" data-price="120">C3<br><small>₹120</small></div>
-            <div class="table">TABLE 2<br><span>3 Chairs</span></div>
+            <div class="chair top" data-price="120">C1<br></div>
+            <div class="chair left booked" data-price="120">C2<br></div>
+            <div class="chair right" data-price="120">C3<br></div>
+            <div class="table">TABLE 6<br><span>3 Chairs</span></div>
         </div>
 
         <!-- TABLE 3 -->
         <div class="table-unit">
-            <div class="chair top" data-price="180">C1<br><small>₹180</small></div>
-            <div class="chair left" data-price="180">C2<br><small>₹180</small></div>
-            <div class="chair right" data-price="180">C3<br><small>₹180</small></div>
-            <div class="chair bottom booked" data-price="180">C4<br><small>₹180</small></div>
-            <div class="table">TABLE 3<br><span>4 Chairs</span></div>
+            <div class="chair top" data-price="180">C1<br></div>
+            <div class="chair left" data-price="180">C2<br></div>
+            <div class="chair right" data-price="180">C3<br></div>
+            <div class="chair bottom booked" data-price="180">C4<br></div>
+            <div class="table">TABLE 7<br><span>4 Chairs</span></div>
         </div>
 
         <!-- TABLE 4 -->
         <div class="table-unit">
-            <div class="chair top" data-price="100">C1<br><small>₹100</small></div>
-            <div class="chair left" data-price="100">C2<br><small>₹100</small></div>
-            <div class="chair right" data-price="100">C3<br><small>₹100</small></div>
-            <div class="table">TABLE 4<br><span>3 Chairs</span></div>
+            <div class="chair top" data-price="100">C1<br></div>
+            <div class="chair left" data-price="100">C2<br></div>
+            <div class="chair right" data-price="100">C3<br></div>
+            <div class="table">TABLE 8<br><span>3 Chairs</span></div>
         </div>
 
     </div>
@@ -404,14 +404,13 @@
             const table = chair.closest(".table-unit").querySelector(".table").innerText.split("\n")[0];
             const seat = chair.childNodes[0].nodeValue.trim();
 
-            total += price;
-            details.push(`${table} - ${seat} (₹${price})`);
+            details.push(`${table} - ${seat}`);
 
             chair.classList.remove("selected");
             chair.classList.add("booked");
         });
 
-        alert("✅ Booking Confirmed:\n\n" + details.join("\n") + `\n\nTotal: ₹${total}`);
+        alert("✅ Booking Confirmed:\n\n" + details.join("\n"));
     }
 </script>
 

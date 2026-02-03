@@ -60,41 +60,6 @@
             grid-template-columns: 100% 1fr;
             gap: 30px;
         }
-
-        /* Image Upload */
-        .image-box {
-            border: 2px dashed #cbd5e1;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.2s ease;
-            height: fit-content;
-        }
-
-        .image-box:hover {
-            border-color: #2563eb;
-            background: #f8fafc;
-        }
-
-        .image-box img {
-            width: 160px;
-            height: 220px;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 1px solid #e5e7eb;
-            margin-bottom: 10px;
-        }
-
-        .image-box span {
-            font-size: 13px;
-            color: #64748b;
-        }
-
-        .image-box input {
-            display: none;
-        }
-
         /* Fields */
         .form-fields {
             display: grid;

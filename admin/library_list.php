@@ -423,7 +423,7 @@
                 <tbody>
                     <tr>
                         <td>1</td>
-                        <td><a href="#">#24842354</a></td>
+                        <td>24842354</td>
                         <td>Central City Library</td>
                         <td>James Gosling</td>
                         <td>120</td>
@@ -575,7 +575,7 @@
 
         function confirmDelete() {
             closeDeleteModal();
-            alert("Book deleted successfully!");
+            alert("Library record deleted successfully!");
             // Here you can remove the row or call backend later
         }
 
