@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Add Library | Library System</title>
+    <title>Edit Fine | Library System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -59,6 +59,40 @@
             display: grid;
             grid-template-columns: 100% 1fr;
             gap: 30px;
+        }
+
+        /* Image Upload */
+        .image-box {
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s ease;
+            height: fit-content;
+        }
+
+        .image-box:hover {
+            border-color: #2563eb;
+            background: #f8fafc;
+        }
+
+        .image-box img {
+            width: 160px;
+            height: 220px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            margin-bottom: 10px;
+        }
+
+        .image-box span {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .image-box input {
+            display: none;
         }
 
         /* Fields */
@@ -215,32 +249,6 @@
                 font-size: 13px;
             }
         }
-
-        @keyframes shake {
-            0% {
-                transform: translateX(0);
-            }
-
-            25% {
-                transform: translateX(-4px);
-            }
-
-            50% {
-                transform: translateX(4px);
-            }
-
-            75% {
-                transform: translateX(-4px);
-            }
-
-            100% {
-                transform: translateX(0);
-            }
-        }
-
-        .form-group input.error-input {
-            animation: shake 0.25s;
-        }
     </style>
 </head>
 
@@ -253,68 +261,42 @@
         <nav class="breadcrumb">
             <a href="home.php" class="dashboard">Dashboard</a>
             <span class="separator">›</span>
-            <a href="library_list.php"><span class="dashboard">Library List</span></a>
+            <a href="fine_list.php"><span class="dashboard">Fine List</span></a>
             <span class="separator">›</span>
-            <span class="current">Add Library</span>
+            <span class="current">Edit Fine</span>
         </nav>
     </div>
 
     <!-- MAIN CONTENT -->
     <div class="main-content">
 
-
-
         <div class="edit-card">
-            <form id="editLibraryForm">
+            <form id="editFineForm" action="#" method="POST">
                 <div class="page-header">
-                    <h2>Add Library</h2>
-                    <p>Add library details in your library system</p>
+                    <h2>Edit Fine</h2>
+                    <p>Edit fine details in your library system</p>
                 </div>
                 <div class="form-grid">
 
                     <!-- Fields -->
                     <div class="form-fields">
 
+                        <!-- <div class="form-group">
+                            <label>Fine Amount</label>
+                            <input type="number" id="fineAmount" value="200">
+                            <div class="error">Fine Amount is required</div>
+                        </div> -->
+
                         <div class="form-group">
-                            <label>Library Name</label>
-                            <input type="text" id="libraryName">
-                            <div class="error">Library Name is required</div>
+                            <label>Fine per day</label>
+                            <input type="number" id="finePerDay" value="10">
+                            <div class="error">Fine per day is required</div>
                         </div>
 
                         <div class="form-group">
-                            <label>Library Owner Name</label>
-                            <input type="text" id="libraryOwnerName">
-                            <div class="error">Library Owner Name is required</div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Table Capacity</label>
-                            <input type="number" id="tableCapacity">
-                            <div class="error">Table Capacity is required</div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Chair Capacity</label>
-                            <input type="number" id="chairCapacity">
-                            <div class="error">Chair Capacity is required</div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Open At</label>
-                            <input type="time" id="openAt">
-                            <div class="error">Open At is required</div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Close At</label>
-                            <input type="time" id="closeAt">
-                            <div class="error">Close At is required</div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Library Location</label>
-                            <input type="text" id="libraryLocation">
-                            <div class="error">Library Location is required</div>
+                            <label>Late Days</label>
+                            <input type="number" id="lateDays" value="20">
+                            <div class="error">Late Days is required</div>
                         </div>
 
                     </div>
@@ -323,7 +305,7 @@
                 <!-- Buttons -->
                 <div class="actions">
                     <button type="reset" class="btn btn-cancel">Cancel</button>
-                    <button type="submit" class="btn btn-save">Add Library</button>
+                    <button type="submit" class="btn btn-save">Save Change</button>
                 </div>
 
             </form>
@@ -335,14 +317,10 @@
     <?php include 'footer.php'; ?>
 
     <script>
-        const form = document.getElementById("editLibraryForm");
-        const libraryName = document.getElementById("libraryName");
-        const libraryOwnerName = document.getElementById("libraryOwnerName");
-        const tableCapacity = document.getElementById("tableCapacity");
-        const chairCapacity = document.getElementById("chairCapacity");
-        const openAt = document.getElementById("openAt");
-        const closeAt = document.getElementById("closeAt");
-        const libraryLocation = document.getElementById("libraryLocation");
+        const form = document.getElementById("editFineForm");
+        // const fineAmount = document.getElementById("fineAmount");
+        const finePerDay = document.getElementById("finePerDay");
+        const lateDays = document.getElementById("lateDays");
 
         function showError(input, message) {
             const error = input.nextElementSibling;
@@ -369,29 +347,31 @@
             }
         }
 
-        libraryName.addEventListener("input", () => validateText(libraryName));
-        libraryOwnerName.addEventListener("input", () => validateText(libraryOwnerName));
-        tableCapacity.addEventListener("input", () => validateText(tableCapacity));
-        chairCapacity.addEventListener("input", () => validateText(chairCapacity));
-        openAt.addEventListener("input", () => validateText(openAt));
-        closeAt.addEventListener("input", () => validateText(closeAt));
-        libraryLocation.addEventListener("input", () => validateText(libraryLocation));
+        // function validFineAmount(input){
+        //     if(fineAmount.value != finePerDay.value * lateDays.value){
+        //         showError(input, "Fine Amount must be equal to Fine Per Day multiplied by Late Days");
+        //         return false;
+        //     } else {
+        //         showSuccess(input);
+        //         return true;
+        //     }
+        // }
+
+        // fineAmount.addEventListener("input", () => validFineAmount(fineAmount));
+        finePerDay.addEventListener("input", () => validateText(finePerDay));
+        lateDays.addEventListener("input", () => validateText(lateDays));
 
         form.addEventListener("submit", function(e) {
             e.preventDefault();
 
             const isValid =
-                validateText(libraryName) &
-                validateText(libraryOwnerName) &
-                validateText(tableCapacity) &
-                validateText(chairCapacity) &
-                validateText(openAt) &
-                validateText(closeAt) &
-                validateText(libraryLocation);
+                // validFineAmount(fineAmount) &
+                validateText(finePerDay) &
+                validateText(lateDays);
 
             if (isValid) {
-                alert("Library details added successfully!");
-                form.reset();
+                alert("Fine details updated successfully!");
+                window.location.href = "fine_list.php";
             }
         });
     </script>

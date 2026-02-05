@@ -361,7 +361,7 @@
             font-weight: 600;
         }
 
-        .roleSpan.guest {
+        .roleSpan.librarian {
             background: #fef3c7;
             color: #92400e;
             padding: 4px 10px;
@@ -489,7 +489,7 @@
                             <!-- ROLE SELECT -->
                             <select class="btn btn-role">
                                 <option value="" selected disabled>Change Role</option>
-                                <option value="Guest">Guest User</option>
+                                <option value="Librarian">Librarian</option>
                                 <option value="User">User</option>
                                 <option value="Admin">Admin</option>
                             </select>
@@ -616,15 +616,15 @@
                 if (!roleSpan) return;
 
                 // Remove old role classes
-                roleSpan.classList.remove("user", "guest", "admin");
+                roleSpan.classList.remove("user", "librarian", "admin");
 
                 // Apply new role
                 if (selectedRole === "User") {
                     roleSpan.classList.add("user");
                     roleSpan.textContent = "User";
-                } else if (selectedRole === "Guest") {
-                    roleSpan.classList.add("guest");
-                    roleSpan.textContent = "Guest User";
+                } else if (selectedRole === "Librarian") {
+                    roleSpan.classList.add("librarian");
+                    roleSpan.textContent = "Librarian";
                 } else if (selectedRole === "Admin") {
                     roleSpan.classList.add("admin");
                     roleSpan.textContent = "Admin";

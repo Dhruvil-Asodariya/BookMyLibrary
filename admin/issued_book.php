@@ -113,6 +113,12 @@
             /* ⬅ Prevent line break */
         }
 
+        .model-link{
+            color: #2660de;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
         table.dataTable {
             width: 100% !important;
             font-size: 14px;
@@ -462,7 +468,7 @@
         }
 
         /* Role pill (Blue) */
-        .pill-role-guestUser {
+        .pill-role-librarian {
             background-color: #fef3c7;
             color: #92400e;
         }
@@ -610,12 +616,12 @@
                     <tr>
                         <td>1</td>
                         <td>24842354</td>
-                        <td><a href="#" class="book-link" onclick="openBookModal()">#24842354</a></td>
-                        <td><a href="#" class="user-link" onclick="openUserModal()">#24842353</a></td>
+                        <td class="model-link" onclick="openBookModal()">24842354</td>
+                        <td class="model-link" onclick="openUserModal()">24842353</td>
                         <td>12/01/2026</td>
                         <td>29/02/2026</td>
                         <td>29/02/2026</td>
-                        <td>6562</td>
+                        <td>656</td>
                         <td><span class="status issued">Issued</span></td>
                         <td>
                             <a href="edit_issued_book.php?issued_id=24842354"><button class="btn btn-edit">Edit</button></a>
@@ -684,7 +690,7 @@
                     <h3>User Details</h3>
 
                     <div class="pill-group">
-                        <span class="pill pill-role-guestUser">Guest User</span>
+                        <span class="pill pill-role-librarian">Librarian</span>
                         <!-- <span class="pill pill-role-user">User</span> -->
                         <!-- <span class="pill pill-role-admin">Admin</span> -->
                         <span class="pill pill-active">Active</span>

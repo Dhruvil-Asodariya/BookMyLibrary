@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Library List | Library System</title>
+    <title>Fine List | Library System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- DataTables CSS -->
@@ -113,6 +113,12 @@
             /* ⬅ Prevent line break */
         }
 
+        .model-link{
+            color: #2660de;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
         table.dataTable {
             width: 100% !important;
             font-size: 14px;
@@ -151,12 +157,12 @@
             display: inline-block;
         }
 
-        .active {
+        .paid {
             background: #dcfce7;
             color: #166534;
         }
 
-        .inactive {
+        .unpaid {
             background: #fee2e2;
             color: #991b1b;
         }
@@ -381,6 +387,193 @@
                 font-size: 13px;
             }
         }
+
+        .book-id {
+            color: #2563eb;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .book-id:hover {
+            text-decoration: underline;
+        }
+
+        /* Backdrop */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Card */
+        .modal-card {
+            background: #ffffff;
+            width: 700px;
+            max-width: 95%;
+            border-radius: 14px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            animation: fadeSlide 0.25s ease;
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Header */
+        .modal-header-p {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header-p h3 {
+            font-size: 18px;
+            color: #0f172a;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        /* Pills container */
+        .pill-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Base pill */
+        .pill {
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        /* Role pill (Blue) */
+        .pill-role-librarian {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .pill-role-user {
+            background-color: #e0f2fe;
+            color: #075985;
+        }
+
+        .pill-role-admin {
+            background-color: #ede9fe;
+            color: #5b21b6;
+        }
+
+        /* Status pills */
+        .pill-active {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .pill-inactive {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Close */
+        .close-icon {
+            font-size: 22px;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .close-icon:hover {
+            color: #ef4444;
+        }
+
+        /* Body */
+        .modal-body-p {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        /* Image */
+        .book-image img {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+
+        /* Details */
+        .book-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .detail span {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        .detail p {
+            margin-top: 4px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        /* Footer */
+        .modal-footer {
+            padding: 14px 20px;
+            border-top: 1px solid #e5e7eb;
+            text-align: right;
+        }
+
+        /* Buttons */
+        .btn-secondary {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #cbd5f5;
+            background: #f8fafc;
+            color: #1e293b;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e7ff;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .modal-body {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .book-details {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 
 </head>
@@ -391,32 +584,32 @@
         <nav class="breadcrumb">
             <a href="home.php" class="dashboard">Dashboard</a>
             <span class="separator">›</span>
-            <span class="current">Library List</span>
+            <span class="current">Fine List</span>
         </nav>
     </div>
     <div class="container">
         <div class="card">
             <div class="top-actions">
                 <div class="title-area">
-                    <h3>Library Details</h3>
-                    <div class="subtitle">Manage your library data</div>
+                    <h3>Fine Details</h3>
+                    <div class="subtitle">Manage your fine data</div>
                 </div>
-                <a href="add_library.php"><button class="btn btn-add">➕ Add Library</button></a>
+
             </div>
 
             <table id="bookTable" class="display">
                 <thead>
                     <tr>
                         <th>Sr No.</th>
-                        <th>Library ID</th>
-                        <th>Library Name</th>
-                        <th>Library Owner Name</th>
-                        <th>Table Capacity</th>
-                        <th>Chair Capacity</th>
-                        <th>Open At</th>
-                        <th>Close At</th>
-                        <th>Library Location</th>
-                        <th>Status</th>
+                        <th>Fine ID</th>
+                        <th>Book ID</th>
+                        <th>User ID</th>
+                        <th>Fine Amount</th>
+                        <th>Fine per day</th>
+                        <th>Late Days</th>
+                        <th>Payment Status</th>
+                        <th>Payment Method</th>
+                        <th>Payment Date</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -424,78 +617,26 @@
                     <tr>
                         <td>1</td>
                         <td>24842354</td>
-                        <td>Central City Library</td>
-                        <td>James Gosling</td>
-                        <td>120</td>
-                        <td>240</td>
-                        <td>08:00 AM</td>
-                        <td>09:00 PM</td>
-                        <td>Downtown, Rajkot</td>
-
-                        <?php
-                        $a = "Active";
-                        if ($a == "Active") {
-                            echo '<td><span class="status active">Active</span></td>';
+                        <td class="model-link" onclick="openBookModal()">24842354</td>
+                        <td class="model-link" onclick="openUserModal()">24842353</td>
+                        <td>200</td>
+                        <td>10</td>
+                        <td>20</td>
+                        <td><span class="status paid">Paid</span></td>
+                        
+                            <?php
+                        $a = "Paid";
+                        if ($a == "Paid") {
+                            echo '<td>Case</td>';
                         } else {
-                            echo '<td><span class="status inactive">Inactive</span></td>';
+                            echo '<td>--</td>';
                         }
                         ?>
-
+                        
+                        <td>15/03/2026</td>
                         <td>
-                            <a href="edit_library.php?library_id=24842354" style="text-decoration: none;">
-                                <button class="btn btn-edit">Edit</button>
-                            </a>
+                            <a href="edit_fine.php?fine_id=24842354"><button class="btn btn-edit">Edit</button></a>
                             <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br>
-
-                            <?php
-                            if ($a == "Active") {
-                                echo '<button class="btn btn-toggle">Inactive</button>';
-                            } else {
-                                echo '<button class="btn btn-toggle">Active</button>';
-                            }
-                            ?>
-                            <a href="view_table&chair.php?library_id=24842354" style="text-decoration: none;">
-                                <button class="btn btn-edit">View Table & Chair</button>
-                            </a>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>2</td>
-                        <td><a href="#">#24842354</a></td>
-                        <td>Central City Library</td>
-                        <td>James Gosling</td>
-                        <td>120</td>
-                        <td>240</td>
-                        <td>08:00 AM</td>
-                        <td>09:00 PM</td>
-                        <td>Downtown, Rajkot</td>
-
-                        <?php
-                        $a = "Inactive";
-                        if ($a == "Active") {
-                            echo '<td><span class="status active">Active</span></td>';
-                        } else {
-                            echo '<td><span class="status inactive">Inactive</span></td>';
-                        }
-                        ?>
-
-                        <td>
-                            <a href="edit_book.php?book_id=24842354" style="text-decoration: none;">
-                                <button class="btn btn-edit">Edit</button>
-                            </a>
-                            <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br>
-
-                            <?php
-                            if ($a == "Active") {
-                                echo '<button class="btn btn-toggle">Inactive</button>';
-                            } else {
-                                echo '<button class="btn btn-toggle">Active</button>';
-                            }
-                            ?>
-                            <a href="view_table&chair.php?library_id=24842354" style="text-decoration: none;">
-                                <button class="btn btn-edit">View Table & Chair</button>
-                            </a>
                         </td>
                     </tr>
 
@@ -503,14 +644,122 @@
             </table>
         </div>
     </div>
+
+    <div class="modal-backdrop" id="bookModal">
+        <div class="modal-card">
+
+            <div class="modal-header-p">
+                <h3>Book Details</h3>
+                <span class="close-icon" onclick="closeBookModal()">×</span>
+            </div>
+
+            <div class="modal-body-p">
+                <div class="book-image">
+                    <img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" alt="Book Image">
+                </div>
+
+                <div class="book-details">
+                    <div class="detail">
+                        <span>Book ID</span>
+                        <p>24842354</p>
+                    </div>
+                    <div class="detail">
+                        <span>Title</span>
+                        <p>Introduction to Java</p>
+                    </div>
+                    <div class="detail">
+                        <span>Author</span>
+                        <p>James Gosling</p>
+                    </div>
+                    <div class="detail">
+                        <span>Category</span>
+                        <p>Programming</p>
+                    </div>
+                    <div class="detail">
+                        <span>Publish Year</span>
+                        <p>2020</p>
+                    </div>
+                    <div class="detail">
+                        <span>Library Name</span>
+                        <p>Main Library</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeBookModal()">Close</button>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="userModal">
+        <div class="modal-card">
+
+            <div class="modal-header-p">
+                <div class="header-left">
+                    <h3>User Details</h3>
+
+                    <div class="pill-group">
+                        <span class="pill pill-role-librarian">Librarian</span>
+                        <!-- <span class="pill pill-role-user">User</span> -->
+                        <!-- <span class="pill pill-role-admin">Admin</span> -->
+                        <span class="pill pill-active">Active</span>
+                        <!-- <span class="pill pill-inactive">Inactive</span> -->
+                    </div>
+                </div>
+
+                <span class="close-icon" onclick="closeUserModal()">×</span>
+            </div>
+
+            <div class="modal-body-p">
+                <div class="book-image">
+                    <img src="../image/default_profile.png" alt="Book Image">
+                </div>
+
+                <div class="book-details">
+                    <div class="detail">
+                        <span>User ID</span>
+                        <p>24842354</p>
+                    </div>
+                    <div class="detail">
+                        <span>First Name</span>
+                        <p>John</p>
+                    </div>
+                    <div class="detail">
+                        <span>Last Name</span>
+                        <p>Doe</p>
+                    </div>
+                    <div class="detail">
+                        <span>Email ID</span>
+                        <p>john.doe@example.com </p>
+                    </div>
+                    <div class="detail">
+                        <span>Contact Number</span>
+                        <p>9876543210</p>
+                    </div>
+                    <div class="detail">
+                        <span>Address</span>
+                        <p>123 Main St, Cityville</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeUserModal()">Close</button>
+            </div>
+
+        </div>
+    </div>
+
     <div class="modal-overlay" id="deleteModal">
         <div class="modal-box">
             <div class="modal-header">
-                <h3>Delete Library Record</h3>
+                <h3>Delete Fine Record</h3>
             </div>
 
             <div class="modal-body">
-                <p>⚠️ Are you sure you want to delete this library record?</p>
+                <p>⚠️ Are you sure you want to delete this fine record?</p>
                 <span>This action cannot be undone.</span>
             </div>
 
@@ -541,19 +790,19 @@
             buttons: [{
                     extend: 'excelHtml5',
                     exportOptions: {
-                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9, 10] // column indexes you want
+                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9] // column indexes you want
                     }
                 },
                 {
                     extend: 'pdfHtml5',
                     exportOptions: {
-                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9]
                     }
                 },
                 {
                     extend: 'print',
                     exportOptions: {
-                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9]
                     }
                 }
             ],
@@ -575,33 +824,25 @@
 
         function confirmDelete() {
             closeDeleteModal();
-            alert("Library record deleted successfully!");
+            alert("Fine record deleted successfully!");
             // Here you can remove the row or call backend later
         }
 
-        document.addEventListener("click", function(e) {
-            if (e.target.classList.contains("btn-toggle")) {
+        function openBookModal() {
+            document.getElementById("bookModal").style.display = "flex";
+        }
 
-                const row = e.target.closest("tr");
-                const status = row.querySelector(".status");
+        function closeBookModal() {
+            document.getElementById("bookModal").style.display = "none";
+        }
 
-                if (status.classList.contains("active")) {
-                    // Change to Inactive
-                    status.textContent = "Inactive";
-                    status.classList.remove("active");
-                    status.classList.add("inactive");
+        function openUserModal() {
+            document.getElementById("userModal").style.display = "flex";
+        }
 
-                    e.target.textContent = "Active";
-                } else {
-                    // Change to Active
-                    status.textContent = "Active";
-                    status.classList.remove("inactive");
-                    status.classList.add("active");
-
-                    e.target.textContent = "Inactive";
-                }
-            }
-        });
+        function closeUserModal() {
+            document.getElementById("userModal").style.display = "none";
+        }
     </script>
 
 </body>

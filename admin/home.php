@@ -175,7 +175,6 @@
         .main {
             flex: 1;
             padding: 40px 20px;
-            max-width: 1300px;
             margin: auto;
             width: 100%;
         }
@@ -430,7 +429,6 @@
                 <a href="javascript:void(0);" class="dropbtn">Book <i class="fa-solid fa-caret-down"></i></a>
                 <div class="dropdown-content">
                     <a href="book_list.php">Book List</a>
-                    <a href="add_book.php">Add Book</a>
                     <a href="issued_book.php">Issued Book</a>
                 </div>
             </div>
@@ -438,15 +436,13 @@
             <a href="user_list.php">User</a>
 
             <!-- Library Dropdown -->
-            <div class="dropdown">
-                <a href="javascript:void(0);" class="dropbtn">Library <i class="fa-solid fa-caret-down"></i></a>
-                <div class="dropdown-content">
-                    <a href="library_list.php">All Libraries</a>
-                    <a href="#">Add Library</a>
-                </div>
-            </div>
+            <!-- <a href="library_list.php">Library</a> -->
 
-            <a href="#">Fine</a>
+            <a href="fine_list.php">Fine</a>
+
+            <a href="#">Category</a>
+
+            <a href="view_table&chair.php">View Table & Chair</a>
         </div>
 
         <div class="nav-right">

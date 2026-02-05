@@ -113,6 +113,12 @@
             /* ⬅ Prevent line break */
         }
 
+        .model-link {
+            color: #2660de;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
         table.dataTable {
             width: 100% !important;
             font-size: 14px;
@@ -381,6 +387,177 @@
                 font-size: 13px;
             }
         }
+
+        .book-id {
+            color: #2563eb;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .book-id:hover {
+            text-decoration: underline;
+        }
+
+        /* Backdrop */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Card */
+        .modal-card {
+            background: #ffffff;
+            width: 700px;
+            max-width: 95%;
+            border-radius: 14px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            animation: fadeSlide 0.25s ease;
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Header */
+        .modal-header-p {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header-p h3 {
+            font-size: 18px;
+            color: #0f172a;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        /* Pills container */
+        .pill-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Base pill */
+        .pill {
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        /* Status pills */
+        .pill-active {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .pill-inactive {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Close */
+        .close-icon {
+            font-size: 22px;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .close-icon:hover {
+            color: #ef4444;
+        }
+
+        /* Body */
+        .modal-body-p {
+            display: grid;
+            grid-template-columns: 580px 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        /* Image */
+        .book-image img {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+
+        /* Details */
+        .book-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .detail span {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        .detail p {
+            margin-top: 4px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        /* Footer */
+        .modal-footer {
+            padding: 14px 20px;
+            border-top: 1px solid #e5e7eb;
+            text-align: right;
+        }
+
+        /* Buttons */
+        .btn-secondary {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #cbd5f5;
+            background: #f8fafc;
+            color: #1e293b;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e7ff;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .modal-body {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .book-details {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 
 </head>
@@ -410,11 +587,11 @@
                         <th>Sr No.</th>
                         <th>Image</th>
                         <th>Book ID</th>
+                        <th>Library ID</th>
                         <th>Title</th>
                         <th>Author</th>
                         <th>Category</th>
                         <th>Year</th>
-                        <th>Library</th>
                         <th>Total Copy</th>
                         <th>Available Copy</th>
                         <th>Status</th>
@@ -426,11 +603,11 @@
                         <td>1</td>
                         <td><img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" class="cover"></td>
                         <td>24842354</td>
+                        <td class="model-link" onclick="openLibraryModal()">24842354</td>
                         <td>Introduction to Java</td>
                         <td>James Gosling</td>
                         <td>Programming</td>
                         <td>2020</td>
-                        <td>Main Library</td>
                         <td>4</td>
                         <td>2</td>
                         <?php
@@ -459,11 +636,11 @@
                         <td>2</td>
                         <td><img src="../image/DMNS-500x500.jpg" class="cover"></td>
                         <td>86651985</td>
+                        <td class="model-link" onclick="openLibraryModal()">24842354</td>
                         <td>Database Management</td>
                         <td>R. Ramakrishnan</td>
                         <td>Database</td>
                         <td>2019</td>
-                        <td>City Branch</td>
                         <td>3</td>
                         <td>0</td>
                         <?php
@@ -492,11 +669,11 @@
                         <td>3</td>
                         <td><img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" class="cover"></td>
                         <td>24842354</td>
+                        <td class="model-link" onclick="openLibraryModal()">24842354</td>
                         <td>Introduction to Java</td>
                         <td>James Gosling</td>
                         <td>Programming</td>
                         <td>2020</td>
-                        <td>Main Library</td>
                         <td>4</td>
                         <td>2</td>
                         <?php
@@ -511,7 +688,7 @@
                             <button class="btn btn-edit">Edit</button>
                             <button class="btn btn-delete">Delete</button><br>
                             <?php
-                            $a = "Available";
+                            $a = "Unavailable";
                             if ($a == "Available") {
                                 echo '<button class="btn btn-toggle">Unavailable</button>';
                             } else {
@@ -525,11 +702,11 @@
                         <td>4</td>
                         <td><img src="../image/DMNS-500x500.jpg" class="cover"></td>
                         <td>86651985</td>
+                        <td class="model-link" onclick="openLibraryModal()">24842354</td>
                         <td>Database Management</td>
                         <td>R. Ramakrishnan</td>
                         <td>Database</td>
                         <td>2019</td>
-                        <td>City Branch</td>
                         <td>3</td>
                         <td>0</td>
                         <?php
@@ -557,11 +734,11 @@
                         <td>5</td>
                         <td><img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" class="cover"></td>
                         <td>24842354</td>
+                        <td class="model-link" onclick="openLibraryModal()">24842354</td>
                         <td>Introduction to Java</td>
                         <td>James Gosling</td>
                         <td>Programming</td>
                         <td>2020</td>
-                        <td>Main Library</td>
                         <td>4</td>
                         <td>2</td>
                         <?php
@@ -590,11 +767,11 @@
                         <td>6</td>
                         <td><img src="../image/DMNS-500x500.jpg" class="cover"></td>
                         <td>86651985</td>
+                        <td class="model-link" onclick="openLibraryModal()">24842354</td>
                         <td>Database Management</td>
                         <td>R. Ramakrishnan</td>
                         <td>Database</td>
                         <td>2019</td>
-                        <td>City Branch</td>
                         <td>3</td>
                         <td>0</td>
                         <?php
@@ -609,7 +786,7 @@
                             <button class="btn btn-edit">Edit</button>
                             <button class="btn btn-delete">Delete</button><br>
                             <?php
-                            $a = "Unavailable";
+                            $a = "Available";
                             if ($a == "Available") {
                                 echo '<button class="btn btn-toggle">Unavailable</button>';
                             } else {
@@ -622,11 +799,11 @@
                         <td>7</td>
                         <td><img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" class="cover"></td>
                         <td>24842354</td>
+                        <td class="model-link" onclick="openLibraryModal()">24842354</td>
                         <td>Introduction to Java</td>
                         <td>James Gosling</td>
                         <td>Programming</td>
                         <td>2020</td>
-                        <td>Main Library</td>
                         <td>4</td>
                         <td>2</td>
                         <?php
@@ -655,11 +832,11 @@
                         <td>8</td>
                         <td><img src="../image/DMNS-500x500.jpg" class="cover"></td>
                         <td>86651985</td>
+                        <td class="model-link" onclick="openLibraryModal()">24842354</td>
                         <td>Database Management</td>
                         <td>R. Ramakrishnan</td>
                         <td>Database</td>
                         <td>2019</td>
-                        <td>City Branch</td>
                         <td>3</td>
                         <td>0</td>
                         <?php
@@ -674,7 +851,7 @@
                             <button class="btn btn-edit">Edit</button>
                             <button class="btn btn-delete">Delete</button><br>
                             <?php
-                            $a = "Available";
+                            $a = "Unavailable";
                             if ($a == "Available") {
                                 echo '<button class="btn btn-toggle">Unavailable</button>';
                             } else {
@@ -687,11 +864,11 @@
                         <td>9</td>
                         <td><img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" class="cover"></td>
                         <td>24842354</td>
+                        <td class="model-link" onclick="openLibraryModal()">24842354</td>
                         <td>Introduction to Java</td>
                         <td>James Gosling</td>
                         <td>Programming</td>
                         <td>2020</td>
-                        <td>Main Library</td>
                         <td>4</td>
                         <td>2</td>
                         <?php
@@ -720,11 +897,11 @@
                         <td>10</td>
                         <td><img src="../image/DMNS-500x500.jpg" class="cover"></td>
                         <td>86651985</td>
+                        <td class="model-link" onclick="openLibraryModal()">24842354</td>
                         <td>Database Management</td>
                         <td>R. Ramakrishnan</td>
                         <td>Database</td>
                         <td>2019</td>
-                        <td>City Branch</td>
                         <td>3</td>
                         <td>0</td>
                         <?php
@@ -739,7 +916,7 @@
                             <button class="btn btn-edit">Edit</button>
                             <button class="btn btn-delete">Delete</button><br>
                             <?php
-                            $a = "Available";
+                            $a = "Unavailable";
                             if ($a == "Available") {
                                 echo '<button class="btn btn-toggle">Unavailable</button>';
                             } else {
@@ -752,6 +929,66 @@
             </table>
         </div>
     </div>
+
+    <div class="modal-backdrop" id="libraryModal">
+        <div class="modal-card">
+
+            <div class="modal-header-p">
+                <div class="header-left">
+                    <h3>Library Details</h3>
+
+                    <div class="pill-group">
+                        <span class="pill pill-active">Active</span>
+                        <!-- <span class="pill pill-inactive">Inactive</span> -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-body-p">
+
+                <div class="book-details">
+                    <div class="detail">
+                        <span>Library ID</span>
+                        <p>24842354</p>
+                    </div>
+                    <div class="detail">
+                        <span>Library Name</span>
+                        <p>Central City Library</p>
+                    </div>
+                    <div class="detail">
+                        <span>Library Owner Name</span>
+                        <p>James Gosling</p>
+                    </div>
+                    <div class="detail">
+                        <span>Table capacity</span>
+                        <p>120</p>
+                    </div>
+                    <div class="detail">
+                        <span>Chair Capacity</span>
+                        <p>240</p>
+                    </div>
+                    <div class="detail">
+                        <span>Open At</span>
+                        <p>08:00 AM</p>
+                    </div>
+                    <div class="detail">
+                        <span>Close At</span>
+                        <p>09:00 PM</p>
+                    </div>
+                    <div class="detail">
+                        <span>Library Location</span>
+                        <p>Downtown, Rajkot</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeLibraryModal()">Close</button>
+            </div>
+
+        </div>
+    </div>
+
     <div class="modal-overlay" id="deleteModal">
         <div class="modal-box">
             <div class="modal-header">
@@ -851,6 +1088,14 @@
                 }
             }
         });
+
+        function openLibraryModal() {
+            document.getElementById("libraryModal").style.display = "flex";
+        }
+
+        function closeLibraryModal() {
+            document.getElementById("libraryModal").style.display = "none";
+        }
     </script>
 
 </body>

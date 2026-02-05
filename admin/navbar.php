@@ -205,18 +205,14 @@
             <a href="user_list.php">User</a>
 
             <!-- Library Dropdown -->
-            <a href="library_list.php">Library</a>
+            <!-- <a href="library_list.php">Library</a> -->
 
-            <a href="#">Fine</a>
+            <a href="fine_list.php">Fine</a>
 
             <!-- Category Dropdown -->
-            <div class="dropdown">
-                <a href="javascript:void(0);" class="dropbtn">Category <i class="fa-solid fa-caret-down"></i></a>
-                <div class="dropdown-content">
-                    <a href="#">All Category</a>
-                    <a href="#">Add Category</a>
-                </div>
-            </div>
+            <a href="#">Category</a>
+
+            <a href="view_table&chair.php">View Table & Chair</a>
         </div>
 
         <div class="nav-right">
