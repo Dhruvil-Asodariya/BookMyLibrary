@@ -616,8 +616,8 @@
                     <tr>
                         <td>1</td>
                         <td>24842354</td>
-                        <td class="model-link" onclick="openBookModal()">24842354</td>
-                        <td class="model-link" onclick="openUserModal()">24842353</td>
+                        <td><span class="model-link" onclick="openBookModal()">24842354</span></td>
+                        <td><span class="model-link" onclick="openUserModal()">24842353</span></td>
                         <td>12/01/2026</td>
                         <td>29/02/2026</td>
                         <td>29/02/2026</td>

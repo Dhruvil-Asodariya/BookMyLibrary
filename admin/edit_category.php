@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Edit Fine | Library System</title>
+    <title>Edit Category | Library System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -261,9 +261,9 @@
         <nav class="breadcrumb">
             <a href="home.php" class="dashboard">Dashboard</a>
             <span class="separator">›</span>
-            <a href="pending_fine_list.php"><span class="dashboard"> Pending Fine List</span></a>
+            <a href="category_list.php"><span class="dashboard">Category List</span></a>
             <span class="separator">›</span>
-            <span class="current">Edit Fine</span>
+            <span class="current">Edit Category</span>
         </nav>
     </div>
 
@@ -271,10 +271,10 @@
     <div class="main-content">
 
         <div class="edit-card">
-            <form id="editFineForm" action="#" method="POST">
+            <form id="editCategoryForm" action="#" method="POST">
                 <div class="page-header">
-                    <h2>Edit Fine</h2>
-                    <p>Edit fine details in your library system</p>
+                    <h2>Edit Category</h2>
+                    <p>Edit category details in your library system</p>
                 </div>
                 <div class="form-grid">
 
@@ -288,15 +288,15 @@
                         </div> -->
 
                         <div class="form-group">
-                            <label>Fine per day</label>
-                            <input type="number" id="finePerDay" value="10">
-                            <div class="error">Fine per day is required</div>
+                            <label>Category Name</label>
+                            <input type="text" id="categoryName" value="Programming">
+                            <div class="error">Category Name is required</div>
                         </div>
 
                         <div class="form-group">
-                            <label>Late Days</label>
-                            <input type="number" id="lateDays" value="20">
-                            <div class="error">Late Days is required</div>
+                            <label>Description</label>
+                            <input type="text" id="description" value="Books related to programming languages, software development, and coding.">
+                            <div class="error">Description is required</div>
                         </div>
 
                     </div>
@@ -317,10 +317,10 @@
     <?php include 'footer.php'; ?>
 
     <script>
-        const form = document.getElementById("editFineForm");
+        const form = document.getElementById("editCategoryForm");
         // const fineAmount = document.getElementById("fineAmount");
-        const finePerDay = document.getElementById("finePerDay");
-        const lateDays = document.getElementById("lateDays");
+        const categoryName = document.getElementById("categoryName");
+        const description = document.getElementById("description");
 
         function showError(input, message) {
             const error = input.nextElementSibling;
@@ -358,20 +358,20 @@
         // }
 
         // fineAmount.addEventListener("input", () => validFineAmount(fineAmount));
-        finePerDay.addEventListener("input", () => validateText(finePerDay));
-        lateDays.addEventListener("input", () => validateText(lateDays));
+        categoryName.addEventListener("input", () => validateText(categoryName));
+        description.addEventListener("input", () => validateText(description));
 
         form.addEventListener("submit", function(e) {
             e.preventDefault();
 
             const isValid =
                 // validFineAmount(fineAmount) &
-                validateText(finePerDay) &
-                validateText(lateDays);
+                validateText(categoryName) &
+                validateText(description);
 
             if (isValid) {
-                alert("Fine details updated successfully!");
-                window.location.href = "fine_list.php";
+                alert("Category details updated successfully!");
+                window.location.href = "category_list.php";
             }
         });
     </script>

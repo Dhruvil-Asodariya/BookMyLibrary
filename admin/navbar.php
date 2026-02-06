@@ -207,10 +207,16 @@
             <!-- Library Dropdown -->
             <!-- <a href="library_list.php">Library</a> -->
 
-            <a href="fine_list.php">Fine</a>
+            <div class="dropdown">
+                <a href="javascript:void(0);" class="dropbtn">Fine <i class="fa-solid fa-caret-down"></i></a>
+                <div class="dropdown-content">
+                    <a href="fine_list.php">Fine List</a>
+                    <a href="pending_fine_list.php">Fine Pending</a>
+                </div>
+            </div>
 
             <!-- Category Dropdown -->
-            <a href="#">Category</a>
+            <a href="category_list.php">Category</a>
 
             <a href="view_table&chair.php">View Table & Chair</a>
         </div>

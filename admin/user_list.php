@@ -464,7 +464,7 @@
                         <!-- STATUS COLUMN -->
 
                         <?php
-                        $a = "Actfive"; // Change to "inactive" to test
+                        $a = "Active"; // Change to "inactive" to test
                         if ($a == "Active") {
                             echo '<td><span class="status active">Active</span></td>';
                         } else {
@@ -480,9 +480,9 @@
                             <!-- STATUS TOGGLE BUTTON -->
                             <?php
                             if ($a == "Active") {
-                                echo '<button class="btn btn-toggle">Deactivate</button>';
+                                echo '<button class="btn btn-toggle">Inactive</button>';
                             } else {
-                                echo '<button class="btn btn-toggle">Activate</button>';
+                                echo '<button class="btn btn-toggle">Active</button>';
                             }
                             ?>
 

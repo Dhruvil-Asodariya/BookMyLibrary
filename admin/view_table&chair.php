@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Table & Chair View | Library System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <link rel="icon" href="../image/title_image.png" type="image/png">
 
     <style>
         * {
@@ -375,23 +376,23 @@
             </div>
 
             <!-- TOP -->
-            <div class="chair top">C1</div>
-            <div class="chair top" style="left:30%">C2</div>
+            <div class="chair top">C2</div>
+            <div class="chair top" style="left:30%">C1</div>
             <div class="chair top" style="left:70%">C3</div>
 
             <!-- RIGHT -->
-            <div class="chair right">C4</div>
-            <div class="chair right" style="top:30%">C5</div>
+            <div class="chair right">C5</div>
+            <div class="chair right" style="top:30%">C4</div>
             <div class="chair right" style="top:70%">C6</div>
 
             <!-- BOTTOM -->
-            <div class="chair bottom">C7</div>
-            <div class="chair bottom" style="left:30%">C8</div>
+            <div class="chair bottom">C8</div>
+            <div class="chair bottom" style="left:30%">C7</div>
             <div class="chair bottom" style="left:70%">C9</div>
 
             <!-- LEFT -->
-            <div class="chair left">C10</div>
-            <div class="chair left" style="top:30%">C11</div>
+            <div class="chair left">C11</div>
+            <div class="chair left" style="top:30%">C10</div>
             <div class="chair left" style="top:70%">C12</div>
 
             <div class="table">TABLE 1<br><span>12 Chairs</span></div   >
@@ -533,9 +534,9 @@
         </div>
     </div>
 
-    <div class="actions">
+    <!-- <div class="actions">
         <button class="btn" onclick="confirmBooking()">Confirm Booking</button>
-    </div>
+    </div> -->
     <?php include 'footer.php'; ?>
 </body>
 

@@ -587,10 +587,10 @@
                         <th>Sr No.</th>
                         <th>Image</th>
                         <th>Book ID</th>
-                        <th>Library ID</th>
+                        <!-- <th>Library ID</th> -->
                         <th>Title</th>
                         <th>Author</th>
-                        <th>Category</th>
+                        <th>Category ID</th>
                         <th>Year</th>
                         <th>Total Copy</th>
                         <th>Available Copy</th>
@@ -603,7 +603,7 @@
                         <td>1</td>
                         <td><img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" class="cover"></td>
                         <td>24842354</td>
-                        <td class="model-link" onclick="openLibraryModal()">24842354</td>
+                        <!-- <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td> -->
                         <td>Introduction to Java</td>
                         <td>James Gosling</td>
                         <td>Programming</td>
@@ -636,7 +636,7 @@
                         <td>2</td>
                         <td><img src="../image/DMNS-500x500.jpg" class="cover"></td>
                         <td>86651985</td>
-                        <td class="model-link" onclick="openLibraryModal()">24842354</td>
+                        <!-- <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td> -->
                         <td>Database Management</td>
                         <td>R. Ramakrishnan</td>
                         <td>Database</td>
@@ -669,7 +669,7 @@
                         <td>3</td>
                         <td><img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" class="cover"></td>
                         <td>24842354</td>
-                        <td class="model-link" onclick="openLibraryModal()">24842354</td>
+                        <!-- <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td> -->
                         <td>Introduction to Java</td>
                         <td>James Gosling</td>
                         <td>Programming</td>
@@ -702,7 +702,7 @@
                         <td>4</td>
                         <td><img src="../image/DMNS-500x500.jpg" class="cover"></td>
                         <td>86651985</td>
-                        <td class="model-link" onclick="openLibraryModal()">24842354</td>
+                        <!-- <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td> -->
                         <td>Database Management</td>
                         <td>R. Ramakrishnan</td>
                         <td>Database</td>
@@ -734,7 +734,7 @@
                         <td>5</td>
                         <td><img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" class="cover"></td>
                         <td>24842354</td>
-                        <td class="model-link" onclick="openLibraryModal()">24842354</td>
+                        <!-- <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td> -->
                         <td>Introduction to Java</td>
                         <td>James Gosling</td>
                         <td>Programming</td>
@@ -767,7 +767,7 @@
                         <td>6</td>
                         <td><img src="../image/DMNS-500x500.jpg" class="cover"></td>
                         <td>86651985</td>
-                        <td class="model-link" onclick="openLibraryModal()">24842354</td>
+                        <!-- <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td> -->
                         <td>Database Management</td>
                         <td>R. Ramakrishnan</td>
                         <td>Database</td>
@@ -799,7 +799,7 @@
                         <td>7</td>
                         <td><img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" class="cover"></td>
                         <td>24842354</td>
-                        <td class="model-link" onclick="openLibraryModal()">24842354</td>
+                        <!-- <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td> -->
                         <td>Introduction to Java</td>
                         <td>James Gosling</td>
                         <td>Programming</td>
@@ -832,7 +832,7 @@
                         <td>8</td>
                         <td><img src="../image/DMNS-500x500.jpg" class="cover"></td>
                         <td>86651985</td>
-                        <td class="model-link" onclick="openLibraryModal()">24842354</td>
+                        <!-- <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td> -->
                         <td>Database Management</td>
                         <td>R. Ramakrishnan</td>
                         <td>Database</td>
@@ -864,7 +864,7 @@
                         <td>9</td>
                         <td><img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" class="cover"></td>
                         <td>24842354</td>
-                        <td class="model-link" onclick="openLibraryModal()">24842354</td>
+                        <!-- <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td> -->
                         <td>Introduction to Java</td>
                         <td>James Gosling</td>
                         <td>Programming</td>
@@ -897,7 +897,7 @@
                         <td>10</td>
                         <td><img src="../image/DMNS-500x500.jpg" class="cover"></td>
                         <td>86651985</td>
-                        <td class="model-link" onclick="openLibraryModal()">24842354</td>
+                        <!--<td><span class="model-link" onclick="openLibraryModal()">24842354</span></td> -->
                         <td>Database Management</td>
                         <td>R. Ramakrishnan</td>
                         <td>Database</td>

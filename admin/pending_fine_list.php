@@ -584,7 +584,7 @@
         <nav class="breadcrumb">
             <a href="home.php" class="dashboard">Dashboard</a>
             <span class="separator">›</span>
-            <span class="current">Fine List</span>
+            <span class="current">Pending Fine List</span>
         </nav>
     </div>
     <div class="container">
@@ -605,41 +605,41 @@
                         <th>Book ID</th>
                         <th>User ID</th>
                         <th>Fine Amount</th>
+                        <th>Fine per day</th>
+                        <th>Late Days</th>
                         <th>Payment Status</th>
-                        <th>Payment Method</th>
-                        <th>Payment Date</th>
-                        <!-- <th>Actions</th> -->
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td>1</td>
                         <td>24842354</td>
-                        <td><span class="model-link" onclick="openBookModal()">24842354</span></td>
-                        <td><span class="model-link" onclick="openUserModal()">24842353</span></td>
+                        <td class="model-link" onclick="openBookModal()">24842354</td>
+                        <td class="model-link" onclick="openUserModal()">24842353</td>
                         <td>200</td>
-                        <td><span class="status paid">Paid</span></td>
-                        <td>UPI</td>
-                        <td>15/03/2026</td>
-                        <!-- <td>
+                        <td>10</td>
+                        <td>20</td>
+                        <td><span class="status unpaid">Unpaid</span></td>
+                        <td>
                             <a href="edit_fine.php?fine_id=24842354"><button class="btn btn-edit">Edit</button></a>
                             <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br>
-                        </td> -->
+                        </td>
                     </tr>
 
                     <tr>
                         <td>1</td>
                         <td>24842354</td>
-                        <td><span class="model-link" onclick="openBookModal()">24842354</span></td>
-                        <td><span class="model-link" onclick="openUserModal()">24842353</span></td>
+                        <td class="model-link" onclick="openBookModal()">24842354</td>
+                        <td class="model-link" onclick="openUserModal()">24842353</td>
                         <td>200</td>
-                        <td><span class="status paid">Paid</span></td>
-                        <td>Case</td>
-                        <td>15/03/2026</td>
-                        <!-- <td>
+                        <td>50</td>
+                        <td>20</td>
+                        <td><span class="status unpaid">Unpaid</span></td>
+                        <td>
                             <a href="edit_fine.php?fine_id=24842354"><button class="btn btn-edit">Edit</button></a>
                             <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br>
-                        </td> -->
+                        </td>
                     </tr>
 
                 </tbody>

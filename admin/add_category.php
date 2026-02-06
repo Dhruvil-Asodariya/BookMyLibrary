@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Edit Fine | Library System</title>
+    <title>Add Library | Library System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -59,40 +59,6 @@
             display: grid;
             grid-template-columns: 100% 1fr;
             gap: 30px;
-        }
-
-        /* Image Upload */
-        .image-box {
-            border: 2px dashed #cbd5e1;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.2s ease;
-            height: fit-content;
-        }
-
-        .image-box:hover {
-            border-color: #2563eb;
-            background: #f8fafc;
-        }
-
-        .image-box img {
-            width: 160px;
-            height: 220px;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 1px solid #e5e7eb;
-            margin-bottom: 10px;
-        }
-
-        .image-box span {
-            font-size: 13px;
-            color: #64748b;
-        }
-
-        .image-box input {
-            display: none;
         }
 
         /* Fields */
@@ -249,6 +215,32 @@
                 font-size: 13px;
             }
         }
+
+        @keyframes shake {
+            0% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-4px);
+            }
+
+            50% {
+                transform: translateX(4px);
+            }
+
+            75% {
+                transform: translateX(-4px);
+            }
+
+            100% {
+                transform: translateX(0);
+            }
+        }
+
+        .form-group input.error-input {
+            animation: shake 0.25s;
+        }
     </style>
 </head>
 
@@ -261,42 +253,38 @@
         <nav class="breadcrumb">
             <a href="home.php" class="dashboard">Dashboard</a>
             <span class="separator">›</span>
-            <a href="pending_fine_list.php"><span class="dashboard"> Pending Fine List</span></a>
+            <a href="category_list.php"><span class="dashboard">Category List</span></a>
             <span class="separator">›</span>
-            <span class="current">Edit Fine</span>
+            <span class="current">Add Category</span>
         </nav>
     </div>
 
     <!-- MAIN CONTENT -->
     <div class="main-content">
 
+
+
         <div class="edit-card">
-            <form id="editFineForm" action="#" method="POST">
+            <form id="editCategoryForm">
                 <div class="page-header">
-                    <h2>Edit Fine</h2>
-                    <p>Edit fine details in your library system</p>
+                    <h2>Add Category</h2>
+                    <p>Add category details in your library system</p>
                 </div>
                 <div class="form-grid">
 
                     <!-- Fields -->
                     <div class="form-fields">
 
-                        <!-- <div class="form-group">
-                            <label>Fine Amount</label>
-                            <input type="number" id="fineAmount" value="200">
-                            <div class="error">Fine Amount is required</div>
-                        </div> -->
-
                         <div class="form-group">
-                            <label>Fine per day</label>
-                            <input type="number" id="finePerDay" value="10">
-                            <div class="error">Fine per day is required</div>
+                            <label>Category Name</label>
+                            <input type="text" id="categoryName">
+                            <div class="error">Category Name is required</div>
                         </div>
 
                         <div class="form-group">
-                            <label>Late Days</label>
-                            <input type="number" id="lateDays" value="20">
-                            <div class="error">Late Days is required</div>
+                            <label>Description</label>
+                            <input type="text" id="categoryDescription">
+                            <div class="error">Category Description is required</div>
                         </div>
 
                     </div>
@@ -305,7 +293,7 @@
                 <!-- Buttons -->
                 <div class="actions">
                     <button type="reset" class="btn btn-cancel">Cancel</button>
-                    <button type="submit" class="btn btn-save">Save Change</button>
+                    <button type="submit" class="btn btn-save">Add Category</button>
                 </div>
 
             </form>
@@ -317,10 +305,9 @@
     <?php include 'footer.php'; ?>
 
     <script>
-        const form = document.getElementById("editFineForm");
-        // const fineAmount = document.getElementById("fineAmount");
-        const finePerDay = document.getElementById("finePerDay");
-        const lateDays = document.getElementById("lateDays");
+        const form = document.getElementById("editCategoryForm");
+        const categoryName = document.getElementById("categoryName");
+        const categoryDescription = document.getElementById("categoryDescription");
 
         function showError(input, message) {
             const error = input.nextElementSibling;
@@ -347,31 +334,19 @@
             }
         }
 
-        // function validFineAmount(input){
-        //     if(fineAmount.value != finePerDay.value * lateDays.value){
-        //         showError(input, "Fine Amount must be equal to Fine Per Day multiplied by Late Days");
-        //         return false;
-        //     } else {
-        //         showSuccess(input);
-        //         return true;
-        //     }
-        // }
-
-        // fineAmount.addEventListener("input", () => validFineAmount(fineAmount));
-        finePerDay.addEventListener("input", () => validateText(finePerDay));
-        lateDays.addEventListener("input", () => validateText(lateDays));
+        categoryName.addEventListener("input", () => validateText(categoryName));
+        categoryDescription.addEventListener("input", () => validateText(categoryDescription));
 
         form.addEventListener("submit", function(e) {
             e.preventDefault();
 
             const isValid =
-                // validFineAmount(fineAmount) &
-                validateText(finePerDay) &
-                validateText(lateDays);
+                validateText(categoryName) &
+                validateText(categoryDescription);
 
             if (isValid) {
-                alert("Fine details updated successfully!");
-                window.location.href = "fine_list.php";
+                alert("Category added successfully!");
+                window.location.href = "category_list.php";
             }
         });
     </script>

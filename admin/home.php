@@ -261,6 +261,10 @@
             border-left: 5px solid #06b6d4;
         }
 
+        .category {
+            border-left: 5px solid #f59e0b;
+        }
+
         /* Teal color */
 
 
@@ -438,9 +442,15 @@
             <!-- Library Dropdown -->
             <!-- <a href="library_list.php">Library</a> -->
 
-            <a href="fine_list.php">Fine</a>
+            <div class="dropdown">
+                <a href="javascript:void(0);" class="dropbtn">Fine <i class="fa-solid fa-caret-down"></i></a>
+                <div class="dropdown-content">
+                    <a href="fine_list.php">Fine List</a>
+                    <a href="pending_fine_list.php">Fine Pending</a>
+                </div>
+            </div>
 
-            <a href="#">Category</a>
+            <a href="category_list.php">Category</a>
 
             <a href="view_table&chair.php">View Table & Chair</a>
         </div>
@@ -492,11 +502,19 @@
                 </div>
             </div>
 
-            <div class="card libraries" onclick="card_libraries()">
+            <!-- <div class="card libraries" onclick="card_libraries()">
                 <div class="card-content">
                     <h2>Total Registered Libraries</h2>
                     <div class="value" id="totalLibraries">25</div>
                     <div class="sub">Libraries in network</div>
+                </div>
+            </div> -->
+
+            <div class="card category" onclick="card_category()">
+                <div class="card-content">
+                    <h2>Total Registered Categories</h2>
+                    <div class="value" id="totalCategories">15</div>
+                    <div class="sub">Book categories in system</div>
                 </div>
             </div>
 
@@ -574,7 +592,7 @@
         // 🔒 FIXED VALUES
         const books = 100; // Total Registered Books (fixed)
         const collected = 3250; // Total Fine Collected (fixed)
-        const libraries = 25; // Total Registered Libraries (fixed)
+        const category = 15; // Total Registered Categories (fixed)
 
         // 🔄 LIVE VALUES
         let issued = 30;
@@ -584,7 +602,7 @@
         // Set fixed values once
         document.getElementById("totalBooks").textContent = books;
         document.getElementById("fineCollected").textContent = collected;
-        document.getElementById("totalLibraries").textContent = libraries;
+        document.getElementById("totalCategories").textContent = category;
 
         // Charts
         const booksCtx = document.getElementById('booksChart').getContext('2d');
@@ -697,8 +715,12 @@
             window.location.href = "user_list.php";
         }
 
-        function card_libraries() {
-            window.location.href = "library_list.php";
+        // function card_libraries() {
+        //     window.location.href = "library_list.php";
+        // }
+
+        function card_category() {
+            window.location.href = "category_list.php";
         }
 
         function card_issued() {
@@ -706,11 +728,11 @@
         }
 
         function card_pending() {
-            window.location.href = "fine_pending.php";
+            window.location.href = "pending_fine_list.php";
         }
 
         function card_totalfine() {
-            window.location.href = "fine_collected.php";
+            window.location.href = "fine_list.php";
         }
     </script>
 
