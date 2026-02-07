@@ -37,11 +37,28 @@
             padding: 35px;
             border-radius: 14px;
             box-shadow: 0 25px 40px rgba(0, 0, 0, 0.25);
+            position: relative;
         }
 
         .login-card h1 {
             text-align: center;
             color: #0f172a;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 12px;
+            right: 15px;
+            font-size: 22px;
+            font-weight: bold;
+            color: #555;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .close-btn:hover {
+            color: #000;
+            transform: scale(1.2);
         }
 
         .subtitle {
@@ -190,6 +207,7 @@
 
     <div class="login-wrapper">
         <div class="login-card">
+            <span class="close-btn" onclick="goBack()">×</span>
             <p class="subtitle">Change Password to your library account</p>
 
             <form id="loginForm" method="POST">
@@ -229,8 +247,8 @@
         </div>
     </div>
 
-    <script src="js/login.js"></script>
 </body>
+
 <script>
     const password = document.getElementById("password");
     const confirmpassword = document.getElementById("confirmPassword");
@@ -321,6 +339,10 @@
 
         }
     });
+
+    function goBack() {
+        window.history.back();
+    }
 </script>
 
 </html>

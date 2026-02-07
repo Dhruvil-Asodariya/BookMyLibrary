@@ -440,7 +440,7 @@
             <a href="user_list.php">User</a>
 
             <!-- Library Dropdown -->
-            <!-- <a href="library_list.php">Library</a> -->
+            <a href="library_list.php">Library</a>
 
             <div class="dropdown">
                 <a href="javascript:void(0);" class="dropbtn">Fine <i class="fa-solid fa-caret-down"></i></a>
@@ -452,7 +452,7 @@
 
             <a href="category_list.php">Category</a>
 
-            <a href="view_table&chair.php">View Table & Chair</a>
+            <!-- <a href="view_table&chair.php">View Table & Chair</a> -->
         </div>
 
         <div class="nav-right">
@@ -462,7 +462,7 @@
                 <div class="dropdown">
                     <a href="javascript:void(0);" class="dropbtn">Asodariya Dhruvil</a>
                     <div class="dropdown-content">
-                        <a href="#">My Profile</a>
+                        <a href="profile.php">My Profile</a>
                         <a href="change_password.php">Change Password</a>
                         <hr>
                         <a href="login.php">Logout</a>
@@ -502,17 +502,17 @@
                 </div>
             </div>
 
-            <!-- <div class="card libraries" onclick="card_libraries()">
+            <div class="card libraries" onclick="card_libraries()">
                 <div class="card-content">
                     <h2>Total Registered Libraries</h2>
                     <div class="value" id="totalLibraries">25</div>
                     <div class="sub">Libraries in network</div>
                 </div>
-            </div> -->
+            </div>
 
             <div class="card category" onclick="card_category()">
                 <div class="card-content">
-                    <h2>Total Registered Categories</h2>
+                    <h2>Total Categories</h2>
                     <div class="value" id="totalCategories">15</div>
                     <div class="sub">Book categories in system</div>
                 </div>
@@ -715,9 +715,9 @@
             window.location.href = "user_list.php";
         }
 
-        // function card_libraries() {
-        //     window.location.href = "library_list.php";
-        // }
+        function card_libraries() {
+            window.location.href = "library_list.php";
+        }
 
         function card_category() {
             window.location.href = "category_list.php";

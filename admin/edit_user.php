@@ -282,7 +282,7 @@
 
                     <!-- Image -->
                     <label class="image-box">
-                        <img id="previewImage" src="https://via.placeholder.com/160x220?text=Book+Cover"><br>
+                        <img id="previewImage" src="../image/default_profile.png"><br>
                         <span>Click to upload profile image</span>
                         <input type="file" accept="image/*" id="imageInput" value="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg">
                     </label>

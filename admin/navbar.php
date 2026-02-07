@@ -205,7 +205,7 @@
             <a href="user_list.php">User</a>
 
             <!-- Library Dropdown -->
-            <!-- <a href="library_list.php">Library</a> -->
+            <a href="library_list.php">Library</a>
 
             <div class="dropdown">
                 <a href="javascript:void(0);" class="dropbtn">Fine <i class="fa-solid fa-caret-down"></i></a>
@@ -218,7 +218,7 @@
             <!-- Category Dropdown -->
             <a href="category_list.php">Category</a>
 
-            <a href="view_table&chair.php">View Table & Chair</a>
+            <!-- <a href="view_table&chair.php">View Table & Chair</a> -->
         </div>
 
         <div class="nav-right">
@@ -228,7 +228,7 @@
                 <div class="dropdown">
                     <a href="javascript:void(0);" class="dropbtn">Asodariya Dhruvil</a>
                     <div class="dropdown-content">
-                        <a href="#">My Profile</a>
+                        <a href="profile.php">My Profile</a>
                         <a href="change_password.php">Change Password</a>
                         <hr>
                         <a href="../login.php" style="color:#ef4444;">Logout</a>

@@ -409,6 +409,38 @@
                 font-size: 13px;
             }
         }
+
+        .advanced-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .advanced-filters input,
+        .advanced-filters select {
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            min-width: 180px;
+        }
+
+        .filter-box {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-box label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .btn-area {
+            justify-content: flex-end;
+        }
     </style>
 
 </head>
@@ -428,6 +460,46 @@
                 <div class="title-area">
                     <h3>User Details</h3>
                     <div class="subtitle">Manage your user data</div>
+                </div>
+
+                <div class="advanced-filters">
+                    <div class="filter-box">
+                        <label>First Name</label>
+                        <input type="text" id="filterFirstName" placeholder="Filter by First Name">
+                    </div>
+                    <div class="filter-box">
+                        <label>Last Name</label>
+                        <input type="text" id="filterLastName" placeholder="Filter by Last Name">
+                    </div>
+                    <div class="filter-box">
+                        <label>Email</label>
+                        <input type="text" id="filterEmail" placeholder="Filter by Email">
+                    </div>
+                    <div class="filter-box">
+                        <label>Contact Number</label>
+                        <input type="text" id="filterContactNumber" placeholder="Filter by Contact Number">
+                    </div>
+                    <div class="filter-box">
+                        <label>Role</label>
+                        <select id="filterRole">
+                            <option value="">All Roles</option>
+                            <option value="User">User</option>
+                            <option value="Librarian">Librarian</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="filter-box">
+                        <label>Status</label>
+                        <select id="filterStatus">
+                            <option value="">All Status</option>
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-box btn-area">
+                        <button class="btn btn-add" onclick="resetFilters()">Reset</button>
+                    </div>
                 </div>
 
             </div>
@@ -533,25 +605,25 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
     <script>
-        $('#bookTable').DataTable({
+        var table = $('#bookTable').DataTable({
             responsive: true,
-            dom: 'Bfrtip',
+            dom: 'Brtip',
             buttons: [{
                     extend: 'excelHtml5',
                     exportOptions: {
-                        columns: [0, 2, 3, 4, 5, 6, 7, 8] // column indexes you want
+                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9] // column indexes you want
                     }
                 },
                 {
                     extend: 'pdfHtml5',
                     exportOptions: {
-                        columns: [0, 2, 3, 4, 5, 6, 7, 8]
+                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9]
                     }
                 },
                 {
                     extend: 'print',
                     exportOptions: {
-                        columns: [0, 2, 3, 4, 5, 6, 7, 8]
+                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9]
                     }
                 }
             ],
@@ -560,6 +632,51 @@
             scrollX: true,
             scrollCollapse: true
         });
+
+        // STATUS filter
+        $('#filterStatus').on('change', function() {
+            var value = this.value.toLowerCase();
+
+            table.column(9).search(value ? '^' + value + '$' : '', true, false).draw();
+        });
+        // Role filter
+        $('#filterRole').on('change', function() {
+            var value = this.value.toLowerCase();
+
+            table.column(8).search(value ? '^' + value + '$' : '', true, false).draw();
+        });
+
+        // LOCATION filter
+        $('#filterFirstName').on('keyup', function() {
+            table.column(3).search(this.value).draw();
+        });
+
+        // OWNER filter
+        $('#filterLastName').on('keyup', function() {
+            table.column(4).search(this.value).draw();
+        });
+
+        // CATEGORY filter
+        $('#filterEmail').on('keyup', function() {
+            table.column(5).search(this.value).draw();
+        });
+
+        // CATEGORY filter
+        $('#filterContactNumber').on('keyup', function() {
+            table.column(6).search(this.value).draw();
+        });
+
+        // RESET filters
+        function resetFilters() {
+            $('#filterStatus').val('');
+            $('#filterRole').val('');
+            $('#filterFirstName').val('');
+            $('#filterLastName').val('');
+            $('#filterEmail').val('');
+            $('#filterContactNumber').val('');
+
+            table.columns().search('').draw();
+        }
 
         const deleteModal = document.getElementById("deleteModal");
 

@@ -387,6 +387,38 @@
                 font-size: 13px;
             }
         }
+
+        .advanced-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .advanced-filters input,
+        .advanced-filters select {
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            min-width: 180px;
+        }
+
+        .filter-box {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-box label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .btn-area {
+            justify-content: flex-end;
+        }
     </style>
 
 </head>
@@ -406,6 +438,24 @@
                 <div class="title-area">
                     <h3>Category Details</h3>
                     <div class="subtitle">Manage your category data</div>
+                </div>
+                <div class="advanced-filters">
+                    <div class="filter-box">
+                        <label>Category Name</label>
+                        <input type="text" id="filterCategoryName" placeholder="Filter by Category Name">
+                    </div>
+                    <div class="filter-box">
+                        <label>Status</label>
+                        <select id="filterStatus">
+                            <option value="">All Statuses</option>
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-box btn-area">
+                        <button class="btn btn-add" onclick="resetFilters()">Reset</button>
+                    </div>
                 </div>
                 <a href="add_category.php"><button class="btn btn-add">➕ Add Category</button></a>
             </div>
@@ -485,25 +535,25 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
     <script>
-        $('#bookTable').DataTable({
+        var table = $('#bookTable').DataTable({
             responsive: true,
-            dom: 'Bfrtip',
+            dom: 'Brtip',
             buttons: [{
                     extend: 'excelHtml5',
                     exportOptions: {
-                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9] // column indexes you want
+                        columns: [0, 1, 2, 3, 4] // column indexes you want
                     }
                 },
                 {
                     extend: 'pdfHtml5',
                     exportOptions: {
-                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9]
+                        columns: [0, 1, 2, 3, 4]
                     }
                 },
                 {
                     extend: 'print',
                     exportOptions: {
-                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9]
+                        columns: [0, 1, 2, 3, 4]
                     }
                 }
             ],
@@ -512,6 +562,26 @@
             scrollX: true,
             scrollCollapse: true
         });
+
+        // STATUS filter
+        $('#filterStatus').on('change', function() {
+            var value = this.value.toLowerCase();
+
+            table.column(4).search(value ? '^' + value + '$' : '', true, false).draw();
+        });
+
+        // OWNER filter
+        $('#filterCategoryName').on('keyup', function() {
+            table.column(2).search(this.value).draw();
+        });
+
+        // RESET filters
+        function resetFilters() {
+            $('#filterStatus').val('');
+            $('#filterCategoryName').val('');
+
+            table.columns().search('').draw();
+        }
 
         const deleteModal = document.getElementById("deleteModal");
 

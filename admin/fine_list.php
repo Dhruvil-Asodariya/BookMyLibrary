@@ -113,7 +113,7 @@
             /* ⬅ Prevent line break */
         }
 
-        .model-link{
+        .model-link {
             color: #2660de;
             cursor: pointer;
             text-decoration: underline;
@@ -574,6 +574,38 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        .advanced-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .advanced-filters input,
+        .advanced-filters select {
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            min-width: 180px;
+        }
+
+        .filter-box {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-box label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .btn-area {
+            justify-content: flex-end;
+        }
     </style>
 
 </head>
@@ -594,7 +626,33 @@
                     <h3>Fine Details</h3>
                     <div class="subtitle">Manage your fine data</div>
                 </div>
+                <div class="advanced-filters">
+                    <div class="filter-box">
+                        <label>Book ID</label>
+                        <input type="text" id="filterBookID" placeholder="Filter by Book ID" maxlength="8">
+                    </div>
+                    <div class="filter-box">
+                        <label>User ID</label>
+                        <input type="text" id="filterUserID" placeholder="Filter by User ID" maxlength="8">
+                    </div>
+                    <div class="filter-box">
+                        <label>Payment Method</label>
+                        <select id="filterPaymentMethod">
+                            <option value="">All Methods</option>
+                            <option value="Case">Cash</option>
+                            <option value="UPI">UPI</option>
+                        </select>
+                    </div>
+                    <div class="filter-box">
+                        <label>Payment Date</label>
+                        <input type="date" id="filterPaymentDate" placeholder="Filter by Payment Date">
+                    </div>
 
+                    <div class="filter-box btn-area">
+                        <button class="btn btn-add" onclick="resetFilters()">Reset</button>
+                    </div>
+                </div>
+                <div></div>
             </div>
 
             <table id="bookTable" class="display">
@@ -620,7 +678,7 @@
                         <td>200</td>
                         <td><span class="status paid">Paid</span></td>
                         <td>UPI</td>
-                        <td>15/03/2026</td>
+                        <td>15-03-2026</td>
                         <!-- <td>
                             <a href="edit_fine.php?fine_id=24842354"><button class="btn btn-edit">Edit</button></a>
                             <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br>
@@ -634,8 +692,8 @@
                         <td><span class="model-link" onclick="openUserModal()">24842353</span></td>
                         <td>200</td>
                         <td><span class="status paid">Paid</span></td>
-                        <td>Case</td>
-                        <td>15/03/2026</td>
+                        <td>UPI</td>
+                        <td>19-03-2026</td>
                         <!-- <td>
                             <a href="edit_fine.php?fine_id=24842354"><button class="btn btn-edit">Edit</button></a>
                             <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br>
@@ -786,25 +844,25 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
     <script>
-        $('#bookTable').DataTable({
+        var table = $('#bookTable').DataTable({
             responsive: true,
-            dom: 'Bfrtip',
+            dom: 'Brtip',
             buttons: [{
                     extend: 'excelHtml5',
                     exportOptions: {
-                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9] // column indexes you want
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7] // column indexes you want
                     }
                 },
                 {
                     extend: 'pdfHtml5',
                     exportOptions: {
-                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9]
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
                     }
                 },
                 {
                     extend: 'print',
                     exportOptions: {
-                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9]
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
                     }
                 }
             ],
@@ -813,6 +871,39 @@
             scrollX: true,
             scrollCollapse: true
         });
+
+        // STATUS filter
+        $('#filterPaymentMethod').on('change', function() {
+            var value = this.value.toLowerCase();
+
+            table.column(6).search(value ? '^' + value + '$' : '', true, false).draw();
+        });
+
+        // Issue filter
+        $('#filterPaymentDate').on('change', function() {
+            let val = formatDateForTable(this.value);
+            table.column(7).search(val).draw();
+        });
+
+         // LOCATION filter
+        $('#filterBookID').on('keyup', function() {
+            table.column(2).search(this.value).draw();
+        });
+
+        // OWNER filter
+        $('#filterUserID').on('keyup', function() {
+            table.column(3).search(this.value).draw();
+        });
+
+        // RESET filters
+        function resetFilters() {
+            $('#filterPaymentDate').val('');
+            $('#filterPaymentMethod').val('');
+            $('#filterBookID').val('');
+            $('#filterUserID').val('');
+
+            table.columns().search('').draw();
+        }
 
         const deleteModal = document.getElementById("deleteModal");
 

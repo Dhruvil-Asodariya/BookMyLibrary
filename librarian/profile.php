@@ -133,15 +133,7 @@
             cursor: pointer;
         }
 
-        .cancel-btn {
-            margin-top: 15px;
-            padding: 10px 18px;
-            background: #2563eb;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
+
 
         .profile-left h2 {
             margin-top: 15px;
@@ -161,16 +153,6 @@
             cursor: pointer;
         }
 
-        .remove-btn {
-            background: #dc2626;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 8px;
-            margin-top: 5px;
-            color: white;
-            cursor: pointer;
-        }
-
         /* RIGHT SIDE */
         .profile-right {
             flex: 1;
@@ -179,20 +161,13 @@
         /* Card Sections */
         .card {
             background: #fff;
-            padding: 28px;
+            padding: 20px;
             border-radius: 10px;
             margin-bottom: 20px;
         }
 
         .card h3 {
-            font-size: 22px;
-            margin-bottom: 4px;
-        }
-
-        .sub {
-            font-size: 14px;
-            color: #6b7280;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         /* Form Grid */
@@ -213,12 +188,11 @@
             font-size: 14px;
         }
 
-        .p {
+        input {
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 6px;
             font-size: 14px;
-            width: 205.5px;
         }
 
         /* validation */
@@ -238,15 +212,13 @@
 
         /* Edit Button */
         .edit-btn {
-            background: #2563eb;
-            color: white;
-            padding: 11px 22px;
-            border-radius: 10px;
-            border: none;
-            font-weight: 500;
-            cursor: pointer;
-            transition: 0.2s;
             float: right;
+            background: #2563eb;
+            border: none;
+            padding: 12px 22px;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
         }
 
         input:disabled {
@@ -266,117 +238,8 @@
                 padding-bottom: 20px;
             }
 
-            orm-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .edit-card {
-            background: #ffffff;
-            padding: 28px;
-            border-radius: 14px;
-        }
-
-        /* Header */
-        .edit-header h3 {
-            font-size: 22px;
-            margin-bottom: 4px;
-        }
-
-        .edit-header p {
-            font-size: 14px;
-            color: #6b7280;
-            margin-bottom: 20px;
-        }
-
-        /* Form Layout */
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group label {
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: #000000;
-        }
-
-        /* Inputs */
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            padding: 12px 14px;
-            border-radius: 6px;
-            border: 1px solid #d1d5db;
-            background: #f9fafb;
-            font-size: 14px;
-            transition: 0.2s ease;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            border-color: #2563eb;
-            background: #fff;
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
-        }
-
-        /* Full width address */
-        .full-width {
-            grid-column: span 2;
-        }
-
-        /* Buttons */
-        .edit-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-            margin-top: 25px;
-        }
-
-        .save-btn {
-            background: #2563eb;
-            color: white;
-            padding: 11px 22px;
-            border-radius: 10px;
-            border: none;
-            font-weight: 500;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-
-        .cancel-btn {
-            background: #e5e7eb;
-            color: #111;
-            padding: 11px 22px;
-            border-radius: 10px;
-            border: none;
-            cursor: pointer;
-        }
-
-        /* Validation */
-        .error {
-            color: #dc2626;
-            font-size: 12px;
-            margin-top: 4px;
-        }
-
-        /* Responsive */
-        @media(max-width:700px) {
             .form-grid {
                 grid-template-columns: 1fr;
-            }
-
-            .full-width {
-                grid-column: span 1;
             }
         }
     </style>
@@ -390,14 +253,13 @@
 
         <div class="profile-left">
             <div class="profile-img">
-                <img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" id="profileImage">
+                <img src="../image/default_profile.png" id="profileImage">
             </div>
 
             <h2>James Gosling</h2>
             <p>Library Owner</p>
 
             <button class="change-btn" onclick="openPopup()">Change Profile</button>
-            <button class="remove-btn" id="removeProfileButton" onclick="removeProfile()">Remove Profile</button>
         </div>
 
 
@@ -429,97 +291,64 @@
         <div class="profile-right">
 
             <!-- Personal Details -->
-            <div class="card" id="viewProfile">
-
+            <div class="card">
                 <h3>Personal Details</h3>
-                <p class="sub">Update your profile information</p>
-
                 <div class="form-grid">
 
                     <div class="form-group">
-                        <label>Name</label>
-                        <p class="p" id="viewName">James Gosling</p>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Email</label>
-                        <p class="p" id="viewEmail">library@gmail.com</p>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Phone</label>
-                        <p class="p" id="viewPhone">+91 9876543210</p>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Gender</label>
-                        <p class="p" id="viewGender">Male</p>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Address</label>
-                        <p class="p" id="viewAddress">123 Main Street, City, Country</p>
-                    </div>
-
-                </div>
-
-                <div class="edit-actions">
-                    <button class="edit-btn" onclick="openEditForm()">Edit profile</button>
-                </div>
-            </div>
-            <div class="card edit-card" id="editProfile" style="display:none;">
-
-                <div class="edit-header">
-                    <h3>Edit Personal Details</h3>
-                    <p>Update your profile information</p>
-                </div>
-
-                <div class="form-grid">
-
-                    <div class="form-group">
-                        <label>Name</label>
-                        <input type="text" id="editName" placeholder="Enter full name">
+                        <label>Owner Name</label>
+                        <input type="text" id="name" value="James Gosling" disabled>
                         <span id="nameError" class="error"></span>
                     </div>
 
                     <div class="form-group">
                         <label>Email</label>
-                        <input type="email" id="editEmail" placeholder="Enter email">
+                        <input type="email" id="email" value="library@gmail.com" disabled>
                         <span id="emailError" class="error"></span>
                     </div>
 
                     <div class="form-group">
                         <label>Phone</label>
-                        <input type="text" id="editPhone" placeholder="Enter phone number">
+                        <input type="text" id="phone" value="+91 9876543210" disabled>
                         <span id="phoneError" class="error"></span>
                     </div>
 
-                    <div class="form-group">
-                        <label>Gender</label>
-                        <select id="editGender">
-                            <option value="">Select gender</option>
-                            <option selected>Male</option>
-                            <option>Female</option>
-                            <option>Other</option>
-                        </select>
-                        <span id="genderError" class="error"></span>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label>Address</label>
-                        <textarea id="editAddress" rows="3" placeholder="Enter address">123 Main Street, City, Country</textarea>
-                        <span id="addressError" class="error"></span>
-                    </div>
-
                 </div>
-
-                <div class="edit-actions">
-                    <button class="cancel-btn" onclick="cancelEdit()">Cancel</button>
-                    <button class="save-btn" onclick="saveEdit()">Save Changes</button>
-                </div>
-
             </div>
 
+            <!-- Library Details -->
+            <div class="card">
+                <h3>Library Details</h3>
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label>Library Name</label>
+                        <input type="text" id="libraryName" value="Central City Library" disabled>
+                        <small class="error" id="libraryError"></small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Open Time</label>
+                        <input type="time" id="openTime" value="08:00" disabled>
+                        <small class="error" id="openError"></small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Close Time</label>
+                        <input type="time" id="closeTime" value="21:00" disabled>
+                        <small class="error" id="closeError"></small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Library Address</label>
+                        <input type="text" id="address" value="Downtown, Rajkot" disabled>
+                        <small class="error" id="addressError"></small>
+                    </div>
+
+                </div>
+            </div>
+
+            <button class="edit-btn" onclick="toggleEdit()" id="editBtn">Edit Profile</button>
 
 
         </div>
@@ -527,22 +356,6 @@
     <?php include 'footer.php'; ?>
 
     <script>
-        const defaultImage = "../image/default_profile.png";
-
-        /* Check image on page load */
-        window.onload = function() {
-            toggleRemoveButton();
-        };
-
-        function toggleRemoveButton() {
-            let currentImg = document.getElementById("profileImage").getAttribute("src");
-
-            if (currentImg === defaultImage) {
-                document.getElementById("removeProfileButton").style.display = "none";
-            } else {
-                document.getElementById("removeProfileButton").style.display = "inline-block";
-            }
-        }
         let selectedImage = "";
 
         function openPopup() {
@@ -594,129 +407,108 @@
             }
 
             document.getElementById("profileImage").src = selectedImage;
-
-            toggleRemoveButton(); // show remove button
             closePopup();
-        }
-
-        function removeProfile() {
-            if (confirm("Are you sure you want to remove your profile?")) {
-                document.getElementById("profileImage").src = defaultImage;
-
-                toggleRemoveButton(); // hide remove button
-            }
         }
     </script>
 
     <script>
-        /* OPEN EDIT FORM */
-        function openEditForm() {
+        // GLOBAL variable
+        let editMode = false;
 
-            document.getElementById("viewProfile").style.display = "none";
-            document.getElementById("editProfile").style.display = "block";
+        /* ================= TOGGLE EDIT MODE ================= */
 
-            // Fill edit fields from view
-            document.getElementById("editName").value =
-                document.getElementById("viewName").innerText;
+        function toggleEdit() {
 
-            document.getElementById("editEmail").value =
-                document.getElementById("viewEmail").innerText;
+            const fields = document.querySelectorAll("input");
+            const btn = document.getElementById("editBtn");
 
-            document.getElementById("editPhone").value =
-                document.getElementById("viewPhone").innerText;
+            if (!editMode) {
+                fields.forEach(field => field.disabled = false);
+                btn.innerText = "Save Profile";
+                editMode = true;
+            } else {
 
-            document.getElementById("editGender").value =
-                document.getElementById("viewGender").innerText;
+                if (!validateAll()) return;
 
-            document.getElementById("editAddress").value =
-                document.getElementById("viewAddress").innerText;
+                fields.forEach(field => field.disabled = true);
+                btn.innerText = "Edit Profile";
+                editMode = false;
+            }
         }
 
-        /* CANCEL EDIT */
-        function cancelEdit() {
-            document.getElementById("editProfile").style.display = "none";
-            document.getElementById("viewProfile").style.display = "block";
-        }
+        /* ================= VALIDATION ================= */
 
-        /* SAVE PROFILE */
-        function saveEdit() {
-
-            if (!validateForm()) return;
-
-            // Update view values
-            document.getElementById("viewName").innerText =
-                document.getElementById("editName").value;
-
-            document.getElementById("viewEmail").innerText =
-                document.getElementById("editEmail").value;
-
-            document.getElementById("viewPhone").innerText =
-                document.getElementById("editPhone").value;
-
-            document.getElementById("viewGender").innerText =
-                document.getElementById("editGender").value;
-
-            document.getElementById("viewAddress").innerText =
-                document.getElementById("editAddress").value;
-
-            cancelEdit(); // go back to view
-        }
-
-        /* VALIDATION */
-
-        function validateForm() {
+        function validateAll() {
 
             let isValid = true;
 
-            let name = document.getElementById("editName");
+            // Name
+            let name = document.getElementById("name");
             if (name.value.trim().length < 3) {
-                showError(name, "nameError", "Enter valid name");
+                showError(name, "nameError", "Enter valid owner name");
                 isValid = false;
             } else showSuccess(name, "nameError");
 
-            let email = document.getElementById("editEmail");
+            // Email
+            let email = document.getElementById("email");
             let emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
             if (!email.value.match(emailPattern)) {
                 showError(email, "emailError", "Enter valid email");
                 isValid = false;
             } else showSuccess(email, "emailError");
 
-            let phone = document.getElementById("editPhone");
+            // Phone
+            let phone = document.getElementById("phone");
             if (phone.value.length < 10) {
-                showError(phone, "phoneError", "Enter valid phone");
+                showError(phone, "phoneError", "Enter valid phone number");
                 isValid = false;
             } else showSuccess(phone, "phoneError");
 
-            // GENDER
-            let gender = document.getElementById("editGender");
-            if (!gender.value) {
-                showError(gender, "genderError", "Select gender");
+            // Library Name
+            let library = document.getElementById("libraryName");
+            if (library.value.trim() === "") {
+                showError(library, "libraryError", "Library name required");
                 isValid = false;
-            } else showSuccess(gender, "genderError");
+            } else showSuccess(library, "libraryError");
 
-            // ADDRESS
-            let address = document.getElementById("editAddress");
-            if (address.value.trim().length < 10) {
-                showError(address, "addressError", "Enter full address");
+            // Open Time
+            let open = document.getElementById("openTime");
+            if (open.value === "") {
+                showError(open, "openError", "Select opening time");
+                isValid = false;
+            } else showSuccess(open, "openError");
+
+            // Close Time
+            let close = document.getElementById("closeTime");
+            if (close.value === "") {
+                showError(close, "closeError", "Select closing time");
+                isValid = false;
+            } else showSuccess(close, "closeError");
+
+            // Address
+            let address = document.getElementById("address");
+            if (address.value.trim() === "") {
+                showError(address, "addressError", "Address required");
                 isValid = false;
             } else showSuccess(address, "addressError");
 
             return isValid;
         }
 
-        /* HELPERS */
+        /* ================= HELPER FUNCTIONS ================= */
 
         function showError(input, errorId, message) {
             document.getElementById(errorId).innerText = message;
             input.classList.add("invalid");
+            input.classList.remove("valid");
         }
 
         function showSuccess(input, errorId) {
             document.getElementById(errorId).innerText = "";
             input.classList.remove("invalid");
+            input.classList.add("valid");
         }
     </script>
-
 
 
 

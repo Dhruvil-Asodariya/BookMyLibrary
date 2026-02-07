@@ -352,6 +352,38 @@
             background: #15803d;
         }
 
+        .advanced-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .advanced-filters input,
+        .advanced-filters select {
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            min-width: 180px;
+        }
+
+        .filter-box {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-box label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .btn-area {
+            justify-content: flex-end;
+        }
+
         /* Animation */
         @keyframes fadeIn {
             from {
@@ -400,6 +432,28 @@
                 <div class="title-area">
                     <h3>Library Details</h3>
                     <div class="subtitle">Manage your library data</div>
+                </div>
+                <div class="advanced-filters">
+                    <div class="filter-box">
+                        <label>Status</label>
+                        <select id="filterStatus">
+                            <option value="">All Status</option>
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="filter-box">
+                        <label>Library Name</label>
+                        <input type="text" id="filterLibraryName" placeholder="Filter by Library Name">
+                    </div>
+                    <div class="filter-box">
+                        <label>Location</label>
+                        <input type="text" id="filterLocation" placeholder="Filter by Location">
+                    </div>
+                    <div class="filter-box btn-area">
+                        <label>&nbsp;</label>
+                        <button class="btn btn-add" onclick="resetFilters()">Reset</button>
+                    </div>
                 </div>
                 <a href="add_library.php"><button class="btn btn-add">➕ Add Library</button></a>
             </div>
@@ -535,25 +589,25 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
     <script>
-        $('#bookTable').DataTable({
+        var table = $('#bookTable').DataTable({
             responsive: true,
-            dom: 'Bfrtip',
+            dom: 'Brtip',
             buttons: [{
                     extend: 'excelHtml5',
                     exportOptions: {
-                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9, 10] // column indexes you want
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
                     }
                 },
                 {
                     extend: 'pdfHtml5',
                     exportOptions: {
-                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
                     }
                 },
                 {
                     extend: 'print',
                     exportOptions: {
-                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
                     }
                 }
             ],
@@ -562,6 +616,32 @@
             scrollX: true,
             scrollCollapse: true
         });
+
+        // STATUS filter
+        $('#filterStatus').on('change', function() {
+            var value = this.value.toLowerCase();
+
+            table.column(9).search(value ? '^' + value + '$' : '', true, false).draw();
+        });
+
+        // LOCATION filter
+        $('#filterLocation').on('keyup', function() {
+            table.column(8).search(this.value).draw();
+        });
+
+        // OWNER filter
+        $('#filterLibraryName').on('keyup', function() {
+            table.column(2).search(this.value).draw();
+        });
+
+        // RESET filters
+        function resetFilters() {
+            $('#filterStatus').val('');
+            $('#filterLocation').val('');
+            $('#filterLibraryName').val('');
+
+            table.columns().search('').draw();
+        }
 
         const deleteModal = document.getElementById("deleteModal");
 

@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Fine List | Library System</title>
+    <title>Pending Fine List | Library System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- DataTables CSS -->
@@ -113,7 +113,7 @@
             /* ⬅ Prevent line break */
         }
 
-        .model-link{
+        .model-link {
             color: #2660de;
             cursor: pointer;
             text-decoration: underline;
@@ -574,6 +574,38 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        .advanced-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .advanced-filters input,
+        .advanced-filters select {
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            min-width: 180px;
+        }
+
+        .filter-box {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-box label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .btn-area {
+            justify-content: flex-end;
+        }
     </style>
 
 </head>
@@ -584,17 +616,31 @@
         <nav class="breadcrumb">
             <a href="home.php" class="dashboard">Dashboard</a>
             <span class="separator">›</span>
-            <span class="current">Pending Fine List</span>
+            <span class="current">Fine List</span>
         </nav>
     </div>
     <div class="container">
         <div class="card">
             <div class="top-actions">
                 <div class="title-area">
-                    <h3>Fine Details</h3>
-                    <div class="subtitle">Manage your fine data</div>
+                    <h3>Pending Fine Details</h3>
+                    <div class="subtitle">Manage your pending fine data</div>
                 </div>
+                <div class="advanced-filters">
+                    <div class="filter-box">
+                        <label>Book ID</label>
+                        <input type="text" id="filterBookID" placeholder="Filter by Book ID" maxlength="8">
+                    </div>
+                    <div class="filter-box">
+                        <label>User ID</label>
+                        <input type="text" id="filterUserID" placeholder="Filter by User ID" maxlength="8">
+                    </div>
 
+                    <div class="filter-box btn-area">
+                        <button class="btn btn-add" onclick="resetFilters()">Reset</button>
+                    </div>
+                </div>
+                <div></div>
             </div>
 
             <table id="bookTable" class="display">
@@ -605,9 +651,9 @@
                         <th>Book ID</th>
                         <th>User ID</th>
                         <th>Fine Amount</th>
-                        <th>Fine per day</th>
-                        <th>Late Days</th>
-                        <th>Payment Status</th>
+                        <th>Fine Per Day</th>
+                        <th>Fine Days</th>
+                        <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -623,6 +669,7 @@
                         <td><span class="status unpaid">Unpaid</span></td>
                         <td>
                             <a href="edit_fine.php?fine_id=24842354"><button class="btn btn-edit">Edit</button></a>
+                            <button class="btn btn-toggle">Paid</button>
                             <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br>
                         </td>
                     </tr>
@@ -633,11 +680,12 @@
                         <td class="model-link" onclick="openBookModal()">24842354</td>
                         <td class="model-link" onclick="openUserModal()">24842353</td>
                         <td>200</td>
-                        <td>50</td>
+                        <td>10</td>
                         <td>20</td>
                         <td><span class="status unpaid">Unpaid</span></td>
                         <td>
                             <a href="edit_fine.php?fine_id=24842354"><button class="btn btn-edit">Edit</button></a>
+                            <button class="btn btn-toggle">Paid</button>
                             <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br>
                         </td>
                     </tr>
@@ -786,25 +834,25 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
     <script>
-        $('#bookTable').DataTable({
+        var table = $('#bookTable').DataTable({
             responsive: true,
-            dom: 'Bfrtip',
+            dom: 'Brtip',
             buttons: [{
                     extend: 'excelHtml5',
                     exportOptions: {
-                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9] // column indexes you want
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7] // column indexes you want
                     }
                 },
                 {
                     extend: 'pdfHtml5',
                     exportOptions: {
-                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9]
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
                     }
                 },
                 {
                     extend: 'print',
                     exportOptions: {
-                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9]
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
                     }
                 }
             ],
@@ -813,6 +861,24 @@
             scrollX: true,
             scrollCollapse: true
         });
+
+         // LOCATION filter
+        $('#filterBookID').on('keyup', function() {
+            table.column(2).search(this.value).draw();
+        });
+
+        // OWNER filter
+        $('#filterUserID').on('keyup', function() {
+            table.column(3).search(this.value).draw();
+        });
+
+        // RESET filters
+        function resetFilters() {
+            $('#filterBookID').val('');
+            $('#filterUserID').val('');
+
+            table.columns().search('').draw();
+        }
 
         const deleteModal = document.getElementById("deleteModal");
 
@@ -829,6 +895,29 @@
             alert("Fine record deleted successfully!");
             // Here you can remove the row or call backend later
         }
+
+         document.addEventListener("click", function(e) {
+            if (e.target.classList.contains("btn-toggle")) {
+
+                const row = e.target.closest("tr");
+                const status = row.querySelector(".status");
+
+                if (status.classList.contains("paid")) {
+                    // Change to Unpaid
+                    status.textContent = "Unpaid";
+                    status.classList.remove("paid");
+                    status.classList.add("unpaid");
+                    e.target.textContent = "Paid";
+                } else {
+                    // Change to Paid
+                    status.textContent = "Paid";
+                    status.classList.remove("unpaid");
+                    status.classList.add("paid");
+
+                    e.target.textContent = "Unpaid";
+                }
+            }
+        });
 
         function openBookModal() {
             document.getElementById("bookModal").style.display = "flex";

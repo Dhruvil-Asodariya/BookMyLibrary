@@ -558,6 +558,38 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        .advanced-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .advanced-filters input,
+        .advanced-filters select {
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            min-width: 180px;
+        }
+
+        .filter-box {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-box label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .btn-area {
+            justify-content: flex-end;
+        }
     </style>
 
 </head>
@@ -578,6 +610,32 @@
                     <h3>Book Details</h3>
                     <div class="subtitle">Manage your book data</div>
                 </div>
+                <div class="advanced-filters">
+                    <div class="filter-box">
+                        <label>Status</label>
+                        <select id="filterStatus">
+                            <option value="">All Status</option>
+                            <option value="Available">Available</option>
+                            <option value="Unavailable">Unavailable</option>
+                        </select>
+                    </div>
+                    <div class="filter-box">
+                        <label>Title</label>
+                        <input type="text" id="filterTitle" placeholder="Filter by Title">
+                    </div>
+                    <div class="filter-box">
+                        <label>Author</label>
+                        <input type="text" id="filterAuthor" placeholder="Filter by Author">
+                    </div>
+                    <div class="filter-box">
+                        <label>Category</label>
+                        <input type="text" id="filterCategory" placeholder="Filter by Category">
+                    </div>
+
+                    <div class="filter-box btn-area">
+                        <button class="btn btn-add" onclick="resetFilters()">Reset</button>
+                    </div>
+                </div>
                 <a href="add_book.php"><button class="btn btn-add">➕ Add Book</button></a>
             </div>
 
@@ -587,10 +645,10 @@
                         <th>Sr No.</th>
                         <th>Image</th>
                         <th>Book ID</th>
-                        <!-- <th>Library ID</th> -->
+                        <th>Library ID</th>
                         <th>Title</th>
                         <th>Author</th>
-                        <th>Category ID</th>
+                        <th>Category</th>
                         <th>Year</th>
                         <th>Total Copy</th>
                         <th>Available Copy</th>
@@ -603,7 +661,7 @@
                         <td>1</td>
                         <td><img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" class="cover"></td>
                         <td>24842354</td>
-                        <!-- <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td> -->
+                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
                         <td>Introduction to Java</td>
                         <td>James Gosling</td>
                         <td>Programming</td>
@@ -636,7 +694,7 @@
                         <td>2</td>
                         <td><img src="../image/DMNS-500x500.jpg" class="cover"></td>
                         <td>86651985</td>
-                        <!-- <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td> -->
+                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
                         <td>Database Management</td>
                         <td>R. Ramakrishnan</td>
                         <td>Database</td>
@@ -669,7 +727,7 @@
                         <td>3</td>
                         <td><img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" class="cover"></td>
                         <td>24842354</td>
-                        <!-- <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td> -->
+                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
                         <td>Introduction to Java</td>
                         <td>James Gosling</td>
                         <td>Programming</td>
@@ -702,7 +760,7 @@
                         <td>4</td>
                         <td><img src="../image/DMNS-500x500.jpg" class="cover"></td>
                         <td>86651985</td>
-                        <!-- <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td> -->
+                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
                         <td>Database Management</td>
                         <td>R. Ramakrishnan</td>
                         <td>Database</td>
@@ -734,7 +792,7 @@
                         <td>5</td>
                         <td><img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" class="cover"></td>
                         <td>24842354</td>
-                        <!-- <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td> -->
+                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
                         <td>Introduction to Java</td>
                         <td>James Gosling</td>
                         <td>Programming</td>
@@ -767,7 +825,7 @@
                         <td>6</td>
                         <td><img src="../image/DMNS-500x500.jpg" class="cover"></td>
                         <td>86651985</td>
-                        <!-- <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td> -->
+                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
                         <td>Database Management</td>
                         <td>R. Ramakrishnan</td>
                         <td>Database</td>
@@ -799,7 +857,7 @@
                         <td>7</td>
                         <td><img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" class="cover"></td>
                         <td>24842354</td>
-                        <!-- <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td> -->
+                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
                         <td>Introduction to Java</td>
                         <td>James Gosling</td>
                         <td>Programming</td>
@@ -832,7 +890,7 @@
                         <td>8</td>
                         <td><img src="../image/DMNS-500x500.jpg" class="cover"></td>
                         <td>86651985</td>
-                        <!-- <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td> -->
+                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
                         <td>Database Management</td>
                         <td>R. Ramakrishnan</td>
                         <td>Database</td>
@@ -864,7 +922,7 @@
                         <td>9</td>
                         <td><img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" class="cover"></td>
                         <td>24842354</td>
-                        <!-- <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td> -->
+                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
                         <td>Introduction to Java</td>
                         <td>James Gosling</td>
                         <td>Programming</td>
@@ -897,10 +955,10 @@
                         <td>10</td>
                         <td><img src="../image/DMNS-500x500.jpg" class="cover"></td>
                         <td>86651985</td>
-                        <!--<td><span class="model-link" onclick="openLibraryModal()">24842354</span></td> -->
+                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
                         <td>Database Management</td>
                         <td>R. Ramakrishnan</td>
-                        <td>Database</td>
+                        <td>Programming</td>
                         <td>2019</td>
                         <td>3</td>
                         <td>0</td>
@@ -1021,9 +1079,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
     <script>
-        $('#bookTable').DataTable({
+        var table = $('#bookTable').DataTable({
             responsive: true,
-            dom: 'Bfrtip',
+            dom: 'Brtip',
             buttons: [{
                     extend: 'excelHtml5',
                     exportOptions: {
@@ -1048,6 +1106,38 @@
             scrollX: true,
             scrollCollapse: true
         });
+
+        // STATUS filter
+        $('#filterStatus').on('change', function() {
+            var value = this.value.toLowerCase();
+
+            table.column(10).search(value ? '^' + value + '$' : '', true, false).draw();
+        });
+
+        // LOCATION filter
+        $('#filterTitle').on('keyup', function() {
+            table.column(4).search(this.value).draw();
+        });
+
+        // OWNER filter
+        $('#filterAuthor').on('keyup', function() {
+            table.column(5).search(this.value).draw();
+        });
+
+        // CATEGORY filter
+        $('#filterCategory').on('keyup', function() {
+            table.column(6).search(this.value).draw();
+        });
+
+        // RESET filters
+        function resetFilters() {
+            $('#filterStatus').val('');
+            $('#filterTitle').val('');
+            $('#filterAuthor').val('');
+            $('#filterCategory').val('');
+
+            table.columns().search('').draw();
+        }
 
         const deleteModal = document.getElementById("deleteModal");
 

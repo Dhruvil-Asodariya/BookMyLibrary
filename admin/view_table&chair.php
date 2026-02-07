@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <title>Table & Chair View | Library System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <link rel="icon" href="../image/title_image.png" type="image/png">
+    <link rel="icon" href="../image/title_image.png" type="image/png">
 
     <style>
         * {
@@ -359,9 +359,14 @@
         </div>
     </div>
 
-    <div class="actions">
+    <?php
+    $role = "admin"; // Example role, replace with actual role from session or database
+    if ($role == "librarian") {
+        echo '<div class="actions">
         <button class="btn" onclick="openAddTablePopup()">+ Add New Table</button>
-    </div>
+    </div>';
+    }
+    ?>
 
 
     <!-- <h2>Table & Chair Booking</h2> -->
@@ -395,7 +400,7 @@
             <div class="chair left" style="top:30%">C10</div>
             <div class="chair left" style="top:70%">C12</div>
 
-            <div class="table">TABLE 1<br><span>12 Chairs</span></div   >
+            <div class="table">TABLE 1<br><span>12 Chairs</span></div>
         </div>
 
         <!-- TABLE 2 -->

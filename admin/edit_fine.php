@@ -371,7 +371,7 @@
 
             if (isValid) {
                 alert("Fine details updated successfully!");
-                window.location.href = "fine_list.php";
+                window.location.href = "pending_fine_list.php";
             }
         });
     </script>

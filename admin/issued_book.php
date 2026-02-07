@@ -113,7 +113,7 @@
             /* ⬅ Prevent line break */
         }
 
-        .model-link{
+        .model-link {
             color: #2660de;
             cursor: pointer;
             text-decoration: underline;
@@ -574,6 +574,199 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Backdrop */
+        .l-modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Card */
+        .l-modal-card {
+            background: #ffffff;
+            width: 700px;
+            max-width: 95%;
+            border-radius: 14px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            animation: fadeSlide 0.25s ease;
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Header */
+        .l-modal-header-p {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .l-modal-header-p h3 {
+            font-size: 18px;
+            color: #0f172a;
+        }
+
+        .l-header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        /* Pills container */
+        .l-pill-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Base pill */
+        .l-pill {
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        /* Status pills */
+        .l-pill-active {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .l-pill-inactive {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Close */
+        .l-close-icon {
+            font-size: 22px;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .l-close-icon:hover {
+            color: #ef4444;
+        }
+
+        /* Body */
+        .l-modal-body-p {
+            display: grid;
+            grid-template-columns: 580px 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        /* Image */
+        .l-book-image img {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+
+        /* Details */
+        .l-book-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .l-detail span {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        .l-detail p {
+            margin-top: 4px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        /* Footer */
+        .l-modal-footer {
+            padding: 14px 20px;
+            border-top: 1px solid #e5e7eb;
+            text-align: right;
+        }
+
+        /* Buttons */
+        .l-btn-secondary {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #cbd5f5;
+            background: #f8fafc;
+            color: #1e293b;
+            cursor: pointer;
+        }
+
+        .l-btn-secondary:hover {
+            background: #e0e7ff;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .l-modal-body {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .l-book-details {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .advanced-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .advanced-filters input,
+        .advanced-filters select {
+            padding: 10px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            min-width: 180px;
+        }
+
+        .filter-box {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-box label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .btn-area {
+            justify-content: flex-end;
+        }
     </style>
 
 </head>
@@ -594,6 +787,31 @@
                     <h3>Issued Book Details</h3>
                     <div class="subtitle">Manage your issued book data</div>
                 </div>
+                <div class="advanced-filters">
+
+                    <div class="filter-box">
+                        <label>Issue Date</label>
+                        <input type="date" id="filterIssueDate">
+                    </div>
+
+                    <div class="filter-box">
+                        <label>Due Date</label>
+                        <input type="date" id="filterDueDate">
+                    </div>
+
+                    <div class="filter-box">
+                        <label>Return Date</label>
+                        <input type="date" id="filterReturnDate">
+                    </div>
+
+                    <div class="filter-box btn-area">
+                        <label>&nbsp;</label>
+                        <button class="btn btn-add" onclick="resetFilters()">Reset</button>
+                    </div>
+
+                </div>
+                <div></div>
+
 
             </div>
 
@@ -604,6 +822,7 @@
                         <th>Issue ID</th>
                         <th>Book ID</th>
                         <th>User ID</th>
+                        <th>Library ID</th>
                         <th>Issue Date</th>
                         <th>Due Date</th>
                         <th>Return Date</th>
@@ -618,9 +837,10 @@
                         <td>24842354</td>
                         <td><span class="model-link" onclick="openBookModal()">24842354</span></td>
                         <td><span class="model-link" onclick="openUserModal()">24842353</span></td>
-                        <td>12/01/2026</td>
-                        <td>29/02/2026</td>
-                        <td>29/02/2026</td>
+                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
+                        <td>12-01-2026</td>
+                        <td>06-02-2026</td>
+                        <td>08-02-2026</td>
                         <td>656</td>
                         <td><span class="status issued">Issued</span></td>
                         <td>
@@ -741,6 +961,66 @@
         </div>
     </div>
 
+    <div class="l-modal-backdrop" id="libraryModal">
+        <div class="l-modal-card">
+
+            <div class="l-modal-header-p">
+                <div class="l-header-left">
+                    <h3>Library Details</h3>
+
+                    <div class="l-pill-group">
+                        <span class="l-pill pill-active">Active</span>
+                        <!-- <span class="pill pill-inactive">Inactive</span> -->
+                    </div>
+                </div>
+                <span class="close-icon" onclick="closeLibraryModal()">×</span>
+            </div>
+
+            <div class="l-modal-body-p">
+
+                <div class="l-book-details">
+                    <div class="l-detail">
+                        <span>Library ID</span>
+                        <p>24842354</p>
+                    </div>
+                    <div class="l-detail">
+                        <span>Library Name</span>
+                        <p>Central City Library</p>
+                    </div>
+                    <div class="l-detail">
+                        <span>Library Owner Name</span>
+                        <p>James Gosling</p>
+                    </div>
+                    <div class="l-detail">
+                        <span>Table capacity</span>
+                        <p>120</p>
+                    </div>
+                    <div class="l-detail">
+                        <span>Chair Capacity</span>
+                        <p>240</p>
+                    </div>
+                    <div class="l-detail">
+                        <span>Open At</span>
+                        <p>08:00 AM</p>
+                    </div>
+                    <div class="l-detail">
+                        <span>Close At</span>
+                        <p>09:00 PM</p>
+                    </div>
+                    <div class="l-detail">
+                        <span>Library Location</span>
+                        <p>Downtown, Rajkot</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="l-modal-footer">
+                <button class="l-btn-secondary" onclick="closeLibraryModal()">Close</button>
+            </div>
+
+        </div>
+    </div>
+
     <div class="modal-overlay" id="deleteModal">
         <div class="modal-box">
             <div class="modal-header">
@@ -773,25 +1053,25 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
     <script>
-        $('#bookTable').DataTable({
+        var table = $('#bookTable').DataTable({
             responsive: true,
-            dom: 'Bfrtip',
+            dom: 'Brtip',
             buttons: [{
                     extend: 'excelHtml5',
                     exportOptions: {
-                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9] // column indexes you want
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] // column indexes you want
                     }
                 },
                 {
                     extend: 'pdfHtml5',
                     exportOptions: {
-                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9]
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
                     }
                 },
                 {
                     extend: 'print',
                     exportOptions: {
-                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9]
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
                     }
                 }
             ],
@@ -800,6 +1080,42 @@
             scrollX: true,
             scrollCollapse: true
         });
+
+        function formatDateForTable(date) {
+            if (!date) return "";
+            const parts = date.split("-");
+            return parts[2] + "-" + parts[1] + "-" + parts[0]; // yyyy-mm-dd → dd-mm-yyyy
+        }
+
+        // Issue filter
+        $('#filterIssueDate').on('change', function() {
+            let val = formatDateForTable(this.value);
+            table.column(5).search(val).draw();
+        });
+
+
+        // Due filter
+        $('#filterDueDate').on('change', function() {
+            let val = formatDateForTable(this.value);
+            table.column(6).search(val).draw();
+        });
+
+
+        // Return filter
+        $('#filterReturnDate').on('change', function() {
+            let val = formatDateForTable(this.value);
+            table.column(7).search(val).draw();
+        });
+
+
+        // RESET filters
+        function resetFilters() {
+            $('#filterIssueDate').val('');
+            $('#filterDueDate').val('');
+            $('#filterReturnDate').val('');
+
+            table.columns().search('').draw();
+        }
 
         const deleteModal = document.getElementById("deleteModal");
 
@@ -831,6 +1147,14 @@
 
         function closeUserModal() {
             document.getElementById("userModal").style.display = "none";
+        }
+
+        function openLibraryModal() {
+            document.getElementById("libraryModal").style.display = "flex";
+        }
+
+        function closeLibraryModal() {
+            document.getElementById("libraryModal").style.display = "none";
         }
     </script>
 
