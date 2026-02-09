@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Library Profile</title>
+    <title>Profile | Library System</title>
+    <link rel="icon" href="../image/title_image.png" type="image/png">
+
 
     <style>
         * {
@@ -73,7 +75,7 @@
 
         /* Drag area */
         .drop-area {
-            border: 2px dashed #4f46e5;
+            border: 2px dashed #16a34a;
             padding: 25px;
             border-radius: 10px;
             margin-top: 15px;
@@ -83,7 +85,7 @@
 
         .drop-area.dragover {
             background: #eef2ff;
-            border-color: #4338ca;
+            border-color: #16a34a;
         }
 
         .drop-area p {
@@ -104,7 +106,7 @@
 
         /* Browse button */
         .browse-btn {
-            background: #4f46e5;
+            background: #16a34a;
             color: white;
             padding: 8px 14px;
             border-radius: 6px;
@@ -153,7 +155,7 @@
         }
 
         .change-btn {
-            background: #2563eb;
+            background: #16a34a;
             border: none;
             padding: 10px 18px;
             border-radius: 8px;
@@ -162,7 +164,7 @@
         }
 
         .remove-btn {
-            background: #dc2626;
+            background: #ef4444;
             border: none;
             padding: 10px 18px;
             border-radius: 8px;
