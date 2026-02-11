@@ -265,7 +265,7 @@
 
 
         <div class="edit-card">
-            <form id="editLibraryForm">
+            <form id="editLibraryForm" action="#" method="POST">
                 <div class="page-header">
                     <h2>Add Library</h2>
                     <p>Add library details in your library system</p>
@@ -278,43 +278,43 @@
                         <div class="form-group">
                             <label>Library Name</label>
                             <input type="text" id="libraryName">
-                            <div class="error">Library Name is required</div>
+                            <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Library Owner Name</label>
                             <input type="text" id="libraryOwnerName">
-                            <div class="error">Library Owner Name is required</div>
+                            <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Table Capacity</label>
                             <input type="number" id="tableCapacity">
-                            <div class="error">Table Capacity is required</div>
+                            <div class="error"></div>
                         </div>
-                        
+
                         <div class="form-group">
                             <label>Chair Capacity</label>
                             <input type="number" id="chairCapacity">
-                            <div class="error">Chair Capacity is required</div>
+                            <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Open At</label>
                             <input type="time" id="openAt">
-                            <div class="error">Open At is required</div>
+                            <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Close At</label>
                             <input type="time" id="closeAt">
-                            <div class="error">Close At is required</div>
+                            <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Library Location</label>
                             <input type="text" id="libraryLocation">
-                            <div class="error">Library Location is required</div>
+                            <div class="error"></div>
                         </div>
 
                     </div>
@@ -360,8 +360,17 @@
         }
 
         function validateText(input) {
-            if (input.value.trim() === "") {
+            const value = input.value.trim();
+            const regex = /^[A-Za-z\s]+$/;
+
+            if (value === "") {
                 showError(input, "This field is required");
+                return false;
+            } else if (value.length < 2) {
+                showError(input, "Minimum 2 characters required");
+                return false;
+            } else if (!regex.test(value)) {
+                showError(input, "Only letters are allowed");
                 return false;
             } else {
                 showSuccess(input);
@@ -369,13 +378,93 @@
             }
         }
 
+        function validateTable() {
+            const tableValue = tableCapacity.value.trim();
+            const chairValue = chairCapacity.value.trim();
+
+            // Table validation
+            if (tableValue === "") {
+                showError(tableCapacity, "Table count is required");
+                return false;
+            } else if (!/^[0-9]+$/.test(tableValue)) {
+                showError(tableCapacity, "Only numbers allowed");
+                return false;
+            } else {
+                showSuccess(tableCapacity);
+            }
+
+            // Chair validation
+            const maxChairs = Number(tableCapacity.value) * 12
+            if (chairValue === "") {
+                showError(chairCapacity, "Chair count is required");
+                return false;
+            } else if (!/^[0-9]+$/.test(chairValue)) {
+                showError(chairCapacity, "Only numbers allowed");
+                return false;
+            } else if (Number(chairValue) < tableCapacity.value) {
+                showError(chairCapacity, `Enter at least ${tableCapacity.value} chair(s)`);
+                return false;
+            } else if (Number(chairValue) > maxChairs) {
+                showError(chairCapacity, `Only ${maxChairs} chairs allowed for ${tableCapacity.value} table(s)`);
+                return false;
+            } else {
+                showSuccess(chairCapacity);
+                return true;
+            }
+        }
+
+        function validateTime() {
+            const openTime = openAt.value;
+            const closeTime = closeAt.value;
+
+            // Open time
+            if (!openTime) {
+                showError(openAt, "Open time is required");
+                return false;
+            } else {
+                showSuccess(openAt);
+            }
+
+            // Close time
+            if (!closeTime) {
+                showError(closeAt, "Close time is required");
+                return false;
+            } else if (openTime >= closeTime) {
+                showError(closeAt, "Close time must be after open time");
+                return false;
+            } else {
+                showSuccess(closeAt);
+            }
+
+            return true;
+        }
+
+        function validateLocation() {
+            const locationValue = libraryLocation.value.trim();
+            const regex = /^[a-zA-Z0-9\s,:()\-]+$/;
+
+            if (locationValue === "") {
+                showError(libraryLocation, "Location is required");
+                return false;
+            } else if (locationValue.length < 3) {
+                showError(libraryLocation, "Location must be at least 3 characters");
+                return false;
+            } else if (!regex.test(locationValue)) {
+                showError(libraryLocation, "Invalid location format");
+                return false;
+            } else {
+                showSuccess(libraryLocation);
+                return true;
+            }
+        }
+
         libraryName.addEventListener("input", () => validateText(libraryName));
         libraryOwnerName.addEventListener("input", () => validateText(libraryOwnerName));
-        tableCapacity.addEventListener("input", () => validateText(tableCapacity));
-        chairCapacity.addEventListener("input", () => validateText(chairCapacity));
-        openAt.addEventListener("input", () => validateText(openAt));
-        closeAt.addEventListener("input", () => validateText(closeAt));
-        libraryLocation.addEventListener("input", () => validateText(libraryLocation));
+        tableCapacity.addEventListener("input", validateTable);
+        chairCapacity.addEventListener("input", validateTable);
+        openAt.addEventListener("input", validateTime);
+        closeAt.addEventListener("input", validateTime);
+        libraryLocation.addEventListener("input", validateLocation);
 
         form.addEventListener("submit", function(e) {
             e.preventDefault();
@@ -383,15 +472,25 @@
             const isValid =
                 validateText(libraryName) &
                 validateText(libraryOwnerName) &
-                validateText(tableCapacity) &
-                validateText(chairCapacity) &
-                validateText(openAt) &
-                validateText(closeAt) &
-                validateText(libraryLocation);
+                validateTable() &
+                validateTable() &
+                validateTime() &
+                validateTime() &
+                validateLocation();
 
             if (isValid) {
-                alert("Library details added successfully!");
-                form.reset();
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'success',
+                    title: 'Library details added successfully!',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    didClose: () => {
+                        window.location.href = "library_list.php";
+                    }
+                });
             }
         });
     </script>

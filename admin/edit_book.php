@@ -293,13 +293,13 @@
                         <div class="form-group">
                             <label>Title</label>
                             <input type="text" id="title" value="Introduction to Java">
-                            <div class="error">Title is required</div>
+                            <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Author</label>
                             <input type="text" id="author" value="James Gosling">
-                            <div class="error">Author is required</div>
+                            <div class="error"></div>
                         </div>
 
                         <div class="form-group">
@@ -311,13 +311,13 @@
                                 <option>Database</option>
                                 <option>Mathematics</option>
                             </select>
-                            <div class="error">Select a category</div>
+                            <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Year</label>
                             <input type="number" id="year" value="2020">
-                            <div class="error">Enter valid year</div>
+                            <div class="error"></div>
                         </div>
 
                         <div class="form-group">
@@ -328,19 +328,19 @@
                                 <option>Science Block</option>
                                 <option>Engineering Wing</option>
                             </select>
-                            <div class="error">Select a library</div>
+                            <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Total Copies</label>
                             <input type="number" id="total" value="4">
-                            <div class="error">Total must be greater than 0</div>
+                            <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Available Copies</label>
                             <input type="number" id="available" value="2">
-                            <div class="error">Available ≤ Total</div>
+                            <div class="error"></div>
                         </div>
 
                     </div>
@@ -359,7 +359,7 @@
 
     <!-- FOOTER -->
     <?php include 'footer.php'; ?>
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         const form = document.getElementById("editBookForm");
         const title = document.getElementById("title");
@@ -388,8 +388,17 @@
         }
 
         function validateText(input) {
-            if (input.value.trim() === "") {
+            const value = input.value.trim();
+            const regex = /^[A-Za-z\s]+$/;
+
+            if (value === "") {
                 showError(input, "This field is required");
+                return false;
+            } else if (value.length < 2) {
+                showError(input, "Minimum 2 characters required");
+                return false;
+            } else if (!regex.test(value)) {
+                showError(input, "Only letters are allowed");
                 return false;
             } else {
                 showSuccess(input);
@@ -409,8 +418,17 @@
 
         function validateYear() {
             const currentYear = new Date().getFullYear();
-            if (year.value < 1900 || year.value > currentYear) {
-                showError(year, "Enter valid year");
+            if (year.value === "") {
+                showError(year, "This field is required");
+                return false;
+            } else if (year.value < 0) {
+                showError(year, "Enter a valid year");
+                return false;
+            } else if (year.value.length !== 4 || isNaN(year.value)) {
+                showError(year, "Enter a valid 4-digit year");
+                return false;
+            } else if (year.value > currentYear) {
+                showError(year, "Year cannot be in the future");
                 return false;
             } else {
                 showSuccess(year);
@@ -419,21 +437,40 @@
         }
 
         function validateCopies() {
-            if (total.value <= 0) {
+            const totalValue = total.value.trim();
+            const availableValue = available.value.trim();
+            const regex = /^[0-9]+$/; // only whole numbers
+
+            // TOTAL validation
+            if (totalValue === "") {
+                showError(total, "This field is required");
+                return false;
+            } else if (!regex.test(totalValue)) {
+                showError(total, "Enter valid number");
+                return false;
+            } else if (Number(totalValue) <= 0) {
                 showError(total, "Total must be greater than 0");
                 return false;
             } else {
                 showSuccess(total);
             }
 
-            if (available.value < 0 || Number(available.value) > Number(total.value)) {
-                showError(available, "Available ≤ Total");
+            // AVAILABLE validation
+            if (availableValue === "") {
+                showError(available, "This field is required");
+                return false;
+            } else if (!regex.test(availableValue)) {
+                showError(available, "Enter valid number");
+                return false;
+            } else if (Number(availableValue) < 0 || Number(availableValue) > Number(totalValue)) {
+                showError(available, `Available must be between 0 and ${totalValue}`);
                 return false;
             } else {
                 showSuccess(available);
                 return true;
             }
         }
+
 
         title.addEventListener("input", () => validateText(title));
         author.addEventListener("input", () => validateText(author));
@@ -461,8 +498,18 @@
                 validateCopies();
 
             if (isValid) {
-                alert("Book details updated successfully!");
-                window.location.href = "book_list.php";
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'success',
+                    title: 'Book details updated successfully!',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    didClose: () => {
+                        window.location.href = "book_list.php";
+                    }
+                });
                 previewImage.src = "https://via.placeholder.com/160x220?text=Book+Cover";
             }
         });

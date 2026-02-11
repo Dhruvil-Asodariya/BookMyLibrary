@@ -325,8 +325,17 @@
         }
 
         function validateText(input) {
-            if (input.value.trim() === "") {
+            const value = input.value.trim();
+            const regex = /^[A-Za-z\s]+$/;
+
+            if (value === "") {
                 showError(input, "This field is required");
+                return false;
+            } else if (value.length < 2) {
+                showError(input, "Minimum 2 characters required");
+                return false;
+            } else if (!regex.test(value)) {
+                showError(input, "Only letters are allowed");
                 return false;
             } else {
                 showSuccess(input);
@@ -345,8 +354,18 @@
                 validateText(categoryDescription);
 
             if (isValid) {
-                alert("Category added successfully!");
-                window.location.href = "category_list.php";
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'success',
+                    title: 'Category added successfully!',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    didClose: () => {
+                        window.location.href = "category_list.php";
+                    }
+                });
             }
         });
     </script>

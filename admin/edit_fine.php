@@ -294,8 +294,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Late Days</label>
-                            <input type="number" id="lateDays" value="20">
+                            <label>Fine Days</label>
+                            <input type="number" id="fineDays" value="20">
                             <div class="error">Late Days is required</div>
                         </div>
 
@@ -320,7 +320,7 @@
         const form = document.getElementById("editFineForm");
         // const fineAmount = document.getElementById("fineAmount");
         const finePerDay = document.getElementById("finePerDay");
-        const lateDays = document.getElementById("lateDays");
+        const fineDays = document.getElementById("fineDays");
 
         function showError(input, message) {
             const error = input.nextElementSibling;
@@ -358,8 +358,8 @@
         // }
 
         // fineAmount.addEventListener("input", () => validFineAmount(fineAmount));
-        finePerDay.addEventListener("input", () => validateText(finePerDay));
-        lateDays.addEventListener("input", () => validateText(lateDays));
+        finePerDay.addEventListener("input", () => validate(finePerDay));
+        lateDays.addEventListener("input", () => validateText(fineDays));
 
         form.addEventListener("submit", function(e) {
             e.preventDefault();
@@ -370,8 +370,18 @@
                 validateText(lateDays);
 
             if (isValid) {
-                alert("Fine details updated successfully!");
-                window.location.href = "pending_fine_list.php";
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'success',
+                    title: 'Fine details updated successfully!',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    didClose: () => {
+                        window.location.href = "pending_fine_list.php";
+                    }
+                });
             }
         });
     </script>

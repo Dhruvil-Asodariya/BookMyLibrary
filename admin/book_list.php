@@ -612,14 +612,6 @@
                 </div>
                 <div class="advanced-filters">
                     <div class="filter-box">
-                        <label>Status</label>
-                        <select id="filterStatus">
-                            <option value="">All Status</option>
-                            <option value="Available">Available</option>
-                            <option value="Unavailable">Unavailable</option>
-                        </select>
-                    </div>
-                    <div class="filter-box">
                         <label>Title</label>
                         <input type="text" id="filterTitle" placeholder="Filter by Title">
                     </div>
@@ -630,6 +622,14 @@
                     <div class="filter-box">
                         <label>Category</label>
                         <input type="text" id="filterCategory" placeholder="Filter by Category">
+                    </div>
+                    <div class="filter-box">
+                        <label>Status</label>
+                        <select id="filterStatus">
+                            <option value="">All Status</option>
+                            <option value="Available">Available</option>
+                            <option value="Unavailable">Unavailable</option>
+                        </select>
                     </div>
 
                     <div class="filter-box btn-area">

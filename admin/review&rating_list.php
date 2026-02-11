@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Pending Fine List | Library System</title>
+    <title>Review & Rating List | Library System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- DataTables CSS -->
@@ -575,6 +575,167 @@
             }
         }
 
+        /* Backdrop */
+        .l-modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Card */
+        .l-modal-card {
+            background: #ffffff;
+            width: 700px;
+            max-width: 95%;
+            border-radius: 14px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            animation: fadeSlide 0.25s ease;
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Header */
+        .l-modal-header-p {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .l-modal-header-p h3 {
+            font-size: 18px;
+            color: #0f172a;
+        }
+
+        .l-header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        /* Pills container */
+        .l-pill-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Base pill */
+        .l-pill {
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        /* Status pills */
+        .l-pill-active {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .l-pill-inactive {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Close */
+        .l-close-icon {
+            font-size: 22px;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .l-close-icon:hover {
+            color: #ef4444;
+        }
+
+        /* Body */
+        .l-modal-body-p {
+            display: grid;
+            grid-template-columns: 580px 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        /* Image */
+        .l-book-image img {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+
+        /* Details */
+        .l-book-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .l-detail span {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        .l-detail p {
+            margin-top: 4px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        /* Footer */
+        .l-modal-footer {
+            padding: 14px 20px;
+            border-top: 1px solid #e5e7eb;
+            text-align: right;
+        }
+
+        /* Buttons */
+        .l-btn-secondary {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #cbd5f5;
+            background: #f8fafc;
+            color: #1e293b;
+            cursor: pointer;
+        }
+
+        .l-btn-secondary:hover {
+            background: #e0e7ff;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .l-modal-body {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .l-book-details {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .advanced-filters {
             display: flex;
             flex-wrap: wrap;
@@ -606,6 +767,24 @@
         .btn-area {
             justify-content: flex-end;
         }
+
+        #reviewTooltip {
+            position: absolute;
+            background: #111827;
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            max-width: 300px;
+            display: none;
+            z-index: 9999;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            line-height: 1.4;
+        }
+
+        .review-cell {
+            cursor: pointer;
+        }
     </style>
 
 </head>
@@ -616,24 +795,27 @@
         <nav class="breadcrumb">
             <a href="home.php" class="dashboard">Dashboard</a>
             <span class="separator">›</span>
-            <span class="current">Fine List</span>
+            <span class="current">Review & Rating List</span>
         </nav>
     </div>
     <div class="container">
         <div class="card">
             <div class="top-actions">
                 <div class="title-area">
-                    <h3>Pending Fine Details</h3>
-                    <div class="subtitle">Manage your pending fine data</div>
+                    <h3>Review & Rating</h3>
+                    <div class="subtitle">Manage your Review & Rating data</div>
                 </div>
                 <div class="advanced-filters">
                     <div class="filter-box">
-                        <label>Book ID</label>
-                        <input type="text" id="filterBookID" placeholder="Filter by Book ID" maxlength="8">
-                    </div>
-                    <div class="filter-box">
-                        <label>User ID</label>
-                        <input type="text" id="filterUserID" placeholder="Filter by User ID" maxlength="8">
+                        <label>Rating</label>
+                        <select id="filterRating">
+                            <option value="">All Rating</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
                     </div>
 
                     <div class="filter-box btn-area">
@@ -647,13 +829,12 @@
                 <thead>
                     <tr>
                         <th>Sr No.</th>
-                        <th>Fine ID</th>
-                        <th>Book ID</th>
+                        <th>Review ID</th>
+                        <th>Library ID</th>
                         <th>User ID</th>
-                        <th>Fine Per Day</th>
-                        <th>Fine Days</th>
-                        <th>Fine Amount</th>
-                        <th>Status</th>
+                        <th>Review Comment</th>
+                        <th>Rating</th>
+                        <th>Review Date</th>
                         <!-- <th>Actions</th> -->
                     </tr>
                 </thead>
@@ -661,12 +842,14 @@
                     <tr>
                         <td>1</td>
                         <td>24842354</td>
-                        <td class="model-link" onclick="openBookModal()">24842354</td>
-                        <td class="model-link" onclick="openUserModal()">24842353</td>
-                        <td>10</td>
-                        <td>20</td>
-                        <td>200</td>
-                        <td><span class="status unpaid">Unpaid</span></td>
+                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
+                        <td><span class="model-link" onclick="openUserModal()">24842353</span></td>
+                        <td class="review-cell"
+                            data-full="Great library with a vast collection of books. The staff is friendly and helpful. Highly recommend for book lovers!">
+                            Great library with a vast collection of ...
+                        </td>
+                        <td>5</td>
+                        <td>19-03-2026</td>
                         <!-- <td>
                             <a href="edit_fine.php?fine_id=24842354"><button class="btn btn-edit">Edit</button></a>
                             <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br>
@@ -676,12 +859,14 @@
                     <tr>
                         <td>1</td>
                         <td>24842354</td>
-                        <td class="model-link" onclick="openBookModal()">24842354</td>
-                        <td class="model-link" onclick="openUserModal()">24842353</td>
-                        <td>10</td>
-                        <td>20</td>
-                        <td>200</td>
-                        <td><span class="status unpaid">Unpaid</span></td>
+                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
+                        <td><span class="model-link" onclick="openUserModal()">24842353</span></td>
+                        <td class="review-cell"
+                            data-full="Loved the ambiance and the quiet reading areas. The book selection is impressive, and the digital resources are a great addition. A perfect place to spend a day!">
+                            Loved the ambiance and the quiet readin...
+                        </td>
+                        <td>3</td>
+                        <td>19-03-2026</td>
                         <!-- <td>
                             <a href="edit_fine.php?fine_id=24842354"><button class="btn btn-edit">Edit</button></a>
                             <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br>
@@ -690,52 +875,65 @@
 
                 </tbody>
             </table>
+            <div id="reviewTooltip"></div>
         </div>
     </div>
 
-    <div class="modal-backdrop" id="bookModal">
-        <div class="modal-card">
+    <div class="l-modal-backdrop" id="libraryModal">
+        <div class="l-modal-card">
 
-            <div class="modal-header-p">
-                <h3>Book Details</h3>
-                <span class="close-icon" onclick="closeBookModal()">×</span>
+            <div class="l-modal-header-p">
+                <div class="l-header-left">
+                    <h3>Library Details</h3>
+
+                    <div class="l-pill-group">
+                        <span class="l-pill pill-active">Active</span>
+                        <!-- <span class="pill pill-inactive">Inactive</span> -->
+                    </div>
+                </div>
+                <span class="close-icon" onclick="closeLibraryModal()">×</span>
             </div>
 
-            <div class="modal-body-p">
-                <div class="book-image">
-                    <img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" alt="Book Image">
-                </div>
+            <div class="l-modal-body-p">
 
-                <div class="book-details">
-                    <div class="detail">
-                        <span>Book ID</span>
+                <div class="l-book-details">
+                    <div class="l-detail">
+                        <span>Library ID</span>
                         <p>24842354</p>
                     </div>
-                    <div class="detail">
-                        <span>Title</span>
-                        <p>Introduction to Java</p>
+                    <div class="l-detail">
+                        <span>Library Name</span>
+                        <p>Central City Library</p>
                     </div>
-                    <div class="detail">
-                        <span>Author</span>
+                    <div class="l-detail">
+                        <span>Library Owner Name</span>
                         <p>James Gosling</p>
                     </div>
-                    <div class="detail">
-                        <span>Category</span>
-                        <p>Programming</p>
+                    <div class="l-detail">
+                        <span>Table capacity</span>
+                        <p>120</p>
                     </div>
-                    <div class="detail">
-                        <span>Publish Year</span>
-                        <p>2020</p>
+                    <div class="l-detail">
+                        <span>Chair Capacity</span>
+                        <p>240</p>
                     </div>
-                    <div class="detail">
-                        <span>Library Name</span>
-                        <p>Main Library</p>
+                    <div class="l-detail">
+                        <span>Open At</span>
+                        <p>08:00 AM</p>
+                    </div>
+                    <div class="l-detail">
+                        <span>Close At</span>
+                        <p>09:00 PM</p>
+                    </div>
+                    <div class="l-detail">
+                        <span>Library Location</span>
+                        <p>Downtown, Rajkot</p>
                     </div>
                 </div>
             </div>
 
-            <div class="modal-footer">
-                <button class="btn-secondary" onclick="closeBookModal()">Close</button>
+            <div class="l-modal-footer">
+                <button class="l-btn-secondary" onclick="closeLibraryModal()">Close</button>
             </div>
 
         </div>
@@ -838,19 +1036,19 @@
             buttons: [{
                     extend: 'excelHtml5',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7] // column indexes you want
+                        columns: [0, 1, 2, 3, 4, 5, 6] // column indexes you want
                     }
                 },
                 {
                     extend: 'pdfHtml5',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                        columns: [0, 1, 2, 3, 4, 5, 6]
                     }
                 },
                 {
                     extend: 'print',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                        columns: [0, 1, 2, 3, 4, 5, 6]
                     }
                 }
             ],
@@ -860,20 +1058,16 @@
             scrollCollapse: true
         });
 
-         // LOCATION filter
-        $('#filterBookID').on('keyup', function() {
-            table.column(2).search(this.value).draw();
-        });
+        // Rating filter
+        $('#filterRating').on('change', function() {
+            var value = this.value.toLowerCase();
 
-        // OWNER filter
-        $('#filterUserID').on('keyup', function() {
-            table.column(3).search(this.value).draw();
+            table.column(5).search(value ? '^' + value + '$' : '', true, false).draw();
         });
 
         // RESET filters
         function resetFilters() {
-            $('#filterBookID').val('');
-            $('#filterUserID').val('');
+            $('#filterRating').val('');
 
             table.columns().search('').draw();
         }
@@ -894,12 +1088,12 @@
             // Here you can remove the row or call backend later
         }
 
-        function openBookModal() {
-            document.getElementById("bookModal").style.display = "flex";
+        function openLibraryModal() {
+            document.getElementById("libraryModal").style.display = "flex";
         }
 
-        function closeBookModal() {
-            document.getElementById("bookModal").style.display = "none";
+        function closeLibraryModal() {
+            document.getElementById("libraryModal").style.display = "none";
         }
 
         function openUserModal() {
@@ -909,6 +1103,26 @@
         function closeUserModal() {
             document.getElementById("userModal").style.display = "none";
         }
+
+        const tooltip = document.getElementById("reviewTooltip");
+
+        document.querySelectorAll(".review-cell").forEach(cell => {
+
+            cell.addEventListener("mouseenter", function(e) {
+                tooltip.textContent = this.dataset.full;
+                tooltip.style.display = "block";
+            });
+
+            cell.addEventListener("mousemove", function(e) {
+                tooltip.style.top = (e.pageY + 10) + "px";
+                tooltip.style.left = (e.pageX + 10) + "px";
+            });
+
+            cell.addEventListener("mouseleave", function() {
+                tooltip.style.display = "none";
+            });
+
+        });
     </script>
 
 </body>

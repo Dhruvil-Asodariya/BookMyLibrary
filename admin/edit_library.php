@@ -60,6 +60,7 @@
             grid-template-columns: 100% 1fr;
             gap: 30px;
         }
+
         /* Fields */
         .form-fields {
             display: grid;
@@ -251,43 +252,43 @@
                         <div class="form-group">
                             <label>Library name</label>
                             <input type="text" id="libraryName" value="Central City Library">
-                            <div class="error">Library Name  is required</div>
+                            <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Library Owner Name</label>
                             <input type="text" id="libraryOwnerName" value="James Gosling">
-                            <div class="error">Library Owner Name is required</div>
+                            <div class="error"></div>
                         </div>
 
                         <div class="form-group">
-                            <label>Total Capacity</label>
-                            <input type="number" id="totalCapacity" value="120">
-                            <div class="error">Total Capacity is required</div>
+                            <label>Table Capacity</label>
+                            <input type="number" id="tableCapacity" value="120">
+                            <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Chair Capacity</label>
                             <input type="number" id="chairCapacity" value="240">
-                            <div class="error">Chair Capacity is required</div>
+                            <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Open At</label>
                             <input type="time" id="openAt" value="08:00">
-                            <div class="error">Open At is required</div>
+                            <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Close At</label>
                             <input type="time" id="closeAt" value="21:00">
-                            <div class="error">Close At is required</div>
+                            <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Library Location</label>
                             <input type="text" id="libraryLocation" value="Downtown, Rajkot">
-                            <div class="error">Location is required</div>
+                            <div class="error"></div>
                         </div>
 
                     </div>
@@ -311,7 +312,7 @@
         const form = document.getElementById("editLibraryForm");
         const libraryName = document.getElementById("libraryName");
         const libraryOwnerName = document.getElementById("libraryOwnerName");
-        const totalCapacity = document.getElementById("totalCapacity");
+        const tableCapacity = document.getElementById("tableCapacity");
         const chairCapacity = document.getElementById("chairCapacity");
         const openAt = document.getElementById("openAt");
         const closeAt = document.getElementById("closeAt");
@@ -333,8 +334,17 @@
         }
 
         function validateText(input) {
-            if (input.value.trim() === "") {
+            const value = input.value.trim();
+            const regex = /^[A-Za-z\s]+$/;
+
+            if (value === "") {
                 showError(input, "This field is required");
+                return false;
+            } else if (value.length < 2) {
+                showError(input, "Minimum 2 characters required");
+                return false;
+            } else if (!regex.test(value)) {
+                showError(input, "Only letters are allowed");
                 return false;
             } else {
                 showSuccess(input);
@@ -342,13 +352,95 @@
             }
         }
 
+        function validateTable() {
+            const tableValue = tableCapacity.value.trim();
+            const chairValue = chairCapacity.value.trim();
+
+            // Table validation
+            if (tableValue === "") {
+                showError(tableCapacity, "Table count is required");
+                return false;
+            } else if (!/^[0-9]+$/.test(tableValue)) {
+                showError(tableCapacity, "Only numbers allowed");
+                return false;
+            } else {
+                showSuccess(tableCapacity);
+            }
+
+            // Chair validation
+            const maxChairs = Number(tableCapacity.value) * 12
+            if (chairValue === "") {
+                showError(chairCapacity, "Chair count is required");
+                return false;
+            } else if (!/^[0-9]+$/.test(chairValue)) {
+                showError(chairCapacity, "Only numbers allowed");
+                return false;
+            } else if (Number(chairValue) < tableCapacity.value) {
+                showError(chairCapacity, `Enter at least ${tableCapacity.value} chair(s)`);
+                return false;
+            } else if (Number(chairValue) > maxChairs) {
+                showError(chairCapacity, `Only ${maxChairs} chairs allowed for ${tableCapacity.value} table(s)`);
+                return false;
+            } else {
+                showSuccess(chairCapacity);
+                return true;
+            }
+        }
+
+        function validateTime() {
+            const openTime = openAt.value;
+            const closeTime = closeAt.value;
+            let isValid = true;
+
+            // Open time
+            if (!openTime) {
+                showError(openAt, "Open time is required");
+                isValid = false;
+            } else {
+                showSuccess(openAt);
+            }
+
+            // Close time
+            if (!closeTime) {
+                showError(closeAt, "Close time is required");
+                isValid = false;
+            } else if (openTime >= closeTime) {
+                showError(closeAt, "Close time must be after open time");
+                isValid = false;
+            } else {
+                showSuccess(closeAt);
+            }
+
+            return isValid;
+        }
+
+        function validateLocation() {
+            const locationValue = libraryLocation.value.trim();
+            const regex = /^[a-zA-Z0-9\s,:()\-]+$/;
+
+            if (locationValue === "") {
+                showError(libraryLocation, "Location is required");
+                return false;
+            } else if (locationValue.length < 3) {
+                showError(libraryLocation, "Location must be at least 3 characters");
+                return false;
+            } else if (!regex.test(locationValue)) {
+                showError(libraryLocation, "Invalid location format");
+                return false;
+            } else {
+                showSuccess(libraryLocation);
+                return true;
+            }
+        }
+
+
         libraryName.addEventListener("input", () => validateText(libraryName));
         libraryOwnerName.addEventListener("input", () => validateText(libraryOwnerName));
-        totalCapacity.addEventListener("input", () => validateText(totalCapacity));
-        chairCapacity.addEventListener("input", () => validateText(chairCapacity));
-        openAt.addEventListener("input", () => validateText(openAt));
-        closeAt.addEventListener("input", () => validateText(closeAt));
-        libraryLocation.addEventListener("input", () => validateText(libraryLocation));
+        tableCapacity.addEventListener("input", validateTable);
+        chairCapacity.addEventListener("input", validateTable);
+        openAt.addEventListener("input", validateTime);
+        closeAt.addEventListener("input", validateTime);
+        libraryLocation.addEventListener("input", validateLocation);
 
         form.addEventListener("submit", function(e) {
             e.preventDefault();
@@ -356,15 +448,25 @@
             const isValid =
                 validateText(libraryName) &
                 validateText(libraryOwnerName) &
-                validateText(totalCapacity) &
-                validateText(chairCapacity) &
-                validateText(openAt) &
-                validateText(closeAt) &
-                validateText(libraryLocation);
+                validateTable() &
+                validateTable() &
+                validateTime() &
+                validateTime() &
+                validateLocation();
 
             if (isValid) {
-                alert("Library details updated successfully!");
-                window.location.href = "library_list.php";
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'success',
+                    title: 'Library details updated successfully!',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    didClose: () => {
+                        window.location.href = "library_list.php";
+                    }
+                });
             }
         });
     </script>

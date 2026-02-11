@@ -284,25 +284,25 @@
                         <div class="form-group">
                             <label>Issue Date</label>
                             <input type="date" id="issueDate" value="2026-01-12">
-                            <div class="error">Issue Date is required</div>
+                            <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Due Date</label>
                             <input type="date" id="dueDate" value="2026-02-28">
-                            <div class="error">Due Date is required</div>
+                            <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Return Date</label>
                             <input type="date" id="returnDate" value="2026-03-01">
-                            <div class="error">Return Date is required</div>
+                            <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Fine Amount</label>
                             <input type="number" id="fineAmount" value="6562">
-                            <div class="error">Fine Amount is required</div>
+                            <div class="error"></div>
                         </div>
 
                     </div>
@@ -344,33 +344,91 @@
             input.classList.add("valid");
         }
 
-        function validateText(input) {
-            if (input.value.trim() === "") {
-                showError(input, "This field is required");
+        function validateDate() {
+            const issue = new Date(issueDate.value);
+            const due = new Date(dueDate.value);
+            const ret = new Date(returnDate.value);
+
+            // Issue date required
+            if (issueDate.value.trim() === "") {
+                showError(issueDate, "Issue date is required");
                 return false;
             } else {
-                showSuccess(input);
+                showSuccess(issueDate);
+            }
+
+            // Due date required + must be after issue date
+            if (dueDate.value.trim() === "") {
+                showError(dueDate, "Due date is required");
+                return false;
+            } else if (due <= issue) {
+                showError(dueDate, "Due date must be after issue date");
+                return false;
+            } else {
+                showSuccess(dueDate);
+            }
+
+            // Return date must be after due date
+            if (returnDate.value.trim() !== "") {
+                if (ret <= due) {
+                    showError(returnDate, "Return date must be after due date");
+                    return false;
+                } else {
+                    showSuccess(returnDate);
+                }
+            }
+
+            return true;
+        }
+
+        function validateFine() {
+            const fineValue = fineAmount.value.trim();
+            const regex = /^[0-9]+$/; // only whole numbers
+
+            if (fineValue === "") {
+                showError(fineAmount, "This field is required");
+                return false;
+            } else if (!regex.test(fineValue)) {
+                showError(fineAmount, "Enter valid number");
+                return false;
+            } else if (Number(fineValue) <= 0) {
+                showError(fineAmount, "Fine must be greater than 0");
+                return false;
+            } else {
+                showSuccess(fineAmount);
                 return true;
             }
         }
 
-        issueDate.addEventListener("input", () => validateText(issueDate));
-        dueDate.addEventListener("input", () => validateText(dueDate));
-        returnDate.addEventListener("input", () => validateText(returnDate));
-        fineAmount.addEventListener("input", () => validateText(fineAmount));
+
+
+        issueDate.addEventListener("input", validateDate);
+        dueDate.addEventListener("input", validateDate);
+        returnDate.addEventListener("input", validateDate);
+        fineAmount.addEventListener("input", validateFine);
 
         form.addEventListener("submit", function(e) {
             e.preventDefault();
 
             const isValid =
-                validateText(issueDate) &
-                validateText(dueDate) &
-                validateText(returnDate) &
-                validateText(fineAmount);
+                validateDate(issueDate) &
+                validateDate(dueDate) &
+                validateDate(returnDate) &
+                validateFine(fineAmount);
 
             if (isValid) {
-                alert(" Issued book details updated successfully!");
-                window.location.href = "issued_book.php";
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'success',
+                    title: 'Issued book details updated successfully!',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    didClose: () => {
+                        window.location.href = "issued_book.php";
+                    }
+                });
             }
         });
     </script>

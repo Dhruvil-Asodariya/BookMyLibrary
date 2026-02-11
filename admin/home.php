@@ -464,6 +464,7 @@
                     <div class="dropdown-content">
                         <a href="profile.php">My Profile</a>
                         <a href="change_password.php">Change Password</a>
+                        <a href="#">Screen Lock</a>
                         <hr>
                         <a href="login.php">Logout</a>
 

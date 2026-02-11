@@ -338,8 +338,17 @@
         }
 
         function validateText(input) {
-            if (input.value.trim() === "") {
+            const value = input.value.trim();
+            const regex = /^[A-Za-z\s]+$/;
+
+            if (value === "") {
                 showError(input, "This field is required");
+                return false;
+            } else if (value.length < 2) {
+                showError(input, "Minimum 2 characters required");
+                return false;
+            } else if (!regex.test(value)) {
+                showError(input, "Only letters are allowed");
                 return false;
             } else {
                 showSuccess(input);
@@ -347,19 +356,27 @@
             }
         }
 
-        // function validFineAmount(input){
-        //     if(fineAmount.value != finePerDay.value * lateDays.value){
-        //         showError(input, "Fine Amount must be equal to Fine Per Day multiplied by Late Days");
-        //         return false;
-        //     } else {
-        //         showSuccess(input);
-        //         return true;
-        //     }
-        // }
+        function validateDescription() {
+            const descriptionValue = description.value.trim();
+            const regex = /^[a-zA-Z,. ]+$/; // only letters + comma + space
 
-        // fineAmount.addEventListener("input", () => validFineAmount(fineAmount));
+            if (descriptionValue === "") {
+                showError(description, "Description is required");
+                return false;
+            } else if (descriptionValue.length < 3) {
+                showError(description, "Description must be at least 3 characters");
+                return false;
+            } else if (!regex.test(descriptionValue)) {
+                showError(description, "Only letters and comma allowed");
+                return false;
+            } else {
+                showSuccess(description);
+                return true;
+            }
+        }
+
         categoryName.addEventListener("input", () => validateText(categoryName));
-        description.addEventListener("input", () => validateText(description));
+        description.addEventListener("input", validateDescription);
 
         form.addEventListener("submit", function(e) {
             e.preventDefault();
@@ -367,11 +384,21 @@
             const isValid =
                 // validFineAmount(fineAmount) &
                 validateText(categoryName) &
-                validateText(description);
+                validateDescription();
 
             if (isValid) {
-                alert("Category details updated successfully!");
-                window.location.href = "category_list.php";
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'success',
+                    title: 'Category details updated successfully!',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    didClose: () => {
+                        window.location.href = "category_list.php";
+                    }
+                });
             }
         });
     </script>

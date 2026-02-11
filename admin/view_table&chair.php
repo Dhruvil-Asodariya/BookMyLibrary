@@ -366,7 +366,11 @@
         <button class="btn" onclick="openAddTablePopup()">+ Add New Table</button>
     </div>';
     }
+    
     ?>
+    <div class="actions">
+        <button class="btn" onclick="openAddTablePopup()">+ Add New Table</button>
+    </div>
 
 
     <!-- <h2>Table & Chair Booking</h2> -->
@@ -539,9 +543,9 @@
         </div>
     </div>
 
-    <!-- <div class="actions">
+    <div class="actions">
         <button class="btn" onclick="confirmBooking()">Confirm Booking</button>
-    </div> -->
+    </div>
     <?php include 'footer.php'; ?>
 </body>
 

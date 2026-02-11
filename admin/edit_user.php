@@ -282,9 +282,10 @@
 
                     <!-- Image -->
                     <label class="image-box">
-                        <img id="previewImage" src="../image/default_profile.png"><br>
+                        <img id="previewImage" src=""><br>
                         <span>Click to upload profile image</span>
                         <input type="file" accept="image/*" id="imageInput" value="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg">
+                        <div class="error"></div>
                     </label>
 
                     <!-- Fields -->
@@ -305,19 +306,19 @@
                         <div class="form-group">
                             <label>Email</label>
                             <input type="email" id="email" value="john.doe@example.com">
-                            <div class="error">Email is required</div>
+                            <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Contact Number</label>
                             <input type="tel" id="contact_number" value="1234567890" maxlength="10">
-                            <div class="error">Contact Number is required</div>
+                            <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Address</label>
                             <input type="text" id="address" value="123 Main St, Cityville">
-                            <div class="error">Address is required</div>
+                            <div class="error"></div>
                         </div>
 
                     </div>
@@ -346,6 +347,7 @@
         const address = document.getElementById("address");
         const imageInput = document.getElementById("imageInput");
         const previewImage = document.getElementById("previewImage");
+        const imageError = imageInput.parentElement.querySelector(".error");
 
         function showError(input, message) {
             const error = input.nextElementSibling;
@@ -363,8 +365,17 @@
         }
 
         function validateText(input) {
-            if (input.value.trim() === "") {
+            const value = input.value.trim();
+            const regex = /^[A-Za-z\s]+$/;
+
+            if (value === "") {
                 showError(input, "This field is required");
+                return false;
+            } else if (value.length < 2) {
+                showError(input, "Minimum 2 characters required");
+                return false;
+            } else if (!regex.test(value)) {
+                showError(input, "Only letters are allowed");
                 return false;
             } else {
                 showSuccess(input);
@@ -372,16 +383,116 @@
             }
         }
 
+        function validateEmail() {
+            const emailValue = email.value.trim();
+            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (emailValue === "") {
+                showError(email, "Email is required");
+                return false;
+            } else if (!regex.test(emailValue)) {
+                showError(email, "Enter a valid email address");
+                return false;
+            } else {
+                showSuccess(email);
+                return true;
+            }
+        }
+
+        function validateContactNumber() {
+            const contactValue = contact_number.value.trim();
+            const regex = /^[0-9]+$/; // only digits
+
+            if (contactValue === "") {
+                showError(contact_number, "Contact number is required");
+                return false;
+            } else if (contactValue.length !== 10) {
+                showError(contact_number, "Contact number must be 10 digits");
+                return false;
+            } else if (!regex.test(contactValue)) {
+                showError(contact_number, "Only digits are allowed");
+                return false;
+            } else {
+                showSuccess(contact_number);
+                return true;
+            }
+        }
+
+        function validateAddress() {
+            const addressValue = address.value.trim();
+            const regex = /^[a-zA-Z0-9\s,.\-\/]+$/;
+
+            if (addressValue === "") {
+                showError(address, "Address is required");
+                return false;
+            } else if (addressValue.length < 5) {
+                showError(address, "Address is not ot be too short");
+                return false;
+            } else if (!regex.test(addressValue)) {
+                showError(address, "Enter valid address");
+                return false;
+            } else {
+                showSuccess(address);
+                return true;
+            }
+        }
+
+
+
+
+
+        // show error in label
+        function showImageError(message) {
+            imageError.textContent = message;
+            imageError.style.display = "block";
+        }
+
+        // clear error
+        function clearImageError() {
+            imageError.textContent = "";
+            imageError.style.display = "none";
+        }
+
+        function validateImage(file) {
+            const allowedTypes = /^(image\/jpeg|image\/jpg|image\/png)$/;
+            const maxSize = 2 * 1024 * 1024; // 2MB
+
+            if (!file) {
+                showError(imageInput, "Please select an image");
+                return false;
+            }
+
+            if (!allowedTypes.test(file.type)) {
+                showError(imageInput, "Only JPG and PNG images are allowed");
+                return false;
+            }
+
+            if (file.size > maxSize) {
+                showError(imageInput, "Image size must be less than 2MB");
+                return false;
+            }
+
+            showSuccess(imageInput);
+            return true;
+        }
+
         first_name.addEventListener("input", () => validateText(first_name));
         last_name.addEventListener("input", () => validateText(last_name));
-        email.addEventListener("input", () => validateText(email));
-        contact_number.addEventListener("input", () => validateText(contact_number));
-        address.addEventListener("input", () => validateText(address));
+        email.addEventListener("input", () => validateEmail(email));
+        contact_number.addEventListener("input", () => validateContactNumber(contact_number));
+        address.addEventListener("input", () => validateAddress(address));
 
         imageInput.addEventListener("change", function(event) {
+            const file = event.target.files[0];
+
+            if (!validateImage(file)) {
+                imageInput.value = "";
+                return;
+            }
+
             const reader = new FileReader();
             reader.onload = () => previewImage.src = reader.result;
-            reader.readAsDataURL(event.target.files[0]);
+            reader.readAsDataURL(file);
         });
 
         form.addEventListener("submit", function(e) {
@@ -390,13 +501,24 @@
             const isValid =
                 validateText(first_name) &
                 validateText(last_name) &
-                validateText(email) &
-                validateText(contact_number) &
-                validateText(address);
+                validateEmail(email) &
+                validateContactNumber(contact_number) &
+                validateAddress(address) &
+                validateImage(imageInput.files[0]);
 
             if (isValid) {
-                alert("User details updated successfully!");
-                window.location.href = "user_list.php";
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'success',
+                    title: 'User details updated successfully!',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    didClose: () => {
+                        window.location.href = "user_list.php";
+                    }
+                });
                 previewImage.src = "https://via.placeholder.com/160x220?text=User+Cover";
             }
         });

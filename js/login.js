@@ -75,11 +75,15 @@ document.getElementById("loginForm").addEventListener("submit", function (e) {
 
     if (isEmailValid && isPasswordValid) {
 
-        if (email.value === "pdobariya974@rku.ac.in" && password.value === "123456") {
+        if (email.value === "user@gmail.com" && password.value === "123456") {
             alert("Login Successful");
             window.location.href = "home.php";
         } 
-        else if (email.value === "dasodariya899@rku.ac.in" && password.value === "123456") {
+        else if (email.value === "library@gmail.com" && password.value === "123456") {
+            alert("Login Successful");
+            window.location.href = "library/home.php";
+        }
+        else if (email.value === "admin@gmail.com" && password.value === "123456") {
             alert("Login Successful");
             window.location.href = "admin/home.php";
         }

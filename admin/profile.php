@@ -450,7 +450,7 @@
 
                     <div class="form-group">
                         <label>Phone</label>
-                        <p class="p" id="viewPhone">+91 9876543210</p>
+                        <p class="p" id="viewPhone">9876543210</p>
                     </div>
 
                     <div class="form-group">
@@ -640,6 +640,12 @@
             document.getElementById("viewProfile").style.display = "block";
         }
 
+        document.getElementById("editName").addEventListener("input", validateName);
+        document.getElementById("editEmail").addEventListener("input", validateEmail);
+        document.getElementById("editPhone").addEventListener("input", validatePhone);
+        document.getElementById("editGender").addEventListener("change", validateGender);
+        document.getElementById("editAddress").addEventListener("input", validateAddress);
+
         /* SAVE PROFILE */
         function saveEdit() {
 
@@ -666,44 +672,102 @@
 
         /* VALIDATION */
 
-        function validateForm() {
-
-            let isValid = true;
-
+        function validateName() {
             let name = document.getElementById("editName");
-            if (name.value.trim().length < 3) {
-                showError(name, "nameError", "Enter valid name");
-                isValid = false;
-            } else showSuccess(name, "nameError");
+            let regex = /^[A-Za-z\s]+$/; // only letters + space
 
+            if (name.value.trim() === "") {
+                showError(name, "nameError", "Name is required");
+                return false;
+            } else if (name.value.trim().length < 2) {
+                showError(name, "nameError", "Name must be at least 2 characters");
+                return false;
+            } else if (!regex.test(name.value.trim())) {
+                showError(name, "nameError", "Only letters allowed");
+                return false;
+            }
+
+            showSuccess(name, "nameError");
+            return true;
+        }
+
+        function validateEmail() {
             let email = document.getElementById("editEmail");
             let emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
-            if (!email.value.match(emailPattern)) {
+
+            if (email.value.trim() === "") {
+                showError(email, "emailError", "Email is required");
+                return false;
+            } else if (!emailPattern.test(email.value.trim())) {
                 showError(email, "emailError", "Enter valid email");
-                isValid = false;
-            } else showSuccess(email, "emailError");
+                return false;
+            }
 
+            showSuccess(email, "emailError");
+            return true;
+        }
+
+        function validatePhone() {
             let phone = document.getElementById("editPhone");
-            if (phone.value.length < 10) {
-                showError(phone, "phoneError", "Enter valid phone");
-                isValid = false;
-            } else showSuccess(phone, "phoneError");
+            let value = phone.value.trim();
 
-            // GENDER
+            if (value === "") {
+                showError(phone, "phoneError", "Phone number is required");
+                return false;
+            } else if (!/^[0-9]+$/.test(value)) {
+                showError(phone, "phoneError", "Phone must contain only numbers");
+                return false;
+            } else if (value.length !== 10) {
+                showError(phone, "phoneError", "Phone number must be exactly 10 digits");
+                return false;
+            }
+
+            showSuccess(phone, "phoneError");
+            return true;
+        }
+
+        function validateGender() {
             let gender = document.getElementById("editGender");
+
             if (!gender.value) {
                 showError(gender, "genderError", "Select gender");
-                isValid = false;
-            } else showSuccess(gender, "genderError");
+                return false;
+            }
+            showSuccess(gender, "genderError");
+            return true;
+        }
 
-            // ADDRESS
+        function validateAddress() {
             let address = document.getElementById("editAddress");
-            if (address.value.trim().length < 10) {
-                showError(address, "addressError", "Enter full address");
-                isValid = false;
-            } else showSuccess(address, "addressError");
+            let value = address.value.trim();
 
-            return isValid;
+            // allow letters, numbers, space, comma, (), :, -
+            let regex = /^[a-zA-Z0-9\s,():-]+$/;
+
+            if (value === "") {
+                showError(address, "addressError", "Address is required");
+                return false;
+            } else if (value.length < 5) {
+                showError(address, "addressError", "Enter full address");
+                return false;
+            } else if (!regex.test(value)) {
+                showError(address, "addressError", "Only letters, numbers, space, , ( ) : - allowed");
+                return false;
+            }
+
+            showSuccess(address, "addressError");
+            return true;
+        }
+
+
+        function validateForm() {
+            return (
+                validateName() &&
+                validateEmail() &&
+                validatePhone() &&
+                validateGender() &&
+                validateAddress()
+            );
         }
 
         /* HELPERS */

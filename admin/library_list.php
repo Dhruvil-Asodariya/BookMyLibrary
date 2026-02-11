@@ -435,20 +435,20 @@
                 </div>
                 <div class="advanced-filters">
                     <div class="filter-box">
-                        <label>Status</label>
-                        <select id="filterStatus">
-                            <option value="">All Status</option>
-                            <option value="Active">Active</option>
-                            <option value="Inactive">Inactive</option>
-                        </select>
-                    </div>
-                    <div class="filter-box">
                         <label>Library Name</label>
                         <input type="text" id="filterLibraryName" placeholder="Filter by Library Name">
                     </div>
                     <div class="filter-box">
                         <label>Location</label>
                         <input type="text" id="filterLocation" placeholder="Filter by Location">
+                    </div>
+                    <div class="filter-box">
+                        <label>Status</label>
+                        <select id="filterStatus">
+                            <option value="">All Status</option>
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
                     </div>
                     <div class="filter-box btn-area">
                         <label>&nbsp;</label>
@@ -516,7 +516,7 @@
 
                     <tr>
                         <td>2</td>
-                        <td><a href="#">#24842354</a></td>
+                        <td>24842354</td>
                         <td>Central City Library</td>
                         <td>James Gosling</td>
                         <td>120</td>

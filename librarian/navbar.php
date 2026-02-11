@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <title>Document</title>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         /* ---------- NAVBAR ---------- */
         .navbar {
@@ -19,7 +18,6 @@
             flex-wrap: wrap;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
             font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
-            
         }
 
         .nav-left {
@@ -218,8 +216,6 @@
 
             <!-- Category Dropdown -->
             <a href="category_list.php">Category</a>
-
-            <a href="review&rating_list.php">Review & Rating</a>
 
             <!-- <a href="view_table&chair.php">View Table & Chair</a> -->
         </div>

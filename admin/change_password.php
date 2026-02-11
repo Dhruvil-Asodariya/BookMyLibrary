@@ -58,7 +58,7 @@
         }
 
         .close-btn:hover {
-            color: #000;
+            color: #ef4444;
             transform: scale(1.2);
         }
 
@@ -249,6 +249,7 @@
     </div>
 
 </body>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
     const password = document.getElementById("password");
@@ -283,7 +284,6 @@
     /* Confirm Password Validation */
     function validateConfirmPassword() {
         const value = confirmpassword.value.trim();
-        const digitPattern = /^[0-9]{6}$/;
 
         if (value === "") {
             confirmPasswordError.textContent = "Confirm Password is required";
@@ -335,8 +335,18 @@
 
         if (isPasswordValid && isConfirmPasswordValid) {
 
-            alert("Password Changed Successfully");
-            window.location.href = "home.php";
+            Swal.fire({
+                toast: true,
+                position: 'top',
+                icon: 'success',
+                title: 'Password changed successfully!',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true,
+                didClose: () => {
+                    window.history.back();
+                }
+            });
 
         }
     });

@@ -132,7 +132,7 @@
 
         .error {
             font-size: 12px;
-            color: #dc2626;
+            color: #ef4444;
             margin-top: 4px;
             display: none;
         }
@@ -311,6 +311,7 @@
                         <img id="previewImage" src="https://via.placeholder.com/160x220?text=Book+Cover"><br>
                         <span>Click to upload book image</span>
                         <input type="file" accept="image/*" id="imageInput">
+                        <div class="error"></div>
                     </label>
 
                     <!-- Fields -->
@@ -319,13 +320,13 @@
                         <div class="form-group">
                             <label>Title</label>
                             <input type="text" id="title">
-                            <div class="error">Title is required</div>
+                            <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Author</label>
                             <input type="text" id="author">
-                            <div class="error">Author is required</div>
+                            <div class="error"></div>
                         </div>
 
                         <div class="form-group">
@@ -337,13 +338,13 @@
                                 <option>Database</option>
                                 <option>Mathematics</option>
                             </select>
-                            <div class="error">Select a category</div>
+                            <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Year</label>
                             <input type="number" id="year">
-                            <div class="error">Enter valid year</div>
+                            <div class="error"></div>
                         </div>
 
                         <div class="form-group">
@@ -354,19 +355,19 @@
                                 <option>Science Block</option>
                                 <option>Engineering Wing</option>
                             </select>
-                            <div class="error">Select a library</div>
+                            <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Total Copies</label>
                             <input type="number" id="total">
-                            <div class="error">Total must be greater than 0</div>
+                            <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Available Copies</label>
                             <input type="number" id="available">
-                            <div class="error">Available ≤ Total</div>
+                            <div class="error"></div>
                         </div>
 
                     </div>
@@ -397,6 +398,7 @@
         const available = document.getElementById("available");
         const imageInput = document.getElementById("imageInput");
         const previewImage = document.getElementById("previewImage");
+        const imageError = imageInput.parentElement.querySelector(".error");
 
         function showError(input, message) {
             const error = input.nextElementSibling;
@@ -414,8 +416,17 @@
         }
 
         function validateText(input) {
-            if (input.value.trim() === "") {
+            const value = input.value.trim();
+            const regex = /^[A-Za-z\s]+$/;
+
+            if (value === "") {
                 showError(input, "This field is required");
+                return false;
+            } else if (value.length < 2) {
+                showError(input, "Minimum 2 characters required");
+                return false;
+            } else if (!regex.test(value)) {
+                showError(input, "Only letters are allowed");
                 return false;
             } else {
                 showSuccess(input);
@@ -435,8 +446,17 @@
 
         function validateYear() {
             const currentYear = new Date().getFullYear();
-            if (year.value < 1900 || year.value > currentYear) {
-                showError(year, "Enter valid year");
+            if (year.value === "") {
+                showError(year, "This field is required");
+                return false;
+            } else if (year.value < 0) {
+                showError(year, "Enter a valid year");
+                return false;
+            } else if (year.value.length !== 4 || isNaN(year.value)) {
+                showError(year, "Enter a valid 4-digit year");
+                return false;
+            } else if (year.value > currentYear) {
+                showError(year, "Year cannot be in the future");
                 return false;
             } else {
                 showSuccess(year);
@@ -445,21 +465,75 @@
         }
 
         function validateCopies() {
-            if (total.value <= 0) {
+            const totalValue = total.value.trim();
+            const availableValue = available.value.trim();
+            const regex = /^[0-9]+$/; // only whole numbers
+
+            // TOTAL validation
+            if (totalValue === "") {
+                showError(total, "This field is required");
+                return false;
+            } else if (!regex.test(totalValue)) {
+                showError(total, "Enter valid number");
+                return false;
+            } else if (Number(totalValue) <= 0) {
                 showError(total, "Total must be greater than 0");
                 return false;
             } else {
                 showSuccess(total);
             }
 
-            if (available.value < 0 || Number(available.value) > Number(total.value)) {
-                showError(available, "Available ≤ Total");
+            // AVAILABLE validation
+            if (availableValue === "") {
+                showError(available, "This field is required");
+                return false;
+            } else if (!regex.test(availableValue)) {
+                showError(available, "Enter valid number");
+                return false;
+            } else if (Number(availableValue) < 0 || Number(availableValue) > Number(totalValue)) {
+                showError(available, `Available must be between 0 and ${totalValue}`);
                 return false;
             } else {
                 showSuccess(available);
                 return true;
             }
         }
+
+        // show error in label
+        function showImageError(message) {
+            imageError.textContent = message;
+            imageError.style.display = "block";
+        }
+
+        // clear error
+        function clearImageError() {
+            imageError.textContent = "";
+            imageError.style.display = "none";
+        }
+
+        function validateImage(file) {
+            const allowedTypes = /^(image\/jpeg|image\/jpg|image\/png)$/;
+            const maxSize = 2 * 1024 * 1024; // 2MB
+
+            if (!file) {
+                showError(imageInput, "Please select an image");
+                return false;
+            }
+
+            if (!allowedTypes.test(file.type)) {
+                showError(imageInput, "Only JPG and PNG images are allowed");
+                return false;
+            }
+
+            if (file.size > maxSize) {
+                showError(imageInput, "Image size must be less than 2MB");
+                return false;
+            }
+
+            showSuccess(imageInput);
+            return true;
+        }
+
 
         title.addEventListener("input", () => validateText(title));
         author.addEventListener("input", () => validateText(author));
@@ -470,10 +544,18 @@
         available.addEventListener("input", validateCopies);
 
         imageInput.addEventListener("change", function(event) {
+            const file = event.target.files[0];
+
+            if (!validateImage(file)) {
+                imageInput.value = "";
+                return;
+            }
+
             const reader = new FileReader();
             reader.onload = () => previewImage.src = reader.result;
-            reader.readAsDataURL(event.target.files[0]);
+            reader.readAsDataURL(file);
         });
+
 
         form.addEventListener("submit", function(e) {
             e.preventDefault();
@@ -484,11 +566,22 @@
                 validateSelect(category) &
                 validateYear() &
                 validateSelect(library) &
-                validateCopies();
+                validateCopies() &
+                validateImage(imageInput.files[0]);
 
             if (isValid) {
-                alert("Book details added successfully!");
-                form.reset();
+               Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'success',
+                    title: 'Book details added successfully!',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true,
+                    didClose: () => {
+                        window.location.href = "book_list.php";
+                    }
+                });
                 previewImage.src = "https://via.placeholder.com/160x220?text=Book+Cover";
             }
         });
