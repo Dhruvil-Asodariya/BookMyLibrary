@@ -331,6 +331,24 @@
         .edit-icon:hover {
             background: #0284c7;
         }
+
+        /* DELETE icon */
+        .delete-icon {
+            position: absolute;
+            top: 8px;
+            right: -25px;
+            /* second icon */
+            background: #ef4444;
+            color: #fff;
+            padding: 6px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .delete-icon:hover {
+            background: #dc2626;
+        }
     </style>
 </head>
 
@@ -366,11 +384,11 @@
         <button class="btn" onclick="openAddTablePopup()">+ Add New Table</button>
     </div>';
     }
-    
+
     ?>
-    <!-- <div class="actions">
+    <div class="actions">
         <button class="btn" onclick="openAddTablePopup()">+ Add New Table</button>
-    </div> -->
+    </div>
 
 
     <!-- <h2>Table & Chair Booking</h2> -->
@@ -380,9 +398,14 @@
         <!-- TABLE 1 -->
         <div class="table-unit">
             <!-- EDIT ICON -->
-            <!-- <div class="edit-icon" onclick="openEditPopup(this)">
+            <div class="edit-icon" onclick="openEditPopup(this)">
                 <i class="fa fa-pen"></i>
-            </div> -->
+            </div>
+
+            <!-- DELETE ICON -->
+            <div class="delete-icon" onclick="deleteTable(this)">
+                <i class="fa fa-trash"></i>
+            </div>
 
             <!-- TOP -->
             <div class="chair top">C2</div>
@@ -410,9 +433,14 @@
         <!-- TABLE 2 -->
         <div class="table-unit">
             <!-- EDIT ICON -->
-            <!-- <div class="edit-icon" onclick="openEditPopup(this)">
+            <div class="edit-icon" onclick="openEditPopup(this)">
                 <i class="fa fa-pen"></i>
-            </div> -->
+            </div>
+
+            <!-- DELETE ICON -->
+            <div class="delete-icon" onclick="deleteTable(this)">
+                <i class="fa fa-trash"></i>
+            </div>
 
             <div class="chair top" data-price="120">C1<br></div>
             <div class="chair left booked" data-price="120">C2<br></div>
@@ -423,9 +451,14 @@
         <!-- TABLE 3 -->
         <div class="table-unit">
             <!-- EDIT ICON -->
-            <!-- <div class="edit-icon" onclick="openEditPopup(this)">
+            <div class="edit-icon" onclick="openEditPopup(this)">
                 <i class="fa fa-pen"></i>
-            </div> -->
+            </div>
+
+            <!-- DELETE ICON -->
+            <div class="delete-icon" onclick="deleteTable(this)">
+                <i class="fa fa-trash"></i>
+            </div>
 
             <div class="chair top" data-price="180">C1<br></div>
             <div class="chair left" data-price="180">C2<br></div>
@@ -437,9 +470,14 @@
         <!-- TABLE 4 -->
         <div class="table-unit">
             <!-- EDIT ICON -->
-            <!-- <div class="edit-icon" onclick="openEditPopup(this)">
+            <div class="edit-icon" onclick="openEditPopup(this)">
                 <i class="fa fa-pen"></i>
-            </div> -->
+            </div>
+
+            <!-- DELETE ICON -->
+            <div class="delete-icon" onclick="deleteTable(this)">
+                <i class="fa fa-trash"></i>
+            </div>
 
             <div class="chair top" data-price="100">C1<br></div>
             <div class="chair left" data-price="100">C2<br></div>
@@ -450,9 +488,14 @@
         <!-- TABLE 5 -->
         <div class="table-unit">
             <!-- EDIT ICON -->
-            <!-- <div class="edit-icon" onclick="openEditPopup(this)">
+            <div class="edit-icon" onclick="openEditPopup(this)">
                 <i class="fa fa-pen"></i>
-            </div> -->
+            </div>
+
+            <!-- DELETE ICON -->
+            <div class="delete-icon" onclick="deleteTable(this)">
+                <i class="fa fa-trash"></i>
+            </div>
 
             <div class="chair top" data-price="150">C1<br></div>
             <div class="chair left" data-price="150">C2<br></div>
@@ -464,9 +507,14 @@
         <!-- TABLE 6 -->
         <div class="table-unit">
             <!-- EDIT ICON -->
-            <!-- <div class="edit-icon" onclick="openEditPopup(this)">
+            <div class="edit-icon" onclick="openEditPopup(this)">
                 <i class="fa fa-pen"></i>
-            </div> -->
+            </div>
+
+            <!-- DELETE ICON -->
+            <div class="delete-icon" onclick="deleteTable(this)">
+                <i class="fa fa-trash"></i>
+            </div>
 
             <div class="chair top" data-price="120">C1<br></div>
             <div class="chair left booked" data-price="120">C2<br></div>
@@ -477,9 +525,14 @@
         <!-- TABLE 7 -->
         <div class="table-unit">
             <!-- EDIT ICON -->
-            <!-- <div class="edit-icon" onclick="openEditPopup(this)">
+            <div class="edit-icon" onclick="openEditPopup(this)">
                 <i class="fa fa-pen"></i>
-            </div> -->
+            </div>
+
+            <!-- DELETE ICON -->
+            <div class="delete-icon" onclick="deleteTable(this)">
+                <i class="fa fa-trash"></i>
+            </div>
 
             <div class="chair top" data-price="180">C1<br></div>
             <div class="chair left" data-price="180">C2<br></div>
@@ -491,9 +544,14 @@
         <!-- TABLE 8 -->
         <div class="table-unit">
             <!-- EDIT ICON -->
-            <!-- <div class="edit-icon" onclick="openEditPopup(this)">
+            <div class="edit-icon" onclick="openEditPopup(this)">
                 <i class="fa fa-pen"></i>
-            </div> -->
+            </div>
+
+            <!-- DELETE ICON -->
+            <div class="delete-icon" onclick="deleteTable(this)">
+                <i class="fa fa-trash"></i>
+            </div>
 
             <div class="chair top" data-price="100">C1<br></div>
             <div class="chair left" data-price="100">C2<br></div>
@@ -690,6 +748,38 @@
 
         selectedTable.appendChild(chair);
     }
+
+    function deleteTable(element) {
+        if (confirm("Are you sure you want to delete this table?")) {
+            const tableUnit = element.closest(".table-unit");
+            tableUnit.remove();
+        }
+    }
+
+    function deleteTable(element) {
+        Swal.fire({
+            title: "Delete table?",
+            text: "This action cannot be undone",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#ef4444",
+            cancelButtonColor: "#6b7280",
+            confirmButtonText: "Yes, delete it"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                element.closest(".table-unit").remove();
+
+                Swal.fire({
+                    toast: true,
+                    position: "top",
+                    icon: "success",
+                    title: "Table deleted",
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            }
+        });
+    }
 </script>
 
 <script>
@@ -730,7 +820,16 @@
             openEditPopup(this);
         };
 
+        /* DELETE ICON */
+            const deleteIcon = document.createElement("div");
+        deleteIcon.className = "delete-icon";
+        deleteIcon.innerHTML = '<i class="fa fa-trash"></i>';
+        deleteIcon.onclick = function() {
+            deleteTable(this);
+        };
+
         tableUnit.appendChild(editIcon);
+        tableUnit.appendChild(deleteIcon);
 
         /* TABLE BOX */
         const tableBox = document.createElement("div");

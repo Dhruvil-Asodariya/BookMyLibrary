@@ -240,7 +240,7 @@
                     </div>
                 </div>
             </div>
-            <a href="../login.php" class="logout-btn">Logout</a>
+            <a href="../logout.php" class="logout-btn">Logout</a>
         </div>
     </nav>
 </body>

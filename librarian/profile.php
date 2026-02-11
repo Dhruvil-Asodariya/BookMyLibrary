@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Library Profile</title>
+    <title>Profile | Library System</title>
+    <link rel="icon" href="../image/title_image.png" type="image/png">
+
 
     <style>
         * {
@@ -20,7 +22,7 @@
 
         /* Main Layout */
         .container {
-            max-width: 1200px;
+            max-width: 100%;
             margin: 20px auto;
             background: #f8f9fa;
             border-radius: 12px;
@@ -73,7 +75,7 @@
 
         /* Drag area */
         .drop-area {
-            border: 2px dashed #4f46e5;
+            border: 2px dashed #16a34a;
             padding: 25px;
             border-radius: 10px;
             margin-top: 15px;
@@ -83,7 +85,7 @@
 
         .drop-area.dragover {
             background: #eef2ff;
-            border-color: #4338ca;
+            border-color: #16a34a;
         }
 
         .drop-area p {
@@ -104,7 +106,7 @@
 
         /* Browse button */
         .browse-btn {
-            background: #4f46e5;
+            background: #16a34a;
             color: white;
             padding: 8px 14px;
             border-radius: 6px;
@@ -133,7 +135,15 @@
             cursor: pointer;
         }
 
-
+        .cancel-btn {
+            margin-top: 15px;
+            padding: 10px 18px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
 
         .profile-left h2 {
             margin-top: 15px;
@@ -145,7 +155,7 @@
         }
 
         .change-btn {
-            background: #2563eb;
+            background: #16a34a;
             border: none;
             padding: 10px 18px;
             border-radius: 8px;
@@ -153,21 +163,38 @@
             cursor: pointer;
         }
 
+        .remove-btn {
+            background: #ef4444;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            margin-top: 5px;
+            color: white;
+            cursor: pointer;
+        }
+
         /* RIGHT SIDE */
         .profile-right {
-            flex: 1;
+            flex: 2;
         }
 
         /* Card Sections */
         .card {
             background: #fff;
-            padding: 20px;
+            padding: 28px;
             border-radius: 10px;
             margin-bottom: 20px;
         }
 
         .card h3 {
-            margin-bottom: 15px;
+            font-size: 22px;
+            margin-bottom: 4px;
+        }
+
+        .sub {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 20px;
         }
 
         /* Form Grid */
@@ -188,11 +215,12 @@
             font-size: 14px;
         }
 
-        input {
+        .p {
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 6px;
             font-size: 14px;
+            width: 205.5px;
         }
 
         /* validation */
@@ -212,13 +240,15 @@
 
         /* Edit Button */
         .edit-btn {
-            float: right;
             background: #2563eb;
-            border: none;
-            padding: 12px 22px;
-            border-radius: 8px;
             color: white;
+            padding: 11px 22px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 500;
             cursor: pointer;
+            transition: 0.2s;
+            float: right;
         }
 
         input:disabled {
@@ -238,8 +268,117 @@
                 padding-bottom: 20px;
             }
 
+            orm-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .edit-card {
+            background: #ffffff;
+            padding: 28px;
+            border-radius: 14px;
+        }
+
+        /* Header */
+        .edit-header h3 {
+            font-size: 22px;
+            margin-bottom: 4px;
+        }
+
+        .edit-header p {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 20px;
+        }
+
+        /* Form Layout */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #000000;
+        }
+
+        /* Inputs */
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            padding: 12px 14px;
+            border-radius: 6px;
+            border: 1px solid #d1d5db;
+            background: #f9fafb;
+            font-size: 14px;
+            transition: 0.2s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: #2563eb;
+            background: #fff;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+        }
+
+        /* Full width address */
+        .full-width {
+            grid-column: span 2;
+        }
+
+        /* Buttons */
+        .edit-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .save-btn {
+            background: #2563eb;
+            color: white;
+            padding: 11px 22px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+
+        .cancel-btn {
+            background: #e5e7eb;
+            color: #111;
+            padding: 11px 22px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Validation */
+        .error {
+            color: #dc2626;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        /* Responsive */
+        @media(max-width:700px) {
             .form-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .full-width {
+                grid-column: span 1;
             }
         }
     </style>
@@ -253,13 +392,14 @@
 
         <div class="profile-left">
             <div class="profile-img">
-                <img src="../image/default_profile.png" id="profileImage">
+                <img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" id="profileImage">
             </div>
 
             <h2>James Gosling</h2>
             <p>Library Owner</p>
 
             <button class="change-btn" onclick="openPopup()">Change Profile</button>
+            <button class="remove-btn" id="removeProfileButton" onclick="removeProfile()">Remove Profile</button>
         </div>
 
 
@@ -290,65 +430,202 @@
         <!-- RIGHT DETAILS -->
         <div class="profile-right">
 
-            <!-- Personal Details -->
-            <div class="card">
+             <!-- Personal Details  -->
+            <div class="card" id="viewProfile">
+
                 <h3>Personal Details</h3>
+                <p class="sub">Update your profile information</p>
+
                 <div class="form-grid">
 
                     <div class="form-group">
-                        <label>Owner Name</label>
-                        <input type="text" id="name" value="James Gosling" disabled>
+                        <label>Name</label>
+                        <p class="p" id="viewName">James Gosling</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email</label>
+                        <p class="p" id="viewEmail">library@gmail.com</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <p class="p" id="viewPhone">9876543210</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Gender</label>
+                        <p class="p" id="viewGender">Male</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Address</label>
+                        <p class="p" id="viewAddress">123 Main Street, City, Country</p>
+                    </div>
+
+                </div>
+
+                <div class="edit-actions">
+                    <button class="edit-btn" onclick="openEditForm()">Edit Personal profile</button>
+                </div>
+            </div>
+            <div class="card edit-card" id="editProfile" style="display:none;">
+
+                <div class="edit-header">
+                    <h3>Edit Personal Details</h3>
+                    <p>Update your profile information</p>
+                </div>
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" id="editName" placeholder="Enter full name">
                         <span id="nameError" class="error"></span>
                     </div>
 
                     <div class="form-group">
                         <label>Email</label>
-                        <input type="email" id="email" value="library@gmail.com" disabled>
+                        <input type="email" id="editEmail" placeholder="Enter email">
                         <span id="emailError" class="error"></span>
                     </div>
 
                     <div class="form-group">
                         <label>Phone</label>
-                        <input type="text" id="phone" value="+91 9876543210" disabled>
+                        <input type="text" id="editPhone" placeholder="Enter phone number">
                         <span id="phoneError" class="error"></span>
                     </div>
 
+                    <div class="form-group">
+                        <label>Gender</label>
+                        <select id="editGender">
+                            <option value="">Select gender</option>
+                            <option selected>Male</option>
+                            <option>Female</option>
+                            <option>Other</option>
+                        </select>
+                        <span id="genderError" class="error"></span>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>Address</label>
+                        <textarea id="editAddress" rows="3" placeholder="Enter address">123 Main Street, City, Country</textarea>
+                        <span id="addressError" class="error"></span>
+                    </div>
+
                 </div>
+
+                <div class="edit-actions">
+                    <button class="cancel-btn" onclick="cancelEdit()">Cancel</button>
+                    <button class="save-btn" onclick="saveEdit()">Save Changes</button>
+                </div>
+
             </div>
 
-            <!-- Library Details -->
-            <div class="card">
+
+
+        </div>
+
+        <div class="profile-right">
+
+            <!-- Personal Details -->
+            <div class="card" id="viewLibraryProfile">
+
                 <h3>Library Details</h3>
+                <p class="sub">Update your library information</p>
+
                 <div class="form-grid">
 
                     <div class="form-group">
                         <label>Library Name</label>
-                        <input type="text" id="libraryName" value="Central City Library" disabled>
-                        <small class="error" id="libraryError"></small>
+                        <p class="p" id="viewLibraryName">Central City Library</p>
                     </div>
 
                     <div class="form-group">
-                        <label>Open Time</label>
-                        <input type="time" id="openTime" value="08:00" disabled>
-                        <small class="error" id="openError"></small>
+                        <label>Library Owner Name</label>
+                        <p class="p" id="viewLibraryOwnerName">James Gosling</p>
                     </div>
 
                     <div class="form-group">
-                        <label>Close Time</label>
-                        <input type="time" id="closeTime" value="21:00" disabled>
-                        <small class="error" id="closeError"></small>
+                        <label>Library Email</label>
+                        <p class="p" id="viewLibraryEmail">james.gosling@library.com</p>
                     </div>
 
                     <div class="form-group">
-                        <label>Library Address</label>
-                        <input type="text" id="address" value="Downtown, Rajkot" disabled>
-                        <small class="error" id="addressError"></small>
+                        <label>Open At</label>
+                        <p class="p" id="viewOpenAt">08:00 AM</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Close At</label>
+                        <p class="p" id="viewCloseAt">09:00 PM</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Library Location</label>
+                        <p class="p" id="viewLibraryLocation">Downtown, Rajkot</p>
                     </div>
 
                 </div>
+
+                <div class="edit-actions">
+                    <button class="edit-btn" onclick="openLibraryEditForm()">Edit Library Profile</button>
+                </div>
+            </div>
+            <div class="card edit-card" id="editLibraryProfile" style="display:none;">
+
+                <div class="edit-header">
+                    <h3>Edit Library Details</h3>
+                    <p>Update your library information</p>
+                </div>
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label>Library Name</label>
+                        <input type="text" id="editLibraryName" placeholder="Enter library name">
+                        <span id="libraryNameError" class="error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Library Owner Name</label>
+                        <input type="text" id="editLibraryOwnerName" placeholder="Enter library owner name">
+                        <span id="libraryOwnerNameError" class="error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Library Email</label>
+                        <input type="email" id="editLibraryEmail" placeholder="Enter library email">
+                        <span id="libraryEmailError" class="error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Open At</label>
+                        <input type="time" id="editOpenAt">
+                        <span id="openAtError" class="error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Close At</label>
+                        <input type="time" id="editCloseAt">
+                        <span id="closeAtError" class="error"></span>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>Library Location</label>
+                        <textarea id="editLibraryLocation" rows="3" placeholder="Enter library location">123 Main Street, City, Country</textarea>
+                        <span id="libraryLocationError" class="error"></span>
+                    </div>
+
+                </div>
+
+                <div class="edit-actions">
+                    <button class="cancel-btn" onclick="cancelLibraryEdit()">Cancel</button>
+                    <button class="save-btn" onclick="saveLibraryEdit()">Save Changes</button>
+                </div>
+
             </div>
 
-            <button class="edit-btn" onclick="toggleEdit()" id="editBtn">Edit Profile</button>
 
 
         </div>
@@ -356,6 +633,22 @@
     <?php include 'footer.php'; ?>
 
     <script>
+        const defaultImage = "../image/default_profile.png";
+
+        /* Check image on page load */
+        window.onload = function() {
+            toggleRemoveButton();
+        };
+
+        function toggleRemoveButton() {
+            let currentImg = document.getElementById("profileImage").getAttribute("src");
+
+            if (currentImg === defaultImage) {
+                document.getElementById("removeProfileButton").style.display = "none";
+            } else {
+                document.getElementById("removeProfileButton").style.display = "inline-block";
+            }
+        }
         let selectedImage = "";
 
         function openPopup() {
@@ -407,106 +700,396 @@
             }
 
             document.getElementById("profileImage").src = selectedImage;
+
+            toggleRemoveButton(); // show remove button
             closePopup();
+        }
+
+        function removeProfile() {
+            if (confirm("Are you sure you want to remove your profile?")) {
+                document.getElementById("profileImage").src = defaultImage;
+
+                toggleRemoveButton(); // hide remove button
+            }
         }
     </script>
 
+    <!-- Edit Personal Profile Script -->
     <script>
-        // GLOBAL variable
-        let editMode = false;
+        /* OPEN EDIT FORM */
+        function openEditForm() {
 
-        /* ================= TOGGLE EDIT MODE ================= */
+            document.getElementById("viewProfile").style.display = "none";
+            document.getElementById("editProfile").style.display = "block";
 
-        function toggleEdit() {
+            // Fill edit fields from view
+            document.getElementById("editName").value =
+                document.getElementById("viewName").innerText;
 
-            const fields = document.querySelectorAll("input");
-            const btn = document.getElementById("editBtn");
+            document.getElementById("editEmail").value =
+                document.getElementById("viewEmail").innerText;
 
-            if (!editMode) {
-                fields.forEach(field => field.disabled = false);
-                btn.innerText = "Save Profile";
-                editMode = true;
-            } else {
+            document.getElementById("editPhone").value =
+                document.getElementById("viewPhone").innerText;
 
-                if (!validateAll()) return;
+            document.getElementById("editGender").value =
+                document.getElementById("viewGender").innerText;
 
-                fields.forEach(field => field.disabled = true);
-                btn.innerText = "Edit Profile";
-                editMode = false;
+            document.getElementById("editAddress").value =
+                document.getElementById("viewAddress").innerText;
+        }
+
+        /* CANCEL EDIT */
+        function cancelEdit() {
+            document.getElementById("editProfile").style.display = "none";
+            document.getElementById("viewProfile").style.display = "block";
+        }
+
+        document.getElementById("editName").addEventListener("input", validateName);
+        document.getElementById("editEmail").addEventListener("input", validateEmail);
+        document.getElementById("editPhone").addEventListener("input", validatePhone);
+        document.getElementById("editGender").addEventListener("change", validateGender);
+        document.getElementById("editAddress").addEventListener("input", validateAddress);
+
+        /* SAVE PROFILE */
+        function saveEdit() {
+
+            if (!validateForm()) return;
+
+            // Update view values
+            document.getElementById("viewName").innerText =
+                document.getElementById("editName").value;
+
+            document.getElementById("viewEmail").innerText =
+                document.getElementById("editEmail").value;
+
+            document.getElementById("viewPhone").innerText =
+                document.getElementById("editPhone").value;
+
+            document.getElementById("viewGender").innerText =
+                document.getElementById("editGender").value;
+
+            document.getElementById("viewAddress").innerText =
+                document.getElementById("editAddress").value;
+
+            cancelEdit(); // go back to view
+        }
+
+        /* VALIDATION */
+
+        function validateName() {
+            let name = document.getElementById("editName");
+            let regex = /^[A-Za-z\s]+$/; // only letters + space
+
+            if (name.value.trim() === "") {
+                showError(name, "nameError", "Name is required");
+                return false;
+            } else if (name.value.trim().length < 2) {
+                showError(name, "nameError", "Name must be at least 2 characters");
+                return false;
+            } else if (!regex.test(name.value.trim())) {
+                showError(name, "nameError", "Only letters allowed");
+                return false;
             }
+
+            showSuccess(name, "nameError");
+            return true;
         }
 
-        /* ================= VALIDATION ================= */
-
-        function validateAll() {
-
-            let isValid = true;
-
-            // Name
-            let name = document.getElementById("name");
-            if (name.value.trim().length < 3) {
-                showError(name, "nameError", "Enter valid owner name");
-                isValid = false;
-            } else showSuccess(name, "nameError");
-
-            // Email
-            let email = document.getElementById("email");
+        function validateEmail() {
+            let email = document.getElementById("editEmail");
             let emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
-            if (!email.value.match(emailPattern)) {
+
+            if (email.value.trim() === "") {
+                showError(email, "emailError", "Email is required");
+                return false;
+            } else if (!emailPattern.test(email.value.trim())) {
                 showError(email, "emailError", "Enter valid email");
-                isValid = false;
-            } else showSuccess(email, "emailError");
+                return false;
+            }
 
-            // Phone
-            let phone = document.getElementById("phone");
-            if (phone.value.length < 10) {
-                showError(phone, "phoneError", "Enter valid phone number");
-                isValid = false;
-            } else showSuccess(phone, "phoneError");
-
-            // Library Name
-            let library = document.getElementById("libraryName");
-            if (library.value.trim() === "") {
-                showError(library, "libraryError", "Library name required");
-                isValid = false;
-            } else showSuccess(library, "libraryError");
-
-            // Open Time
-            let open = document.getElementById("openTime");
-            if (open.value === "") {
-                showError(open, "openError", "Select opening time");
-                isValid = false;
-            } else showSuccess(open, "openError");
-
-            // Close Time
-            let close = document.getElementById("closeTime");
-            if (close.value === "") {
-                showError(close, "closeError", "Select closing time");
-                isValid = false;
-            } else showSuccess(close, "closeError");
-
-            // Address
-            let address = document.getElementById("address");
-            if (address.value.trim() === "") {
-                showError(address, "addressError", "Address required");
-                isValid = false;
-            } else showSuccess(address, "addressError");
-
-            return isValid;
+            showSuccess(email, "emailError");
+            return true;
         }
 
-        /* ================= HELPER FUNCTIONS ================= */
+        function validatePhone() {
+            let phone = document.getElementById("editPhone");
+            let value = phone.value.trim();
+
+            if (value === "") {
+                showError(phone, "phoneError", "Phone number is required");
+                return false;
+            } else if (!/^[0-9]+$/.test(value)) {
+                showError(phone, "phoneError", "Phone must contain only numbers");
+                return false;
+            } else if (value.length !== 10) {
+                showError(phone, "phoneError", "Phone number must be exactly 10 digits");
+                return false;
+            }
+
+            showSuccess(phone, "phoneError");
+            return true;
+        }
+
+        function validateGender() {
+            let gender = document.getElementById("editGender");
+
+            if (!gender.value) {
+                showError(gender, "genderError", "Select gender");
+                return false;
+            }
+            showSuccess(gender, "genderError");
+            return true;
+        }
+
+        function validateAddress() {
+            let address = document.getElementById("editAddress");
+            let value = address.value.trim();
+
+            // allow letters, numbers, space, comma, (), :, -
+            let regex = /^[a-zA-Z0-9\s,():-]+$/;
+
+            if (value === "") {
+                showError(address, "addressError", "Address is required");
+                return false;
+            } else if (value.length < 5) {
+                showError(address, "addressError", "Enter full address");
+                return false;
+            } else if (!regex.test(value)) {
+                showError(address, "addressError", "Only letters, numbers, space, , ( ) : - allowed");
+                return false;
+            }
+
+            showSuccess(address, "addressError");
+            return true;
+        }
+
+
+        function validateForm() {
+            return (
+                validateName() &&
+                validateEmail() &&
+                validatePhone() &&
+                validateGender() &&
+                validateAddress()
+            );
+        }
+
+        /* HELPERS */
 
         function showError(input, errorId, message) {
             document.getElementById(errorId).innerText = message;
             input.classList.add("invalid");
-            input.classList.remove("valid");
         }
 
         function showSuccess(input, errorId) {
             document.getElementById(errorId).innerText = "";
             input.classList.remove("invalid");
-            input.classList.add("valid");
+        }
+    </script>
+
+    <!-- Edit Library Profile Script -->
+    <script>
+        function convertTo24Hour(time12h) {
+            let [time, modifier] = time12h.split(' ');
+            let [hours, minutes] = time.split(':');
+
+            if (hours === '12') hours = '00';
+            if (modifier === 'PM') hours = parseInt(hours, 10) + 12;
+
+            return `${hours.toString().padStart(2,'0')}:${minutes}`;
+        }
+        /* OPEN EDIT FORM */
+        function openLibraryEditForm() {
+
+            document.getElementById("viewLibraryProfile").style.display = "none";
+            document.getElementById("editLibraryProfile").style.display = "block";
+
+            // Fill edit fields from view
+            document.getElementById("editLibraryName").value =
+                document.getElementById("viewLibraryName").innerText;
+
+            document.getElementById("editLibraryOwnerName").value =
+                document.getElementById("viewLibraryOwnerName").innerText;
+
+            document.getElementById("editLibraryEmail").value =
+                document.getElementById("viewLibraryEmail").innerText;
+
+            document.getElementById("editOpenAt").value =
+                convertTo24Hour(document.getElementById("viewOpenAt").innerText);
+
+            document.getElementById("editCloseAt").value =
+                convertTo24Hour(document.getElementById("viewCloseAt").innerText);
+
+            document.getElementById("editLibraryLocation").value =
+                document.getElementById("viewLibraryLocation").innerText;
+        }
+
+        /* CANCEL EDIT */
+        function cancelLibraryEdit() {
+            document.getElementById("editLibraryProfile").style.display = "none";
+            document.getElementById("viewLibraryProfile").style.display = "block";
+        }
+
+        document.getElementById("editLibraryName").addEventListener("input", validateLibraryName);
+        document.getElementById("editLibraryOwnerName").addEventListener("input", validateLibraryOwnerName);
+        document.getElementById("editLibraryEmail").addEventListener("input", validateEmail);
+        document.getElementById("editOpenAt").addEventListener("input", validateTime);
+        document.getElementById("editCloseAt").addEventListener("change", validateTime);
+        document.getElementById("editLibraryLocation").addEventListener("input", validateLocation);
+
+        /* SAVE PROFILE */
+        function saveLibraryEdit() {
+
+            if (!validateForm()) return;
+
+            // Update view values
+            document.getElementById("viewLibraryName").innerText =
+                document.getElementById("editLibraryName").value;
+
+            document.getElementById("viewLibraryOwnerName").innerText =
+                document.getElementById("editLibraryOwnerName").value;
+
+            document.getElementById("viewLibraryEmail").innerText =
+                document.getElementById("editLibraryEmail").value;
+
+            document.getElementById("viewOpenAt").innerText =
+                convertTo24Hour(document.getElementById("editOpenAt").value);
+
+            document.getElementById("viewCloseAt").innerText =
+                convertTo24Hour(document.getElementById("editCloseAt").value);
+
+            document.getElementById("viewLibraryLocation").innerText =
+                document.getElementById("editLibraryLocation").value;
+
+            cancelLibraryEdit(); // go back to view
+        }
+
+        /* VALIDATION */
+
+        function validateLibraryName() {
+            let name = document.getElementById("editLibraryName");
+            let regex = /^[A-Za-z\s]+$/; // only letters + space
+
+            if (name.value.trim() === "") {
+                showError(name, "libraryNameError", "Library name is required");
+                return false;
+            } else if (name.value.trim().length < 2) {
+                showError(name, "libraryNameError", "Library name must be at least 2 characters");
+                return false;
+            } else if (!regex.test(name.value.trim())) {
+                showError(name, "libraryNameError", "Only letters allowed");
+                return false;
+            }
+
+            showSuccess(name, "libraryNameError");
+            return true;
+        }
+
+        function validateLibraryOwnerName() {
+            let name = document.getElementById("editLibraryOwnerName");
+            let regex = /^[A-Za-z\s]+$/; // only letters + space
+
+            if (name.value.trim() === "") {
+                showError(name, "libraryOwnerNameError", "Library owner name is required");
+                return false;
+            } else if (name.value.trim().length < 2) {
+                showError(name, "libraryOwnerNameError", "Library owner name must be at least 2 characters");
+                return false;
+            } else if (!regex.test(name.value.trim())) {
+                showError(name, "libraryOwnerNameError", "Only letters allowed");
+                return false;
+            }
+
+            showSuccess(name, "libraryOwnerNameError");
+            return true;
+        }
+
+        function validateEmail() {
+            let email = document.getElementById("editLibraryEmail");
+            let emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
+
+            if (email.value.trim() === "") {
+                showError(email, "libraryEmailError", "Email is required");
+                return false;
+            } else if (!emailPattern.test(email.value.trim())) {
+                showError(email, "libraryEmailError", "Enter valid email");
+                return false;
+            }
+
+            showSuccess(email, "libraryEmailError");
+            return true;
+        }
+
+        function validateTime() {
+            let openAt = document.getElementById("editOpenAt");
+            let closeAt = document.getElementById("editCloseAt");
+
+            if (!openAt.value) {
+                showError(openAt, "openAtError", "Open time is required");
+                return false;
+            } else {
+                showSuccess(openAt, "openAtError");
+            }
+
+            if (!closeAt.value) {
+                showError(closeAt, "closeAtError", "Close time is required");
+                return false;
+            } else {
+                showSuccess(closeAt, "closeAtError");
+            }
+
+            if (openAt.value && closeAt.value && openAt.value >= closeAt.value) {
+                showError(closeAt, "closeAtError", "Close time must be after open time");
+                return false;
+            }
+
+            return true;
+        }
+
+        function validateLocation() {
+            let location = document.getElementById("editLibraryLocation");
+            let value = location.value.trim();
+
+            // allow letters, numbers, space, comma, (), :, -
+            let regex = /^[a-zA-Z0-9\s,():-]+$/;
+
+            if (value === "") {
+                showError(location, "libraryLocationError", "Location is required");
+                return false;
+            } else if (value.length < 5) {
+                showError(location, "libraryLocationError", "Enter full location");
+                return false;
+            } else if (!regex.test(value)) {
+                showError(location, "libraryLocationError", "Only letters, numbers, space, , ( ) : - allowed");
+                return false;
+            }
+
+            showSuccess(location, "libraryLocationError");
+            return true;
+        }
+
+
+        function validateForm() {
+            return (
+                validateLibraryName() &&
+                validateLibraryOwnerName() &&
+                validateEmail() &&
+                validateTime() &&
+                validateLocation()
+            );
+        }
+
+        /* HELPERS */
+
+        function showError(input, errorId, message) {
+            document.getElementById(errorId).innerText = message;
+            input.classList.add("invalid");
+        }
+
+        function showSuccess(input, errorId) {
+            document.getElementById(errorId).innerText = "";
+            input.classList.remove("invalid");
         }
     </script>
 

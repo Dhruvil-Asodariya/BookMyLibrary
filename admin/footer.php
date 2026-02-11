@@ -20,7 +20,8 @@
 
         .footer {
             margin-top: auto;
-            /* Push footer to bottom */
+            bottom: 0;
+            width: 100%;
             background: rgba(15, 23, 42, 0.95);
             color: #fff;
             text-align: center;

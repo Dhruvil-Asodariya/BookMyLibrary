@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         /* ---------- NAVBAR ---------- */
         .navbar {
@@ -201,10 +202,10 @@
                 </div>
             </div>
 
-            <a href="user_list.php">User</a>
+            <!-- <a href="user_list.php">User</a> -->
 
             <!-- Library Dropdown -->
-            <a href="library_list.php">Library</a>
+            <!-- <a href="library_list.php">Library</a> -->
 
             <div class="dropdown">
                 <a href="javascript:void(0);" class="dropbtn">Fine <i class="fa-solid fa-caret-down"></i></a>
@@ -215,7 +216,7 @@
             </div>
 
             <!-- Category Dropdown -->
-            <a href="category_list.php">Category</a>
+            <a href="view_table&chair.php">View Table & Chair</a>
 
             <!-- <a href="view_table&chair.php">View Table & Chair</a> -->
         </div>
