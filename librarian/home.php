@@ -437,10 +437,10 @@
                 </div>
             </div>
 
-            <a href="user_list.php">User</a>
+            <!-- <a href="user_list.php">User</a> -->
 
             <!-- Library Dropdown -->
-            <a href="library_list.php">Library</a>
+            <!-- <a href="library_list.php">Library</a> -->
 
             <div class="dropdown">
                 <a href="javascript:void(0);" class="dropbtn">Fine <i class="fa-solid fa-caret-down"></i></a>
@@ -450,9 +450,9 @@
                 </div>
             </div>
 
-            <a href="category_list.php">Category</a>
+            <a href="view_table&chair.php">View Table & Chair</a>
 
-            <!-- <a href="view_table&chair.php">View Table & Chair</a> -->
+            <a href="review&rating_list.php">Review & Rating</a>
         </div>
 
         <div class="nav-right">
@@ -463,10 +463,10 @@
                     <a href="javascript:void(0);" class="dropbtn">Asodariya Dhruvil</a>
                     <div class="dropdown-content">
                         <a href="profile.php">My Profile</a>
-                        <a href="change_password.php">Change Password</a>
-                        <a href="#">Screen Lock</a>
+                        <a href="../change_password.php">Change Password</a>
+                        <!-- <a href="#">Screen Lock</a> -->
                         <hr>
-                        <a href="login.php">Logout</a>
+                        <a href="../login.php" style="color:#ef4444;">Logout</a>
 
                     </div>
                 </div>
@@ -492,30 +492,6 @@
                     <h2>Total Registered Books</h2>
                     <div class="value" id="totalBooks">1200</div>
                     <div class="sub">All books in system</div>
-                </div>
-            </div>
-
-            <div class="card users" onclick="card_users()">
-                <div class="card-content">
-                    <h2>Total Registered Users</h2>
-                    <div class="value" id="totalUsers">480</div>
-                    <div class="sub">Active members</div>
-                </div>
-            </div>
-
-            <div class="card libraries" onclick="card_libraries()">
-                <div class="card-content">
-                    <h2>Total Registered Libraries</h2>
-                    <div class="value" id="totalLibraries">25</div>
-                    <div class="sub">Libraries in network</div>
-                </div>
-            </div>
-
-            <div class="card category" onclick="card_category()">
-                <div class="card-content">
-                    <h2>Total Categories</h2>
-                    <div class="value" id="totalCategories">15</div>
-                    <div class="sub">Book categories in system</div>
                 </div>
             </div>
 
@@ -593,17 +569,14 @@
         // 🔒 FIXED VALUES
         const books = 100; // Total Registered Books (fixed)
         const collected = 3250; // Total Fine Collected (fixed)
-        const category = 15; // Total Registered Categories (fixed)
 
         // 🔄 LIVE VALUES
         let issued = 30;
-        let users = 480;
         let pending = 1250;
 
         // Set fixed values once
         document.getElementById("totalBooks").textContent = books;
         document.getElementById("fineCollected").textContent = collected;
-        document.getElementById("totalCategories").textContent = category;
 
         // Charts
         const booksCtx = document.getElementById('booksChart').getContext('2d');
@@ -690,11 +663,9 @@
         // 🔁 LIVE UPDATE (ONLY FOR DYNAMIC VALUES)
         function updateAdminDashboard() {
             issued = Math.floor(Math.random() * 80) + 1;
-            users = Math.floor(Math.random() * 1200) + 200;
             pending = Math.floor(Math.random() * 3000);
 
             document.getElementById("totalIssued").textContent = issued;
-            document.getElementById("totalUsers").textContent = users;
             document.getElementById("finePending").textContent = pending;
 
             // Update charts
@@ -710,19 +681,7 @@
 
         function card_book() {
             window.location.href = "book_list.php";
-        }
-
-        function card_users() {
-            window.location.href = "user_list.php";
-        }
-
-        function card_libraries() {
-            window.location.href = "library_list.php";
-        }
-
-        function card_category() {
-            window.location.href = "category_list.php";
-        }
+        }ow.location.href = "category_list.php";
 
         function card_issued() {
             window.location.href = "issued_book.php";

@@ -463,8 +463,8 @@
                     <a href="javascript:void(0);" class="dropbtn">Asodariya Dhruvil</a>
                     <div class="dropdown-content">
                         <a href="profile.php">My Profile</a>
-                        <a href="change_password.php">Change Password</a>
-                        <a href="#">Screen Lock</a>
+                        <a href="../change_password.php">Change Password</a>
+                        <!-- <a href="#">Screen Lock</a> -->
                         <hr>
                         <a href="logout.php">Logout</a>
 

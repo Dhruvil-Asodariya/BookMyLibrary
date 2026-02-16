@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Book List | Library System</title>
+    <title>Issued Book List | Library System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- DataTables CSS -->
@@ -157,12 +157,12 @@
             display: inline-block;
         }
 
-        .available {
+        .issued {
             background: #dcfce7;
             color: #166534;
         }
 
-        .issued {
+        .unissued {
             background: #fee2e2;
             color: #991b1b;
         }
@@ -467,6 +467,22 @@
             line-height: 1;
         }
 
+        /* Role pill (Blue) */
+        .pill-role-librarian {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .pill-role-user {
+            background-color: #e0f2fe;
+            color: #075985;
+        }
+
+        .pill-role-admin {
+            background-color: #ede9fe;
+            color: #5b21b6;
+        }
+
         /* Status pills */
         .pill-active {
             background-color: #dcfce7;
@@ -492,7 +508,7 @@
         /* Body */
         .modal-body-p {
             display: grid;
-            grid-template-columns: 580px 1fr;
+            grid-template-columns: 180px 1fr;
             gap: 20px;
             padding: 20px;
         }
@@ -559,6 +575,167 @@
             }
         }
 
+        /* Backdrop */
+        .l-modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Card */
+        .l-modal-card {
+            background: #ffffff;
+            width: 700px;
+            max-width: 95%;
+            border-radius: 14px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            animation: fadeSlide 0.25s ease;
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Header */
+        .l-modal-header-p {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .l-modal-header-p h3 {
+            font-size: 18px;
+            color: #0f172a;
+        }
+
+        .l-header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        /* Pills container */
+        .l-pill-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Base pill */
+        .l-pill {
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        /* Status pills */
+        .l-pill-active {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .l-pill-inactive {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Close */
+        .l-close-icon {
+            font-size: 22px;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .l-close-icon:hover {
+            color: #ef4444;
+        }
+
+        /* Body */
+        .l-modal-body-p {
+            display: grid;
+            grid-template-columns: 580px 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        /* Image */
+        .l-book-image img {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+
+        /* Details */
+        .l-book-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .l-detail span {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        .l-detail p {
+            margin-top: 4px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        /* Footer */
+        .l-modal-footer {
+            padding: 14px 20px;
+            border-top: 1px solid #e5e7eb;
+            text-align: right;
+        }
+
+        /* Buttons */
+        .l-btn-secondary {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #cbd5f5;
+            background: #f8fafc;
+            color: #1e293b;
+            cursor: pointer;
+        }
+
+        .l-btn-secondary:hover {
+            background: #e0e7ff;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .l-modal-body {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .l-book-details {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .advanced-filters {
             display: flex;
             flex-wrap: wrap;
@@ -600,368 +777,243 @@
         <nav class="breadcrumb">
             <a href="home.php" class="dashboard">Dashboard</a>
             <span class="separator">›</span>
-            <span class="current">Book List</span>
+            <span class="current">Issued Book List</span>
         </nav>
     </div>
     <div class="container">
         <div class="card">
             <div class="top-actions">
                 <div class="title-area">
-                    <h3>Book Details</h3>
-                    <div class="subtitle">Manage your book data</div>
+                    <h3>Issued Book Details</h3>
+                    <div class="subtitle">Manage your issued book data</div>
                 </div>
                 <div class="advanced-filters">
+
                     <div class="filter-box">
-                        <label>Title</label>
-                        <input type="text" id="filterTitle" placeholder="Filter by Title">
+                        <label>Issue Date</label>
+                        <input type="date" id="filterIssueDate">
                     </div>
+
                     <div class="filter-box">
-                        <label>Author</label>
-                        <input type="text" id="filterAuthor" placeholder="Filter by Author">
+                        <label>Due Date</label>
+                        <input type="date" id="filterDueDate">
                     </div>
+
                     <div class="filter-box">
-                        <label>Category</label>
-                        <input type="text" id="filterCategory" placeholder="Filter by Category">
-                    </div>
-                    <div class="filter-box">
-                        <label>Status</label>
-                        <select id="filterStatus">
-                            <option value="">All Status</option>
-                            <option value="Available">Available</option>
-                            <option value="Unavailable">Unavailable</option>
-                        </select>
+                        <label>Return Date</label>
+                        <input type="date" id="filterReturnDate">
                     </div>
 
                     <div class="filter-box btn-area">
+                        <label>&nbsp;</label>
                         <button class="btn btn-add" onclick="resetFilters()">Reset</button>
                     </div>
+
                 </div>
-                <a href="add_book.php"><button class="btn btn-add">➕ Add Book</button></a>
+                <div></div>
+
+
             </div>
 
             <table id="bookTable" class="display">
                 <thead>
                     <tr>
                         <th>Sr No.</th>
-                        <th>Image</th>
+                        <th>Issue ID</th>
                         <th>Book ID</th>
-                        <th>Library ID</th>
-                        <th>Title</th>
-                        <th>Author</th>
-                        <th>Category</th>
-                        <th>Year</th>
-                        <th>Total Copy</th>
-                        <th>Available Copy</th>
+                        <th>User ID</th>
+                        <th>Issue Date</th>
+                        <th>Due Date</th>
+                        <th>Return Date</th>
+                        <th>Fine Amount</th>
                         <th>Status</th>
-                        <th>Actions</th>
+                        <!-- <th>Actions</th> -->
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td>1</td>
-                        <td><img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" class="cover"></td>
                         <td>24842354</td>
-                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
-                        <td>Introduction to Java</td>
-                        <td>James Gosling</td>
-                        <td>Programming</td>
-                        <td>2020</td>
-                        <td>4</td>
-                        <td>2</td>
-                        <?php
-                        $available = 2;
-                        if ($available != 0) {
-                            echo '<td><span class="status available">Available</span></td>';
-                        } else {
-                            echo '<td><span class="status unavailable">Unavailable</span></td>';
-                        }
-                        ?>
-                        <td>
-                            <a href="edit_book.php?book_id=24842354"><button class="btn btn-edit">Edit</button></a>
-                            <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button>
-                        </td>
+                        <td><span class="model-link" onclick="openBookModal()">24842354</span></td>
+                        <td><span class="model-link" onclick="openUserModal()">24842353</span></td>
+                        <td>12-01-2026</td>
+                        <td>06-02-2026</td>
+                        <td>08-02-2026</td>
+                        <td>656</td>
+                        <td><span class="status issued">Issued</span></td>
+                        <!-- <td>
+                            <a href="edit_issued_book.php?issued_id=24842354"><button class="btn btn-edit">Edit</button></a>
+                            <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br>
+                        </td> -->
                     </tr>
 
-                    <tr>
-                        <td>2</td>
-                        <td><img src="../image/DMNS-500x500.jpg" class="cover"></td>
-                        <td>86651985</td>
-                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
-                        <td>Database Management</td>
-                        <td>R. Ramakrishnan</td>
-                        <td>Database</td>
-                        <td>2019</td>
-                        <td>3</td>
-                        <td>0</td>
-                        <?php
-                        $available = 0;
-                        if ($available != 0) {
-                            echo '<td><span class="status available">Available</span></td>';
-                        } else {
-                            echo '<td><span class="status unavailable">Unavailable</span></td>';
-                        }
-                        ?>
-                        <td>
-                            <button class="btn btn-edit">Edit</button>
-                            <button class="btn btn-delete">Delete</button>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>3</td>
-                        <td><img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" class="cover"></td>
-                        <td>24842354</td>
-                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
-                        <td>Introduction to Java</td>
-                        <td>James Gosling</td>
-                        <td>Programming</td>
-                        <td>2020</td>
-                        <td>4</td>
-                        <td>2</td>
-                        <?php
-                        $available = 2;
-                        if ($available != 0) {
-                            echo '<td><span class="status available">Available</span></td>';
-                        } else {
-                            echo '<td><span class="status unavailable">Unavailable</span></td>';
-                        }
-                        ?>
-                        <td>
-                            <button class="btn btn-edit">Edit</button>
-                            <button class="btn btn-delete">Delete</button>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>4</td>
-                        <td><img src="../image/DMNS-500x500.jpg" class="cover"></td>
-                        <td>86651985</td>
-                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
-                        <td>Database Management</td>
-                        <td>R. Ramakrishnan</td>
-                        <td>Database</td>
-                        <td>2019</td>
-                        <td>3</td>
-                        <td>0</td>
-                        <?php
-                        $available = 0;
-                        if ($available != 0) {
-                            echo '<td><span class="status available">Available</span></td>';
-                        } else {
-                            echo '<td><span class="status unavailable">Unavailable</span></td>';
-                        }
-                        ?>
-                        <td>
-                            <button class="btn btn-edit">Edit</button>
-                            <button class="btn btn-delete">Delete</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>5</td>
-                        <td><img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" class="cover"></td>
-                        <td>24842354</td>
-                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
-                        <td>Introduction to Java</td>
-                        <td>James Gosling</td>
-                        <td>Programming</td>
-                        <td>2020</td>
-                        <td>4</td>
-                        <td>2</td>
-                        <?php
-                        $available = 2;
-                        if ($available != 0) {
-                            echo '<td><span class="status available">Available</span></td>';
-                        } else {
-                            echo '<td><span class="status unavailable">Unavailable</span></td>';
-                        }
-                        ?>
-                        <td>
-                            <button class="btn btn-edit">Edit</button>
-                            <button class="btn btn-delete">Delete</button>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>6</td>
-                        <td><img src="../image/DMNS-500x500.jpg" class="cover"></td>
-                        <td>86651985</td>
-                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
-                        <td>Database Management</td>
-                        <td>R. Ramakrishnan</td>
-                        <td>Database</td>
-                        <td>2019</td>
-                        <td>3</td>
-                        <td>0</td>
-                        <?php
-                        $available = 0;
-                        if ($available != 0) {
-                            echo '<td><span class="status available">Available</span></td>';
-                        } else {
-                            echo '<td><span class="status unavailable">Unavailable</span></td>';
-                        }
-                        ?>
-                        <td>
-                            <button class="btn btn-edit">Edit</button>
-                            <button class="btn btn-delete">Delete</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>7</td>
-                        <td><img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" class="cover"></td>
-                        <td>24842354</td>
-                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
-                        <td>Introduction to Java</td>
-                        <td>James Gosling</td>
-                        <td>Programming</td>
-                        <td>2020</td>
-                        <td>4</td>
-                        <td>2</td>
-                        <?php
-                        $available = 2;
-                        if ($available != 0) {
-                            echo '<td><span class="status available">Available</span></td>';
-                        } else {
-                            echo '<td><span class="status unavailable">Unavailable</span></td>';
-                        }
-                        ?>
-                        <td>
-                            <button class="btn btn-edit">Edit</button>
-                            <button class="btn btn-delete">Delete</button>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>8</td>
-                        <td><img src="../image/DMNS-500x500.jpg" class="cover"></td>
-                        <td>86651985</td>
-                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
-                        <td>Database Management</td>
-                        <td>R. Ramakrishnan</td>
-                        <td>Database</td>
-                        <td>2019</td>
-                        <td>3</td>
-                        <td>0</td>
-                        <?php
-                        $available = 0;
-                        if ($available != 0) {
-                            echo '<td><span class="status available">Available</span></td>';
-                        } else {
-                            echo '<td><span class="status unavailable">Unavailable</span></td>';
-                        }
-                        ?>
-                        <td>
-                            <button class="btn btn-edit">Edit</button>
-                            <button class="btn btn-delete">Delete</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>9</td>
-                        <td><img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" class="cover"></td>
-                        <td>24842354</td>
-                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
-                        <td>Introduction to Java</td>
-                        <td>James Gosling</td>
-                        <td>Programming</td>
-                        <td>2020</td>
-                        <td>4</td>
-                        <td>2</td>
-                        <?php
-                        $available = 2;
-                        if ($available != 0) {
-                            echo '<td><span class="status available">Available</span></td>';
-                        } else {
-                            echo '<td><span class="status unavailable">Unavailable</span></td>';
-                        }
-                        ?>
-                        <td>
-                            <button class="btn btn-edit">Edit</button>
-                            <button class="btn btn-delete">Delete</button>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>10</td>
-                        <td><img src="../image/DMNS-500x500.jpg" class="cover"></td>
-                        <td>86651985</td>
-                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
-                        <td>Database Management</td>
-                        <td>R. Ramakrishnan</td>
-                        <td>Programming</td>
-                        <td>2019</td>
-                        <td>3</td>
-                        <td>0</td>
-                        <?php
-                        $available = 0;
-                        if ($available != 0) {
-                            echo '<td><span class="status available">Available</span></td>';
-                        } else {
-                            echo '<td><span class="status unavailable">Unavailable</span></td>';
-                        }
-                        ?>
-                        <td>
-                            <button class="btn btn-edit">Edit</button>
-                            <button class="btn btn-delete">Delete</button>
-                        </td>
-                    </tr>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <div class="modal-backdrop" id="libraryModal">
+    <div class="modal-backdrop" id="bookModal">
         <div class="modal-card">
 
             <div class="modal-header-p">
-                <div class="header-left">
-                    <h3>Library Details</h3>
+                <h3>Book Details</h3>
+                <span class="close-icon" onclick="closeBookModal()">×</span>
+            </div>
 
-                    <div class="pill-group">
-                        <span class="pill pill-active">Active</span>
-                        <!-- <span class="pill pill-inactive">Inactive</span> -->
+            <div class="modal-body-p">
+                <div class="book-image">
+                    <img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" alt="Book Image">
+                </div>
+
+                <div class="book-details">
+                    <div class="detail">
+                        <span>Book ID</span>
+                        <p>24842354</p>
+                    </div>
+                    <div class="detail">
+                        <span>Title</span>
+                        <p>Introduction to Java</p>
+                    </div>
+                    <div class="detail">
+                        <span>Author</span>
+                        <p>James Gosling</p>
+                    </div>
+                    <div class="detail">
+                        <span>Category</span>
+                        <p>Programming</p>
+                    </div>
+                    <div class="detail">
+                        <span>Publish Year</span>
+                        <p>2020</p>
+                    </div>
+                    <div class="detail">
+                        <span>Library Name</span>
+                        <p>Main Library</p>
                     </div>
                 </div>
             </div>
 
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeBookModal()">Close</button>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="userModal">
+        <div class="modal-card">
+
+            <div class="modal-header-p">
+                <div class="header-left">
+                    <h3>User Details</h3>
+
+                    <div class="pill-group">
+                        <span class="pill pill-role-librarian">Librarian</span>
+                        <!-- <span class="pill pill-role-user">User</span> -->
+                        <!-- <span class="pill pill-role-admin">Admin</span> -->
+                        <span class="pill pill-active">Active</span>
+                        <!-- <span class="pill pill-inactive">Inactive</span> -->
+                    </div>
+                </div>
+
+                <span class="close-icon" onclick="closeUserModal()">×</span>
+            </div>
+
             <div class="modal-body-p">
+                <div class="book-image">
+                    <img src="../image/default_profile.png" alt="Book Image">
+                </div>
 
                 <div class="book-details">
                     <div class="detail">
-                        <span>Library ID</span>
+                        <span>User ID</span>
                         <p>24842354</p>
                     </div>
                     <div class="detail">
+                        <span>First Name</span>
+                        <p>John</p>
+                    </div>
+                    <div class="detail">
+                        <span>Last Name</span>
+                        <p>Doe</p>
+                    </div>
+                    <div class="detail">
+                        <span>Email ID</span>
+                        <p>john.doe@example.com </p>
+                    </div>
+                    <div class="detail">
+                        <span>Contact Number</span>
+                        <p>9876543210</p>
+                    </div>
+                    <div class="detail">
+                        <span>Address</span>
+                        <p>123 Main St, Cityville</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeUserModal()">Close</button>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="l-modal-backdrop" id="libraryModal">
+        <div class="l-modal-card">
+
+            <div class="l-modal-header-p">
+                <div class="l-header-left">
+                    <h3>Library Details</h3>
+
+                    <div class="l-pill-group">
+                        <span class="l-pill pill-active">Active</span>
+                        <!-- <span class="pill pill-inactive">Inactive</span> -->
+                    </div>
+                </div>
+                <span class="close-icon" onclick="closeLibraryModal()">×</span>
+            </div>
+
+            <div class="l-modal-body-p">
+
+                <div class="l-book-details">
+                    <div class="l-detail">
+                        <span>Library ID</span>
+                        <p>24842354</p>
+                    </div>
+                    <div class="l-detail">
                         <span>Library Name</span>
                         <p>Central City Library</p>
                     </div>
-                    <div class="detail">
+                    <div class="l-detail">
                         <span>Library Owner Name</span>
                         <p>James Gosling</p>
                     </div>
-                    <div class="detail">
+                    <div class="l-detail">
                         <span>Table capacity</span>
                         <p>120</p>
                     </div>
-                    <div class="detail">
+                    <div class="l-detail">
                         <span>Chair Capacity</span>
                         <p>240</p>
                     </div>
-                    <div class="detail">
+                    <div class="l-detail">
                         <span>Open At</span>
                         <p>08:00 AM</p>
                     </div>
-                    <div class="detail">
+                    <div class="l-detail">
                         <span>Close At</span>
                         <p>09:00 PM</p>
                     </div>
-                    <div class="detail">
+                    <div class="l-detail">
                         <span>Library Location</span>
                         <p>Downtown, Rajkot</p>
                     </div>
                 </div>
             </div>
 
-            <div class="modal-footer">
-                <button class="btn-secondary" onclick="closeLibraryModal()">Close</button>
+            <div class="l-modal-footer">
+                <button class="l-btn-secondary" onclick="closeLibraryModal()">Close</button>
             </div>
 
         </div>
@@ -970,11 +1022,11 @@
     <div class="modal-overlay" id="deleteModal">
         <div class="modal-box">
             <div class="modal-header">
-                <h3>Delete Book Record</h3>
+                <h3>Delete Issued Book Record</h3>
             </div>
 
             <div class="modal-body">
-                <p>⚠️ Are you sure you want to delete this book record?</p>
+                <p>⚠️ Are you sure you want to delete this issued book record?</p>
                 <span>This action cannot be undone.</span>
             </div>
 
@@ -1005,19 +1057,19 @@
             buttons: [{
                     extend: 'excelHtml5',
                     exportOptions: {
-                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9, 10] // column indexes you want
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] // column indexes you want
                     }
                 },
                 {
                     extend: 'pdfHtml5',
                     exportOptions: {
-                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
                     }
                 },
                 {
                     extend: 'print',
                     exportOptions: {
-                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
                     }
                 }
             ],
@@ -1027,34 +1079,38 @@
             scrollCollapse: true
         });
 
-        // STATUS filter
-        $('#filterStatus').on('change', function() {
-            var value = this.value.toLowerCase();
+        function formatDateForTable(date) {
+            if (!date) return "";
+            const parts = date.split("-");
+            return parts[2] + "-" + parts[1] + "-" + parts[0]; // yyyy-mm-dd → dd-mm-yyyy
+        }
 
-            table.column(10).search(value ? '^' + value + '$' : '', true, false).draw();
+        // Issue filter
+        $('#filterIssueDate').on('change', function() {
+            let val = formatDateForTable(this.value);
+            table.column(5).search(val).draw();
         });
 
-        // LOCATION filter
-        $('#filterTitle').on('keyup', function() {
-            table.column(4).search(this.value).draw();
+
+        // Due filter
+        $('#filterDueDate').on('change', function() {
+            let val = formatDateForTable(this.value);
+            table.column(6).search(val).draw();
         });
 
-        // OWNER filter
-        $('#filterAuthor').on('keyup', function() {
-            table.column(5).search(this.value).draw();
+
+        // Return filter
+        $('#filterReturnDate').on('change', function() {
+            let val = formatDateForTable(this.value);
+            table.column(7).search(val).draw();
         });
 
-        // CATEGORY filter
-        $('#filterCategory').on('keyup', function() {
-            table.column(6).search(this.value).draw();
-        });
 
         // RESET filters
         function resetFilters() {
-            $('#filterStatus').val('');
-            $('#filterTitle').val('');
-            $('#filterAuthor').val('');
-            $('#filterCategory').val('');
+            $('#filterIssueDate').val('');
+            $('#filterDueDate').val('');
+            $('#filterReturnDate').val('');
 
             table.columns().search('').draw();
         }
@@ -1071,33 +1127,25 @@
 
         function confirmDelete() {
             closeDeleteModal();
-            alert("Book record deleted successfully!");
+            alert("Issued book record deleted successfully!");
             // Here you can remove the row or call backend later
         }
 
-        document.addEventListener("click", function(e) {
-            if (e.target.classList.contains("btn-toggle")) {
+        function openBookModal() {
+            document.getElementById("bookModal").style.display = "flex";
+        }
 
-                const row = e.target.closest("tr");
-                const status = row.querySelector(".status");
+        function closeBookModal() {
+            document.getElementById("bookModal").style.display = "none";
+        }
 
-                if (status.classList.contains("available")) {
-                    // Change to Unavailable
-                    status.textContent = "Unavailable";
-                    status.classList.remove("available");
-                    status.classList.add("unavailable");
+        function openUserModal() {
+            document.getElementById("userModal").style.display = "flex";
+        }
 
-                    e.target.textContent = "Available";
-                } else {
-                    // Change to Available
-                    status.textContent = "Available";
-                    status.classList.remove("unavailable");
-                    status.classList.add("available");
-
-                    e.target.textContent = "Unavailable";
-                }
-            }
-        });
+        function closeUserModal() {
+            document.getElementById("userModal").style.display = "none";
+        }
 
         function openLibraryModal() {
             document.getElementById("libraryModal").style.display = "flex";

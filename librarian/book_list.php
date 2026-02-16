@@ -645,7 +645,6 @@
                         <th>Sr No.</th>
                         <th>Image</th>
                         <th>Book ID</th>
-                        <th>Library ID</th>
                         <th>Title</th>
                         <th>Author</th>
                         <th>Category</th>
@@ -661,7 +660,6 @@
                         <td>1</td>
                         <td><img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" class="cover"></td>
                         <td>24842354</td>
-                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
                         <td>Introduction to Java</td>
                         <td>James Gosling</td>
                         <td>Programming</td>
@@ -686,7 +684,6 @@
                         <td>2</td>
                         <td><img src="../image/DMNS-500x500.jpg" class="cover"></td>
                         <td>86651985</td>
-                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
                         <td>Database Management</td>
                         <td>R. Ramakrishnan</td>
                         <td>Database</td>
@@ -711,7 +708,6 @@
                         <td>3</td>
                         <td><img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" class="cover"></td>
                         <td>24842354</td>
-                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
                         <td>Introduction to Java</td>
                         <td>James Gosling</td>
                         <td>Programming</td>
@@ -736,7 +732,6 @@
                         <td>4</td>
                         <td><img src="../image/DMNS-500x500.jpg" class="cover"></td>
                         <td>86651985</td>
-                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
                         <td>Database Management</td>
                         <td>R. Ramakrishnan</td>
                         <td>Database</td>
@@ -760,7 +755,6 @@
                         <td>5</td>
                         <td><img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" class="cover"></td>
                         <td>24842354</td>
-                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
                         <td>Introduction to Java</td>
                         <td>James Gosling</td>
                         <td>Programming</td>
@@ -785,7 +779,6 @@
                         <td>6</td>
                         <td><img src="../image/DMNS-500x500.jpg" class="cover"></td>
                         <td>86651985</td>
-                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
                         <td>Database Management</td>
                         <td>R. Ramakrishnan</td>
                         <td>Database</td>
@@ -809,7 +802,6 @@
                         <td>7</td>
                         <td><img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" class="cover"></td>
                         <td>24842354</td>
-                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
                         <td>Introduction to Java</td>
                         <td>James Gosling</td>
                         <td>Programming</td>
@@ -834,7 +826,6 @@
                         <td>8</td>
                         <td><img src="../image/DMNS-500x500.jpg" class="cover"></td>
                         <td>86651985</td>
-                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
                         <td>Database Management</td>
                         <td>R. Ramakrishnan</td>
                         <td>Database</td>
@@ -858,7 +849,6 @@
                         <td>9</td>
                         <td><img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" class="cover"></td>
                         <td>24842354</td>
-                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
                         <td>Introduction to Java</td>
                         <td>James Gosling</td>
                         <td>Programming</td>
@@ -883,7 +873,6 @@
                         <td>10</td>
                         <td><img src="../image/DMNS-500x500.jpg" class="cover"></td>
                         <td>86651985</td>
-                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
                         <td>Database Management</td>
                         <td>R. Ramakrishnan</td>
                         <td>Programming</td>
@@ -905,65 +894,6 @@
                     </tr>
                 </tbody>
             </table>
-        </div>
-    </div>
-
-    <div class="modal-backdrop" id="libraryModal">
-        <div class="modal-card">
-
-            <div class="modal-header-p">
-                <div class="header-left">
-                    <h3>Library Details</h3>
-
-                    <div class="pill-group">
-                        <span class="pill pill-active">Active</span>
-                        <!-- <span class="pill pill-inactive">Inactive</span> -->
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-body-p">
-
-                <div class="book-details">
-                    <div class="detail">
-                        <span>Library ID</span>
-                        <p>24842354</p>
-                    </div>
-                    <div class="detail">
-                        <span>Library Name</span>
-                        <p>Central City Library</p>
-                    </div>
-                    <div class="detail">
-                        <span>Library Owner Name</span>
-                        <p>James Gosling</p>
-                    </div>
-                    <div class="detail">
-                        <span>Table capacity</span>
-                        <p>120</p>
-                    </div>
-                    <div class="detail">
-                        <span>Chair Capacity</span>
-                        <p>240</p>
-                    </div>
-                    <div class="detail">
-                        <span>Open At</span>
-                        <p>08:00 AM</p>
-                    </div>
-                    <div class="detail">
-                        <span>Close At</span>
-                        <p>09:00 PM</p>
-                    </div>
-                    <div class="detail">
-                        <span>Library Location</span>
-                        <p>Downtown, Rajkot</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <button class="btn-secondary" onclick="closeLibraryModal()">Close</button>
-            </div>
-
         </div>
     </div>
 
@@ -1098,14 +1028,6 @@
                 }
             }
         });
-
-        function openLibraryModal() {
-            document.getElementById("libraryModal").style.display = "flex";
-        }
-
-        function closeLibraryModal() {
-            document.getElementById("libraryModal").style.display = "none";
-        }
     </script>
 
 </body>

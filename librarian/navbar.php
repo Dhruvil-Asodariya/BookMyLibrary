@@ -218,7 +218,7 @@
             <!-- Category Dropdown -->
             <a href="view_table&chair.php">View Table & Chair</a>
 
-            <!-- <a href="view_table&chair.php">View Table & Chair</a> -->
+            <a href="review&rating_list.php">Review & Rating</a>
         </div>
 
         <div class="nav-right">
@@ -229,8 +229,8 @@
                     <a href="javascript:void(0);" class="dropbtn">Asodariya Dhruvil</a>
                     <div class="dropdown-content">
                         <a href="profile.php">My Profile</a>
-                        <a href="change_password.php">Change Password</a>
-                        <a href="#">Screen Lock</a>
+                        <a href="../change_password.php">Change Password</a>
+                        <!-- <a href="#">Screen Lock</a> -->
                         <hr>
                         <a href="../login.php" style="color:#ef4444;">Logout</a>
 
