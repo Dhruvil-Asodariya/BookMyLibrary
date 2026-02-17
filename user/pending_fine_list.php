@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Issued Book List | Library System</title>
+    <title>Pending Fine List | Library System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- DataTables CSS -->
@@ -157,12 +157,12 @@
             display: inline-block;
         }
 
-        .issued {
+        .paid {
             background: #dcfce7;
             color: #166534;
         }
 
-        .unissued {
+        .unpaid {
             background: #fee2e2;
             color: #991b1b;
         }
@@ -575,167 +575,6 @@
             }
         }
 
-        /* Backdrop */
-        .l-modal-backdrop {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.65);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /* Card */
-        .l-modal-card {
-            background: #ffffff;
-            width: 700px;
-            max-width: 95%;
-            border-radius: 14px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-            overflow: hidden;
-            animation: fadeSlide 0.25s ease;
-        }
-
-        @keyframes fadeSlide {
-            from {
-                opacity: 0;
-                transform: translateY(15px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Header */
-        .l-modal-header-p {
-            padding: 16px 20px;
-            border-bottom: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .l-modal-header-p h3 {
-            font-size: 18px;
-            color: #0f172a;
-        }
-
-        .l-header-left {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        /* Pills container */
-        .l-pill-group {
-            display: flex;
-            gap: 8px;
-        }
-
-        /* Base pill */
-        .l-pill {
-            padding: 6px 14px;
-            border-radius: 999px;
-            font-size: 13px;
-            font-weight: 600;
-            line-height: 1;
-        }
-
-        /* Status pills */
-        .l-pill-active {
-            background-color: #dcfce7;
-            color: #166534;
-        }
-
-        .l-pill-inactive {
-            background-color: #fee2e2;
-            color: #991b1b;
-        }
-
-        /* Close */
-        .l-close-icon {
-            font-size: 22px;
-            cursor: pointer;
-            color: #64748b;
-        }
-
-        .l-close-icon:hover {
-            color: #ef4444;
-        }
-
-        /* Body */
-        .l-modal-body-p {
-            display: grid;
-            grid-template-columns: 580px 1fr;
-            gap: 20px;
-            padding: 20px;
-        }
-
-        /* Image */
-        .l-book-image img {
-            width: 100%;
-            height: 240px;
-            object-fit: cover;
-            border-radius: 10px;
-            border: 1px solid #e5e7eb;
-        }
-
-        /* Details */
-        .l-book-details {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-        }
-
-        .l-detail span {
-            font-size: 12px;
-            color: #64748b;
-            text-transform: uppercase;
-        }
-
-        .l-detail p {
-            margin-top: 4px;
-            font-size: 15px;
-            font-weight: 600;
-            color: #1e293b;
-        }
-
-        /* Footer */
-        .l-modal-footer {
-            padding: 14px 20px;
-            border-top: 1px solid #e5e7eb;
-            text-align: right;
-        }
-
-        /* Buttons */
-        .l-btn-secondary {
-            padding: 8px 16px;
-            border-radius: 8px;
-            border: 1px solid #cbd5f5;
-            background: #f8fafc;
-            color: #1e293b;
-            cursor: pointer;
-        }
-
-        .l-btn-secondary:hover {
-            background: #e0e7ff;
-        }
-
-        /* Responsive */
-        @media (max-width: 640px) {
-            .l-modal-body {
-                grid-template-columns: 1fr;
-                text-align: center;
-            }
-
-            .l-book-details {
-                grid-template-columns: 1fr;
-            }
-        }
-
         .advanced-filters {
             display: flex;
             flex-wrap: wrap;
@@ -767,6 +606,139 @@
         .btn-area {
             justify-content: flex-end;
         }
+
+        .btn-pay {
+            background: #16a34a;
+            color: #fff;
+            display: inline-block;
+        }
+
+        .btn-pay:hover {
+            background: #15803d;
+        }
+
+        .upi-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(6px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: fadeIn .25s ease;
+        }
+
+        .upi-card {
+            width: 360px;
+            background: linear-gradient(145deg, #ffffff, #f4f4f4);
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, .3);
+            animation: slideUp .3s ease;
+        }
+
+        .upi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .upi-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .upi-close {
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .upi-body {
+            text-align: center;
+        }
+
+        .upi-qr-box {
+            background: #fff;
+            padding: 12px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, .15);
+        }
+
+        .upi-qr-box img {
+            width: 220px;
+        }
+
+        .upi-amount {
+            font-size: 26px;
+            font-weight: 700;
+            margin: 15px 0 5px;
+        }
+
+        .upi-text {
+            color: #666;
+            font-size: 13px;
+        }
+
+        .upi-apps {
+            margin-top: 10px;
+        }
+
+        .upi-apps span {
+            background: #eee;
+            padding: 6px 10px;
+            margin: 0 4px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .upi-footer {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .upi-cancel,
+        .upi-paid {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .upi-cancel {
+            background: #e5e5e5;
+        }
+
+        .upi-paid {
+            background: #16a34a;
+            color: #fff;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(40px);
+                opacity: 0
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0
+            }
+
+            to {
+                opacity: 1
+            }
+        }
     </style>
 
 </head>
@@ -777,49 +749,42 @@
         <nav class="breadcrumb">
             <a href="home.php" class="dashboard">Dashboard</a>
             <span class="separator">›</span>
-            <span class="current">Issued Book List</span>
+            <span class="current">Fine List</span>
         </nav>
     </div>
     <div class="container">
         <div class="card">
             <div class="top-actions">
                 <div class="title-area">
-                    <h3>Issued Book Details</h3>
-                    <div class="subtitle">Manage your issued book data</div>
+                    <h3>Pending Fine Details</h3>
+                    <div class="subtitle">Manage your pending fine data</div>
                 </div>
                 <div class="advanced-filters">
-
                     <div class="filter-box">
-                        <label>Issue Date</label>
-                        <input type="date" id="filterIssueDate">
+                        <label>Book ID</label>
+                        <input type="text" id="filterBookID" placeholder="Filter by Book ID" maxlength="8">
                     </div>
-
                     <div class="filter-box">
-                        <label>Return Date</label>
-                        <input type="date" id="filterReturnDate">
+                        <label>User ID</label>
+                        <input type="text" id="filterUserID" placeholder="Filter by User ID" maxlength="8">
                     </div>
 
                     <div class="filter-box btn-area">
-                        <label>&nbsp;</label>
                         <button class="btn btn-add" onclick="resetFilters()">Reset</button>
                     </div>
-
                 </div>
                 <div></div>
-
-
             </div>
 
             <table id="bookTable" class="display">
                 <thead>
                     <tr>
                         <th>Sr No.</th>
-                        <th>Issue ID</th>
+                        <th>Fine ID</th>
                         <th>Book ID</th>
                         <th>User ID</th>
-                        <th>Library ID</th>
-                        <th>Issue Date</th>
-                        <th>Return Date</th>
+                        <th>Fine Per Day</th>
+                        <th>Fine Days</th>
                         <th>Fine Amount</th>
                         <th>Status</th>
                         <th>Actions</th>
@@ -829,16 +794,45 @@
                     <tr>
                         <td>1</td>
                         <td>24842354</td>
-                        <td><span class="model-link" onclick="openBookModal()">24842354</span></td>
-                        <td><span class="model-link" onclick="openUserModal()">24842353</span></td>
-                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
-                        <td>12-01-2026</td>
-                        <td>06-02-2026</td>
-                        <td>656</td>
-                        <td><span class="status issued">Issued</span></td>
+                        <td class="model-link" onclick="openBookModal()">24842354</td>
+                        <td class="model-link" onclick="openUserModal()">24842353</td>
+                        <td>10</td>
+                        <td>20</td>
+                        <td>200</td>
+                        <td><span class="status unpaid">Unpaid</span></td>
                         <td>
-                            <a href="edit_issued_book.php?issued_id=24842354"><button class="btn btn-edit">Edit</button></a>
-                            <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br>
+                            <!-- <a href="edit_fine.php?fine_id=24842354"><button class="btn btn-edit">Edit</button></a>
+                            <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br> -->
+                            <button class="btn btn-pay"
+                                data-amount="1"
+                                data-book="24842354">
+                                Pay
+                            </button>
+                        </td>
+                        <button class="btn btn-pay"
+                            data-amount="1"
+                            data-book="24842354">
+                            Pay
+                        </button>
+                    </tr>
+
+                    <tr>
+                        <td>1</td>
+                        <td>24842354</td>
+                        <td class="model-link" onclick="openBookModal()">24842354</td>
+                        <td class="model-link" onclick="openUserModal()">24842353</td>
+                        <td>10</td>
+                        <td>20</td>
+                        <td>200</td>
+                        <td><span class="status unpaid">Unpaid</span></td>
+                        <td>
+                            <!-- <a href="edit_fine.php?fine_id=24842354"><button class="btn btn-edit">Edit</button></a>
+                            <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br> -->
+                            <button class="btn btn-pay"
+                                data-amount="1"
+                                data-book="24842354">
+                                Pay
+                            </button>
                         </td>
                     </tr>
 
@@ -954,74 +948,14 @@
         </div>
     </div>
 
-    <div class="l-modal-backdrop" id="libraryModal">
-        <div class="l-modal-card">
-
-            <div class="l-modal-header-p">
-                <div class="l-header-left">
-                    <h3>Library Details</h3>
-
-                    <div class="l-pill-group">
-                        <span class="l-pill pill-active">Active</span>
-                        <!-- <span class="pill pill-inactive">Inactive</span> -->
-                    </div>
-                </div>
-                <span class="close-icon" onclick="closeLibraryModal()">×</span>
-            </div>
-
-            <div class="l-modal-body-p">
-
-                <div class="l-book-details">
-                    <div class="l-detail">
-                        <span>Library ID</span>
-                        <p>24842354</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Library Name</span>
-                        <p>Central City Library</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Library Owner Name</span>
-                        <p>James Gosling</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Table capacity</span>
-                        <p>120</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Chair Capacity</span>
-                        <p>240</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Open At</span>
-                        <p>08:00 AM</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Close At</span>
-                        <p>09:00 PM</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Library Location</span>
-                        <p>Downtown, Rajkot</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="l-modal-footer">
-                <button class="l-btn-secondary" onclick="closeLibraryModal()">Close</button>
-            </div>
-
-        </div>
-    </div>
-
     <div class="modal-overlay" id="deleteModal">
         <div class="modal-box">
             <div class="modal-header">
-                <h3>Delete Issued Book Record</h3>
+                <h3>Delete Fine Record</h3>
             </div>
 
             <div class="modal-body">
-                <p>⚠️ Are you sure you want to delete this issued book record?</p>
+                <p>⚠️ Are you sure you want to delete this fine record?</p>
                 <span>This action cannot be undone.</span>
             </div>
 
@@ -1031,6 +965,44 @@
             </div>
         </div>
     </div>
+
+    <div id="upiModal" class="upi-modal">
+
+        <div class="upi-card">
+
+            <div class="upi-header">
+                <h2>Complete Payment</h2>
+                <span class="upi-close" onclick="closeUPIModal()">×</span>
+            </div>
+
+            <div class="upi-body">
+
+                <div class="upi-qr-box">
+                    <img id="upiQR" src="" alt="UPI QR">
+                </div>
+
+                <div class="upi-details">
+                    <p class="upi-amount">₹ <span id="upiAmount">100</span></p>
+                    <p class="upi-text">Scan QR using any UPI app</p>
+
+                    <div class="upi-apps">
+                        <span>GPay</span>
+                        <span>PhonePe</span>
+                        <span>Paytm</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="upi-footer">
+                <button class="upi-cancel" onclick="closeUPIModal()">Cancel</button>
+                <button class="upi-paid" onclick="demoSuccess()">I have paid</button>
+            </div>
+
+        </div>
+
+    </div>
+
     <?php include 'footer.php'; ?>
 
     <!-- Scripts -->
@@ -1052,19 +1024,19 @@
             buttons: [{
                     extend: 'excelHtml5',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8] // column indexes you want
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7] // column indexes you want
                     }
                 },
                 {
                     extend: 'pdfHtml5',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
                     }
                 },
                 {
                     extend: 'print',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
                     }
                 }
             ],
@@ -1074,30 +1046,20 @@
             scrollCollapse: true
         });
 
-        function formatDateForTable(date) {
-            if (!date) return "";
-            const parts = date.split("-");
-            return parts[2] + "-" + parts[1] + "-" + parts[0]; // yyyy-mm-dd → dd-mm-yyyy
-        }
-
-        // Issue filter
-        $('#filterIssueDate').on('change', function() {
-            let val = formatDateForTable(this.value);
-            table.column(5).search(val).draw();
+        // LOCATION filter
+        $('#filterBookID').on('keyup', function() {
+            table.column(2).search(this.value).draw();
         });
 
-
-        // Return filter
-        $('#filterReturnDate').on('change', function() {
-            let val = formatDateForTable(this.value);
-            table.column(7).search(val).draw();
+        // OWNER filter
+        $('#filterUserID').on('keyup', function() {
+            table.column(3).search(this.value).draw();
         });
-
 
         // RESET filters
         function resetFilters() {
-            $('#filterIssueDate').val('');
-            $('#filterReturnDate').val('');
+            $('#filterBookID').val('');
+            $('#filterUserID').val('');
 
             table.columns().search('').draw();
         }
@@ -1114,7 +1076,7 @@
 
         function confirmDelete() {
             closeDeleteModal();
-            alert("Issued book record deleted successfully!");
+            alert("Fine record deleted successfully!");
             // Here you can remove the row or call backend later
         }
 
@@ -1133,13 +1095,44 @@
         function closeUserModal() {
             document.getElementById("userModal").style.display = "none";
         }
+    </script>
 
-        function openLibraryModal() {
-            document.getElementById("libraryModal").style.display = "flex";
+    <script>
+        document.querySelectorAll(".btn-pay").forEach(btn => {
+            btn.addEventListener("click", function() {
+
+                const amount = this.dataset.amount || 100;
+                const bookId = this.dataset.book || "TEST";
+
+                const upiLink =
+                    `upi://pay?pa=test@upi&pn=BookMyLibrary&am=${amount}&cu=INR&tn=Book:${bookId}`;
+
+                const qrURL =
+                    "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" +
+                    encodeURIComponent(upiLink);
+
+                document.getElementById("upiQR").src = qrURL;
+                document.getElementById("upiAmount").textContent = amount;
+
+                document.getElementById("upiModal").style.display = "flex";
+            });
+        });
+
+        function closeUPIModal() {
+            document.getElementById("upiModal").style.display = "none";
         }
 
-        function closeLibraryModal() {
-            document.getElementById("libraryModal").style.display = "none";
+        function demoSuccess() {
+            Swal.fire({
+                toast: true,
+                position: 'top',
+                icon: 'success',
+                title: 'Payment successful!',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true
+            });
+            closeUPIModal();
         }
     </script>
 

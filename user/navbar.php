@@ -225,7 +225,7 @@
 
             <a href="review&rating_list.php">Review & Rating</a>
 
-            <!-- <a href="view_table&chair.php">View Table & Chair</a> -->
+            <a href="view_table&chair.php">View Table & Chair</a>
         </div>
 
         <div class="nav-right">

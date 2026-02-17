@@ -795,11 +795,6 @@
                     </div>
 
                     <div class="filter-box">
-                        <label>Due Date</label>
-                        <input type="date" id="filterDueDate">
-                    </div>
-
-                    <div class="filter-box">
                         <label>Return Date</label>
                         <input type="date" id="filterReturnDate">
                     </div>
@@ -823,7 +818,6 @@
                         <th>Book ID</th>
                         <th>User ID</th>
                         <th>Issue Date</th>
-                        <th>Due Date</th>
                         <th>Return Date</th>
                         <th>Fine Amount</th>
                         <th>Status</th>
@@ -837,7 +831,6 @@
                         <td><span class="model-link" onclick="openBookModal()">24842354</span></td>
                         <td><span class="model-link" onclick="openUserModal()">24842353</span></td>
                         <td>12-01-2026</td>
-                        <td>06-02-2026</td>
                         <td>08-02-2026</td>
                         <td>656</td>
                         <td><span class="status issued">Issued</span></td>
@@ -1057,19 +1050,19 @@
             buttons: [{
                     extend: 'excelHtml5',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] // column indexes you want
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7] // column indexes you want
                     }
                 },
                 {
                     extend: 'pdfHtml5',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
                     }
                 },
                 {
                     extend: 'print',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
                     }
                 }
             ],
@@ -1092,13 +1085,6 @@
         });
 
 
-        // Due filter
-        $('#filterDueDate').on('change', function() {
-            let val = formatDateForTable(this.value);
-            table.column(6).search(val).draw();
-        });
-
-
         // Return filter
         $('#filterReturnDate').on('change', function() {
             let val = formatDateForTable(this.value);
@@ -1109,7 +1095,6 @@
         // RESET filters
         function resetFilters() {
             $('#filterIssueDate').val('');
-            $('#filterDueDate').val('');
             $('#filterReturnDate').val('');
 
             table.columns().search('').draw();

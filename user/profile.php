@@ -396,7 +396,6 @@
             </div>
 
             <h2>James Gosling</h2>
-            <p>Admin</p>
 
             <button class="change-btn" onclick="openPopup()">Change Profile</button>
             <button class="remove-btn" id="removeProfileButton" onclick="removeProfile()">Remove Profile</button>
@@ -437,6 +436,11 @@
                 <p class="sub">Update your profile information</p>
 
                 <div class="form-grid">
+
+                    <div class="form-group">
+                        <label>ID</label>
+                        <p class="p" id="viewID">123456</p>
+                    </div>
 
                     <div class="form-group">
                         <label>Name</label>

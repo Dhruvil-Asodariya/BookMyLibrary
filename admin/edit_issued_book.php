@@ -288,20 +288,14 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Due Date</label>
-                            <input type="date" id="dueDate" value="2026-02-28">
-                            <div class="error"></div>
-                        </div>
-
-                        <div class="form-group">
                             <label>Return Date</label>
-                            <input type="date" id="returnDate" value="2026-03-01">
+                            <input type="date" id="returnDate" value="2026-02-06">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Fine Amount</label>
-                            <input type="number" id="fineAmount" value="6562">
+                            <input type="number" id="fineAmount" value="656">
                             <div class="error"></div>
                         </div>
 
@@ -325,7 +319,6 @@
     <script>
         const form = document.getElementById("editIssuedBookForm");
         const issueDate = document.getElementById("issueDate");
-        const dueDate = document.getElementById("dueDate");
         const returnDate = document.getElementById("returnDate");
         const fineAmount = document.getElementById("fineAmount");
 
@@ -346,7 +339,6 @@
 
         function validateDate() {
             const issue = new Date(issueDate.value);
-            const due = new Date(dueDate.value);
             const ret = new Date(returnDate.value);
 
             // Issue date required
@@ -357,21 +349,10 @@
                 showSuccess(issueDate);
             }
 
-            // Due date required + must be after issue date
-            if (dueDate.value.trim() === "") {
-                showError(dueDate, "Due date is required");
-                return false;
-            } else if (due <= issue) {
-                showError(dueDate, "Due date must be after issue date");
-                return false;
-            } else {
-                showSuccess(dueDate);
-            }
-
-            // Return date must be after due date
+            // Return date must be after issue date
             if (returnDate.value.trim() !== "") {
-                if (ret <= due) {
-                    showError(returnDate, "Return date must be after due date");
+                if (ret <= issue) {
+                    showError(returnDate, "Return date must be after issue date");
                     return false;
                 } else {
                     showSuccess(returnDate);
@@ -403,7 +384,6 @@
 
 
         issueDate.addEventListener("input", validateDate);
-        dueDate.addEventListener("input", validateDate);
         returnDate.addEventListener("input", validateDate);
         fineAmount.addEventListener("input", validateFine);
 
@@ -412,7 +392,6 @@
 
             const isValid =
                 validateDate(issueDate) &
-                validateDate(dueDate) &
                 validateDate(returnDate) &
                 validateFine(fineAmount);
 

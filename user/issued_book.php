@@ -12,6 +12,7 @@
     <link rel="icon" href="../image/title_image.png" type="image/png">
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <style>
         * {
@@ -88,24 +89,24 @@
             background: #15803d;
         }
 
-        .btn-edit {
+        .btn-renew {
             background: #facc15;
             color: #1f2937;
             display: inline-block;
         }
 
-        .btn-edit:hover {
+        .btn-renew:hover {
             background: #eab308;
         }
 
-        .btn-delete {
-            background: #ef4444;
+        .btn-pay {
+            background: #16a34a;
             color: #fff;
             display: inline-block;
         }
 
-        .btn-delete:hover {
-            background: #dc2626;
+        .btn-pay:hover {
+            background: #15803d;
         }
 
         td {
@@ -767,6 +768,315 @@
         .btn-area {
             justify-content: flex-end;
         }
+
+        .upi-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(6px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: fadeIn .25s ease;
+        }
+
+        .upi-card {
+            width: 360px;
+            background: linear-gradient(145deg, #ffffff, #f4f4f4);
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, .3);
+            animation: slideUp .3s ease;
+        }
+
+        .upi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .upi-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .upi-close {
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .upi-body {
+            text-align: center;
+        }
+
+        .upi-qr-box {
+            background: #fff;
+            padding: 12px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, .15);
+        }
+
+        .upi-qr-box img {
+            width: 220px;
+        }
+
+        .upi-amount {
+            font-size: 26px;
+            font-weight: 700;
+            margin: 15px 0 5px;
+        }
+
+        .upi-text {
+            color: #666;
+            font-size: 13px;
+        }
+
+        .upi-apps {
+            margin-top: 10px;
+        }
+
+        .upi-apps span {
+            background: #eee;
+            padding: 6px 10px;
+            margin: 0 4px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .upi-footer {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .upi-cancel,
+        .upi-paid {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .upi-cancel {
+            background: #e5e5e5;
+        }
+
+        .upi-paid {
+            background: #16a34a;
+            color: #fff;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(40px);
+                opacity: 0
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0
+            }
+
+            to {
+                opacity: 1
+            }
+        }
+
+        .renew-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .renew-card {
+            width: 360px;
+            background: #fff;
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, .3);
+        }
+
+        .renew-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .renew-body label {
+            font-size: 13px;
+            margin-top: 10px;
+            display: block;
+        }
+
+        .renew-body input {
+            width: 100%;
+            padding: 9px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        .renew-footer {
+            margin-top: 18px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .renew-confirm {
+            flex: 1;
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .renew-cancel {
+            flex: 1;
+            background: #e5e5e5;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .renew-error {
+            color: red;
+            font-size: 12px;
+        }
+
+        .return-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .return-card {
+            width: 360px;
+            background: #fff;
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, .3);
+        }
+
+        .return-body label {
+            display: block;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+
+        .return-body input {
+            width: 100%;
+            padding: 9px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-top: 5px;
+        }
+
+        .return-footer {
+            display: flex;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .return-confirm {
+            flex: 1;
+            background: #16a34a;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .return-cancel {
+            flex: 1;
+            background: #e5e5e5;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .return-error {
+            color: red;
+            font-size: 12px;
+        }
+
+        .rating-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .rating-card {
+            background: #fff;
+            padding: 25px;
+            border-radius: 14px;
+            text-align: center;
+            width: 320px;
+        }
+
+        .rating-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .skip-btn {
+            flex: 1;
+            background: #e5e5e5;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .submit-btn {
+            flex: 1;
+            background: #16a34a;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .stars-select span {
+            font-size: 26px;
+            cursor: pointer;
+            color: #ccc;
+        }
+
+        .stars-select span.active {
+            color: gold;
+        }
+
+        .rating-card textarea {
+            width: 100%;
+            height: 70px;
+            margin-top: 10px;
+        }
     </style>
 
 </head>
@@ -785,7 +1095,7 @@
             <div class="top-actions">
                 <div class="title-area">
                     <h3>Issued Book Details</h3>
-                    <div class="subtitle">Manage your issued book data</div>
+                    <div class="subtitle">See your issued book data</div>
                 </div>
                 <div class="advanced-filters">
 
@@ -816,8 +1126,6 @@
                         <th>Sr No.</th>
                         <th>Issue ID</th>
                         <th>Book ID</th>
-                        <th>User ID</th>
-                        <th>Library ID</th>
                         <th>Issue Date</th>
                         <th>Return Date</th>
                         <th>Fine Amount</th>
@@ -830,15 +1138,44 @@
                         <td>1</td>
                         <td>24842354</td>
                         <td><span class="model-link" onclick="openBookModal()">24842354</span></td>
-                        <td><span class="model-link" onclick="openUserModal()">24842353</span></td>
-                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
                         <td>12-01-2026</td>
-                        <td>06-02-2026</td>
-                        <td>656</td>
+                        <td>08-02-2026</td>
+                        <td>0</td>
                         <td><span class="status issued">Issued</span></td>
                         <td>
-                            <a href="edit_issued_book.php?issued_id=24842354"><button class="btn btn-edit">Edit</button></a>
-                            <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br>
+                            <!-- <a><button class="btn btn-edit">Renew</button></a> -->
+                            <!-- <button class="btn btn-pay">Pay</button><br> -->
+                            <button class="btn btn-return"
+                                data-book="24842354"
+                                data-issue="2026-01-12"
+                                data-return="2026-02-08">
+                                Return
+                            </button>
+
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>1</td>
+                        <td>24842354</td>
+                        <td><span class="model-link" onclick="openBookModal()">24842354</span></td>
+                        <td>12-01-2026</td>
+                        <td>08-02-2026</td>
+                        <td>100</td>
+                        <td><span class="status unissued">Unissued</span></td>
+                        <td>
+                            <button class="btn btn-renew"
+                                data-book="24842354"
+                                data-return="2026-02-08">
+                                Renew
+                            </button>
+
+                            <button class="btn btn-pay"
+                                data-amount="1"
+                                data-book="24842354">
+                                Pay
+                            </button>
+
                         </td>
                     </tr>
 
@@ -890,65 +1227,6 @@
 
             <div class="modal-footer">
                 <button class="btn-secondary" onclick="closeBookModal()">Close</button>
-            </div>
-
-        </div>
-    </div>
-
-    <div class="modal-backdrop" id="userModal">
-        <div class="modal-card">
-
-            <div class="modal-header-p">
-                <div class="header-left">
-                    <h3>User Details</h3>
-
-                    <div class="pill-group">
-                        <span class="pill pill-role-librarian">Librarian</span>
-                        <!-- <span class="pill pill-role-user">User</span> -->
-                        <!-- <span class="pill pill-role-admin">Admin</span> -->
-                        <span class="pill pill-active">Active</span>
-                        <!-- <span class="pill pill-inactive">Inactive</span> -->
-                    </div>
-                </div>
-
-                <span class="close-icon" onclick="closeUserModal()">×</span>
-            </div>
-
-            <div class="modal-body-p">
-                <div class="book-image">
-                    <img src="../image/default_profile.png" alt="Book Image">
-                </div>
-
-                <div class="book-details">
-                    <div class="detail">
-                        <span>User ID</span>
-                        <p>24842354</p>
-                    </div>
-                    <div class="detail">
-                        <span>First Name</span>
-                        <p>John</p>
-                    </div>
-                    <div class="detail">
-                        <span>Last Name</span>
-                        <p>Doe</p>
-                    </div>
-                    <div class="detail">
-                        <span>Email ID</span>
-                        <p>john.doe@example.com </p>
-                    </div>
-                    <div class="detail">
-                        <span>Contact Number</span>
-                        <p>9876543210</p>
-                    </div>
-                    <div class="detail">
-                        <span>Address</span>
-                        <p>123 Main St, Cityville</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                <button class="btn-secondary" onclick="closeUserModal()">Close</button>
             </div>
 
         </div>
@@ -1031,6 +1309,142 @@
             </div>
         </div>
     </div>
+
+    <div id="upiModal" class="upi-modal">
+
+        <div class="upi-card">
+
+            <div class="upi-header">
+                <h2>Complete Payment</h2>
+                <span class="upi-close" onclick="closeUPIModal()">×</span>
+            </div>
+
+            <div class="upi-body">
+
+                <div class="upi-qr-box">
+                    <img id="upiQR" src="" alt="UPI QR">
+                </div>
+
+                <div class="upi-details">
+                    <p class="upi-amount">₹ <span id="upiAmount">100</span></p>
+                    <p class="upi-text">Scan QR using any UPI app</p>
+
+                    <div class="upi-apps">
+                        <span>GPay</span>
+                        <span>PhonePe</span>
+                        <span>Paytm</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="upi-footer">
+                <button class="upi-cancel" onclick="closeUPIModal()">Cancel</button>
+                <button class="upi-paid" onclick="demoSuccess()">I have paid</button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div id="renewModal" class="renew-modal">
+
+        <div class="renew-card">
+
+            <div class="renew-header">
+                <h3>Renew Book</h3>
+                <span onclick="closeRenew()">×</span>
+            </div>
+
+            <div class="renew-body">
+
+                <label>Book ID</label>
+                <input type="text" name="renew_book_id" readonly>
+
+                <label>Current Return Date</label>
+                <input type="date" name="old_return_date" readonly>
+
+                <label>New Return Date</label>
+                <input type="date" name="new_return_date">
+
+                <small class="renew-error"></small>
+
+            </div>
+
+            <div class="renew-footer">
+                <button class="renew-cancel" onclick="closeRenew()">Cancel</button>
+                <button class="renew-confirm" onclick="confirmRenew()">Confirm Renew</button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div id="returnModal" class="return-modal">
+
+        <div class="return-card">
+
+            <div class="return-header">
+                <h3>Return Book</h3>
+                <span onclick="closeReturn()">×</span>
+            </div>
+
+            <div class="return-body">
+
+                <label>Book ID</label>
+                <input type="text" name="return_book_id" readonly>
+
+                <label>Issue Date</label>
+                <input type="date" name="issue_date" readonly>
+
+                <label>Expected Return Date</label>
+                <input type="date" name="expected_return" readonly>
+
+                <label>Actual Return Date</label>
+                <input type="date" name="actual_return">
+
+                <label>Fine (₹)</label>
+                <input type="text" name="fine_amount" readonly value="0">
+
+                <small class="return-error"></small>
+
+            </div>
+
+            <div class="return-footer">
+                <button class="return-cancel" onclick="closeReturn()">Cancel</button>
+                <button class="return-confirm" onclick="confirmReturn()">Confirm Return</button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div id="ratingModal" class="rating-modal">
+
+        <div class="rating-card">
+
+            <h3>Rate this Book</h3>
+
+            <div class="stars-select">
+                <span data-rate="1">★</span>
+                <span data-rate="2">★</span>
+                <span data-rate="3">★</span>
+                <span data-rate="4">★</span>
+                <span data-rate="5">★</span>
+            </div>
+
+            <textarea placeholder="Write feedback (optional)"></textarea>
+
+            <div class="rating-actions">
+                <button class="skip-btn" onclick="skipRating()">Skip</button>
+                <button class="submit-btn" onclick="submitRating()">Submit Rating</button>
+            </div>
+
+        </div>
+    </div>
+
+
+
     <?php include 'footer.php'; ?>
 
     <!-- Scripts -->
@@ -1052,19 +1466,19 @@
             buttons: [{
                     extend: 'excelHtml5',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8] // column indexes you want
+                        columns: [0, 1, 2, 3, 4, 5, 6] // column indexes you want
                     }
                 },
                 {
                     extend: 'pdfHtml5',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+                        columns: [0, 1, 2, 3, 4, 5, 6]
                     }
                 },
                 {
                     extend: 'print',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+                        columns: [0, 1, 2, 3, 4, 5, 6]
                     }
                 }
             ],
@@ -1126,20 +1540,291 @@
             document.getElementById("bookModal").style.display = "none";
         }
 
-        function openUserModal() {
-            document.getElementById("userModal").style.display = "flex";
-        }
-
-        function closeUserModal() {
-            document.getElementById("userModal").style.display = "none";
-        }
-
         function openLibraryModal() {
             document.getElementById("libraryModal").style.display = "flex";
         }
 
         function closeLibraryModal() {
             document.getElementById("libraryModal").style.display = "none";
+        }
+    </script>
+
+    <script>
+        document.querySelectorAll(".btn-pay").forEach(btn => {
+            btn.addEventListener("click", function() {
+
+                const amount = this.dataset.amount || 100;
+                const bookId = this.dataset.book || "TEST";
+
+                const upiLink =
+                    `upi://pay?pa=test@upi&pn=BookMyLibrary&am=${amount}&cu=INR&tn=Book:${bookId}`;
+
+                const qrURL =
+                    "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" +
+                    encodeURIComponent(upiLink);
+
+                document.getElementById("upiQR").src = qrURL;
+                document.getElementById("upiAmount").textContent = amount;
+
+                document.getElementById("upiModal").style.display = "flex";
+            });
+        });
+
+        function closeUPIModal() {
+            document.getElementById("upiModal").style.display = "none";
+        }
+
+        function demoSuccess() {
+            Swal.fire({
+                toast: true,
+                position: 'top',
+                icon: 'success',
+                title: 'Payment successful!',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true
+            });
+            closeUPIModal();
+        }
+    </script>
+
+    <script>
+        const renewModal = document.getElementById("renewModal");
+        const newDateInput = renewModal.querySelector('[name="new_return_date"]');
+        const oldDateInput = renewModal.querySelector('[name="old_return_date"]');
+        const renewBtn = renewModal.querySelector(".renew-confirm");
+        const errorBox = renewModal.querySelector(".renew-error");
+
+        // OPEN RENEW
+        document.querySelectorAll(".btn-renew").forEach(btn => {
+            btn.addEventListener("click", function() {
+
+                renewModal.style.display = "flex";
+
+                oldDateInput.value = formatDate(this.dataset.return);
+                newDateInput.value = "";
+
+                renewBtn.disabled = true;
+                errorBox.textContent = "";
+            });
+        });
+
+        // CLOSE
+        function closeRenew() {
+            renewModal.style.display = "none";
+        }
+
+        // FORMAT DATE
+        function formatDate(dateStr) {
+            const d = new Date(dateStr);
+            return d.toISOString().split('T')[0];
+        }
+
+
+        // 🟢 LIVE VALIDATION
+        newDateInput.addEventListener("input", function() {
+
+            const today = new Date().setHours(0, 0, 0, 0);
+            const oldDate = new Date(oldDateInput.value).setHours(0, 0, 0, 0);
+            const newDate = new Date(this.value).setHours(0, 0, 0, 0);
+
+            if (!this.value) {
+                errorBox.textContent = "Please select new return date";
+                renewBtn.disabled = true;
+                return;
+            }
+
+            if (newDate < today) {
+                errorBox.textContent = "Past date not allowed";
+                renewBtn.disabled = true;
+                return;
+            }
+
+            if (newDate <= oldDate) {
+                errorBox.textContent = "New return date must be after current return date";
+                renewBtn.disabled = true;
+                return;
+            }
+
+            // valid
+            errorBox.textContent = "";
+            renewBtn.disabled = false;
+        });
+
+
+        // CONFIRM
+        function confirmRenew() {
+
+            if (renewBtn.disabled) return;
+
+            Swal.fire({
+                toast: true,
+                position: 'top',
+                icon: 'success',
+                title: 'Book renewed successfully!',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true
+            });
+
+            closeRenew();
+        }
+    </script>
+
+    <script>
+        const returnModal = document.getElementById("returnModal");
+
+        const actualDateInput = returnModal.querySelector('[name="actual_return"]');
+        const expectedInput = returnModal.querySelector('[name="expected_return"]');
+        const fineInput = returnModal.querySelector('[name="fine_amount"]');
+        const returnBtn = returnModal.querySelector(".return-confirm");
+        const returnError = returnModal.querySelector(".return-error");
+
+        // OPEN RETURN
+        document.querySelectorAll(".btn-return").forEach(btn => {
+            btn.addEventListener("click", function() {
+
+                returnModal.style.display = "flex";
+
+                returnModal.querySelector('[name="return_book_id"]').value =
+                    this.dataset.book;
+
+                returnModal.querySelector('[name="issue_date"]').value =
+                    this.dataset.issue;
+
+                returnModal.querySelector('[name="expected_return"]').value =
+                    this.dataset.return;
+
+                actualDateInput.value = "";
+                fineInput.value = "0";
+                returnBtn.disabled = true;
+                returnError.textContent = "";
+            });
+        });
+
+        // CLOSE
+        function closeReturn() {
+            returnModal.style.display = "none";
+        }
+
+
+        // 🟢 LIVE VALIDATION + FINE CALCULATION
+        actualDateInput.addEventListener("input", function() {
+
+            const actualDate = new Date(this.value);
+            const expectedDate = new Date(expectedInput.value);
+
+            if (!this.value) {
+                returnError.textContent = "Select return date";
+                returnBtn.disabled = true;
+                return;
+            }
+
+            // fine calculation ₹5 per day
+            if (actualDate > expectedDate) {
+                const diffDays =
+                    Math.ceil((actualDate - expectedDate) / (1000 * 60 * 60 * 24));
+                fineInput.value = diffDays * 5;
+            } else {
+                fineInput.value = 0;
+            }
+
+            returnError.textContent = "";
+            returnBtn.disabled = false;
+        });
+
+
+        // CONFIRM RETURN
+        function confirmReturn() {
+
+            if (returnBtn.disabled) return;
+
+            const fine = parseInt(fineInput.value);
+
+            // 🟥 STEP 1 — IF FINE EXISTS → PAY FIRST
+            if (fine > 0) {
+                Swal.fire({
+                    toast: true,
+                    icon: 'warning',
+                    position: 'top',
+                    title: 'Please pay fine before returning book',
+                    timer: 2500,
+                    showConfirmButton: false
+                });
+                return;
+            }
+
+            // 🟩 STEP 2 — RETURN SUCCESS
+            Swal.fire({
+                toast: true,
+                icon: 'success',
+                position: 'top',
+                title: 'Book returned successfully',
+                timer: 2000,
+                showConfirmButton: false
+            });
+
+            closeReturn();
+
+            // 🟦 STEP 3 — OPEN RATING MODAL AFTER RETURN
+            setTimeout(() => {
+                openRatingModal();
+            }, 2000);
+        }
+
+        let selectedRating = 0;
+
+        function openRatingModal() {
+            document.getElementById("ratingModal").style.display = "flex";
+        }
+
+        // select stars
+        document.querySelectorAll(".stars-select span").forEach(star => {
+            star.addEventListener("click", function() {
+
+                selectedRating = this.dataset.rate;
+
+                document.querySelectorAll(".stars-select span")
+                    .forEach(s => s.classList.remove("active"));
+
+                for (let i = 0; i < selectedRating; i++) {
+                    document.querySelectorAll(".stars-select span")[i]
+                        .classList.add("active");
+                }
+            });
+        });
+
+        function submitRating() {
+
+            if (selectedRating == 0) {
+                alert("Please select rating");
+                return;
+            }
+
+            Swal.fire({
+                toast: true,
+                icon: 'success',
+                position: 'top',
+                title: 'Thank you for rating!',
+                timer: 2000,
+                showConfirmButton: false
+            });
+
+            document.getElementById("ratingModal").style.display = "none";
+        }
+
+        function skipRating() {
+
+            document.getElementById("ratingModal").style.display = "none";
+
+            Swal.fire({
+                toast: true,
+                icon: 'info',
+                position: 'top',
+                title: 'Rating skipped',
+                timer: 1800,
+                showConfirmButton: false
+            });
         }
     </script>
 

@@ -228,85 +228,337 @@
             }
         }
 
-        /* MODAL BACKGROUND */
-        .modal {
+        /* Backdrop */
+        .modal-backdrop {
+            display: none;
             position: fixed;
-            top: 0;
-            left: 0;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Card */
+        .modal-card {
+            background: #ffffff;
+            width: 700px;
+            max-width: 95%;
+            border-radius: 14px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            animation: fadeSlide 0.25s ease;
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Header */
+        .modal-header-p {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header-p h3 {
+            font-size: 18px;
+            color: #0f172a;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        /* Pills container */
+        .pill-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Base pill */
+        .pill {
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        /* Role pill (Blue) */
+        .pill-role-librarian {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .pill-role-user {
+            background-color: #e0f2fe;
+            color: #075985;
+        }
+
+        .pill-role-admin {
+            background-color: #ede9fe;
+            color: #5b21b6;
+        }
+
+        /* Status pills */
+        .pill-active {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .pill-inactive {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Close */
+        .close-icon {
+            font-size: 22px;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .close-icon:hover {
+            color: #ef4444;
+        }
+
+        /* Body */
+        .modal-body-p {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        /* Image */
+        .book-image img {
             width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(6px);
+            height: 240px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+
+        /* Details */
+        .book-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .book-details input {
+            width: 100%;
+            padding: 7px 10px;
+            border-radius: 6px;
+            border: 1px solid #d1d5db;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .date-error {
+            color: #ef4444;
+            font-size: 11px;
+            display: block;
+            margin-top: 3px;
+        }
+
+        .detail span {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        .detail p {
+            margin-top: 4px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        /* Footer */
+        .modal-footer {
+            padding: 14px 20px;
+            border-top: 1px solid #e5e7eb;
+            text-align: right;
+        }
+
+        .tc-box {
+            display: block;
+            margin-bottom: 12px;
+            font-size: 13px;
+            color: #374151;
+        }
+
+        .tc-box input {
+            margin-right: 6px;
+            transform: scale(1.1);
+        }
+
+        .view-tc {
+            color: #2563eb;
+            cursor: pointer;
+            font-weight: 600;
+            margin-left: 4px;
+        }
+
+        .view-tc:hover {
+            text-decoration: underline;
+        }
+
+        .tc-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
             display: none;
             align-items: center;
             justify-content: center;
-            z-index: 999;
+            z-index: 1000;
         }
 
-        /* MODAL BOX */
-        .modal-box {
-            background: linear-gradient(120deg, #0f172a, #1e3a8a);
-            padding: 25px;
-            width: 95%;
-            max-width: 450px;
-            border-radius: 18px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-            position: relative;
+        .tc-box-card {
+            width: 500px;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
         }
 
-        /* CLOSE BUTTON */
-        .close-modal {
-            position: absolute;
-            right: 15px;
-            top: 12px;
-            font-size: 24px;
-            cursor: pointer;
-        }
-
-        /* BOOK INFO */
-        .modal-book {
+        .tc-header {
+            background: #f3f4f6;
+            color: #1e293b;
+            padding: 14px 18px;
             display: flex;
-            gap: 15px;
-            margin-bottom: 18px;
-        }
-
-        .modal-book img {
-            width: 80px;
-            border-radius: 10px;
-        }
-
-        /* FORM */
-        .book-form label {
-            display: block;
-            margin-top: 12px;
-            font-size: 14px;
-        }
-
-        .book-form input {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border-radius: 8px;
-            border: none;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-        }
-
-        /* CONFIRM BUTTON */
-        .confirm-btn {
-            width: 100%;
-            margin-top: 18px;
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #22c55e, #15803d);
+            justify-content: space-between;
             font-weight: 600;
-            cursor: pointer;
-            transition: .3s;
         }
 
-        .confirm-btn:hover {
-            transform: scale(1.05);
+        .tc-body {
+            padding: 18px;
+            font-size: 14px;
+            color: #374151;
+        }
+
+        .tc-body ul {
+            padding-left: 18px;
+            line-height: 1.8;
+        }
+
+        .tc-footer {
+            padding: 14px;
+            text-align: right;
+            background: #f9fafb;
+        }
+
+        .tc-footer button {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #cbd5f5;
+            background: #f8fafc;
+            color: #000;
+            cursor: pointer;
+        }
+
+        .tc-footer button:hover {
+            background: #e0e7ff;
+        }
+
+        /* Buttons */
+        .btn-secondary {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #cbd5f5;
+            background: #f8fafc;
+            color: #000;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e7ff;
+        }
+
+        .btn-confirm {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #cbd5f5;
+            background: #16a34a;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .btn-confirm:hover {
+            background: #078937;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .modal-body {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .book-details {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .breadcrumb-wrapper {
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            margin-top: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        /* Breadcrumb Layout */
+        .breadcrumb {
+            font-size: 14px;
+            font-weight: 500;
+            color: #6b7280;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Dashboard */
+        .breadcrumb .dashboard {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        /* Separator */
+        .breadcrumb .separator {
+            color: #9ca3af;
+        }
+
+        /* Links */
+        .breadcrumb a {
+            text-decoration: none;
+            color: #ef4444;
+            transition: 0.2s ease;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: none;
+        }
+
+        /* Current Page */
+        .breadcrumb .current {
+            color: #ffffffff;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -314,6 +566,13 @@
 <body>
 
     <?php include 'navbar.php'; ?>
+    <div class="breadcrumb-wrapper">
+        <nav class="breadcrumb">
+            <a href="home.php" class="dashboard">Dashboard</a>
+            <span class="separator">›</span>
+            <span class="current">Book</span>
+        </nav>
+    </div>
 
     <div class="container">
 
@@ -360,6 +619,7 @@
 
         <div class="book-grid" id="bookGrid">
             <div class="book-card programming"
+                data-id="24842354"
                 data-title="Java Programming"
                 data-author="James Gosling"
                 data-year="2020"
@@ -393,7 +653,7 @@
                             <span class="rating-text">(4.5)</span>
                         </div>
 
-                        <button class="book-btn">Book Now</button>
+                        <button class="book-btn" onclick="openModel()">Book Now</button>
                     </div>
                 </div>
             </div>
@@ -432,7 +692,7 @@
                             <span class="rating-text">(4.2)</span>
                         </div>
 
-                        <button class="book-btn">Book Now</button>
+                        <button class="book-btn" onclick="openModel()">Book Now</button>
                     </div>
                 </div>
             </div>
@@ -471,7 +731,7 @@
                             <span class="rating-text">(4.7)</span>
                         </div>
 
-                        <button class="book-btn">Book Now</button>
+                        <button class="book-btn" onclick="openModel()">Book Now</button>
                     </div>
                 </div>
             </div>
@@ -511,61 +771,127 @@
                             <span class="rating-text">(3.9)</span>
                         </div>
 
-                        <button class="book-btn">Book Now</button>
+                        <button class="book-btn" onclick="openModel()">Book Now</button>
                     </div>
                 </div>
             </div>
 
         </div>
 
-
     </div>
 
 
     <!-- BOOK NOW MODAL -->
-    <div class="modal" id="bookModal">
-        <div class="modal-box">
+    <div class="modal-backdrop" id="bookModal">
+        <div class="modal-card">
 
-            <span class="close-modal" onclick="closeModal()">×</span>
+            <div class="modal-header-p">
+                <h3>Book Details</h3>
+                <span class="close-icon" onclick="closeModal()">×</span>
+            </div>
 
-            <h2>Book Reservation</h2>
+            <div class="modal-body-p">
+                <div class="book-image">
+                    <img class="modalBookImage" src="" alt="Book Image">
+                </div>
 
-            <div class="modal-book">
-                <img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" id="modalBookImg">
-                <div>
-                    <h3 id="modalBookTitle">Java Programming</h3>
-                    <p>Author: James Gosling</p>
-                    <p>Category: Programming</p>
+                <div class="book-details">
+
+                    <div class="detail">
+                        <span>Book ID</span>
+                        <input type="text" name="book_id" disabled>
+                    </div>
+
+                    <div class="detail">
+                        <span>Title</span>
+                        <input type="text" name="title" disabled>
+                    </div>
+
+                    <div class="detail">
+                        <span>Author</span>
+                        <input type="text" name="author" disabled>
+                    </div>
+
+                    <div class="detail">
+                        <span>Category</span>
+                        <input type="text" name="category" disabled>
+                    </div>
+
+                    <div class="detail">
+                        <span>Publish Year</span>
+                        <input type="text" name="year" disabled>
+                    </div>
+
+                    <div class="detail">
+                        <span>Library Name</span>
+                        <input type="text" name="library" disabled>
+                    </div>
+
+                    <!-- NEW FIELD -->
+                    <div class="detail">
+                        <span>Issue Date</span>
+                        <input type="date" name="issue_date">
+                        <small class="date-error issue-error"></small>
+                    </div>
+
+                    <div class="detail">
+                        <span>Return Date</span>
+                        <input type="date" name="return_date">
+                        <small class="date-error return-error"></small>
+                    </div>
+
                 </div>
             </div>
 
-            <form class="book-form">
+            <div class="modal-footer">
 
-                <label>Your Name</label>
-                <input type="text" placeholder="Enter your name" required>
+                <label class="tc-box">
+                    <input type="checkbox" name="agree_tc">
+                    I agree to
+                    <span class="view-tc" onclick="openTC()">Terms & Conditions</span>
+                </label>
 
-                <label>Email</label>
-                <input type="email" placeholder="Enter your email" required>
-
-                <label>Issue Date</label>
-                <input type="date" required>
-
-                <label>Return Date</label>
-                <input type="date" required>
-
-                <button type="submit" class="confirm-btn">Confirm Booking</button>
-
-            </form>
+                <button class="btn-secondary" onclick="closeModal()">Close</button>
+                <button class="btn-confirm" onclick="confirmBooking()">Confirm Booking</button>
+            </div>
 
         </div>
     </div>
+
+    <div class="tc-modal" id="tcModal">
+        <div class="tc-box-card">
+
+            <div class="tc-header">
+                <h3>Library Terms & Conditions</h3>
+                <span class="close-icon" onclick="closeTC()">×</span>
+            </div>
+
+            <div class="tc-body">
+                <ul>
+                    <li>Books must be returned within the assigned return date.</li>
+                    <li>Late return will result in ₹5/day fine.</li>
+                    <li>Damaged books must be replaced by the borrower.</li>
+                    <li>Only registered users can issue books.</li>
+                    <li>Maximum 2 books allowed per user.</li>
+                    <li>Library ID must be shown while collecting book.</li>
+                </ul>
+            </div>
+
+            <div class="tc-footer">
+                <button onclick="closeTC()">Close</button>
+            </div>
+
+        </div>
+    </div>
+
+
 
     <?php include 'footer.php'; ?>
 
 </body>
 
 <script>
-    function openModal() {
+    function openModel() {
         document.getElementById("bookModal").style.display = "flex";
     }
 
@@ -573,10 +899,52 @@
         document.getElementById("bookModal").style.display = "none";
     }
 
-    /* attach to all Book Now buttons */
+    const modal = document.getElementById("bookModal");
+
+    // OPEN MODAL
     document.querySelectorAll(".book-btn").forEach(btn => {
-        btn.addEventListener("click", openModal);
+        btn.addEventListener("click", function() {
+
+            const card = this.closest(".book-card");
+
+            // fill inputs using name attribute
+            modal.querySelector('[name="book_id"]').value = card.dataset.id || "N/A";
+            modal.querySelector('[name="title"]').value = card.dataset.title;
+            modal.querySelector('[name="author"]').value = card.dataset.author;
+            modal.querySelector('[name="category"]').value = card.dataset.category;
+            modal.querySelector('[name="year"]').value = card.dataset.year;
+            modal.querySelector('[name="library"]').value = card.dataset.library;
+
+            // image auto-fill
+            const bg = card.querySelector(".book-img").style.backgroundImage;
+            const url = bg.slice(5, -2);
+            modal.querySelector(".modalBookImage").src = url;
+
+            // auto issue date = today
+            const today = new Date().toISOString().split('T')[0];
+            modal.querySelector('[name="issue_date"]').value = today;
+
+            // auto return date = +7 days
+            const returnDate = new Date();
+            returnDate.setDate(returnDate.getDate() + 7);
+            modal.querySelector('[name="return_date"]').value =
+                returnDate.toISOString().split('T')[0];
+
+            modal.style.display = "flex";
+        });
     });
+
+    // CLOSE
+    function closeModal() {
+        modal.style.display = "none";
+    }
+
+    // CLICK OUTSIDE
+    window.onclick = function(e) {
+        if (e.target === modal) modal.style.display = "none";
+    };
+
+
 
     function printStars(rating) {
         let full = Math.floor(rating);
@@ -602,6 +970,75 @@
         starsEl.textContent = printStars(rating);
         textEl.textContent = "(" + rating + ")";
     });
+
+    function openTC() {
+        document.getElementById("tcModal").style.display = "flex";
+    }
+
+    function closeTC() {
+        document.getElementById("tcModal").style.display = "none";
+    }
+
+    function confirmBooking() {
+        Swal.fire({
+            toast: true,
+            position: 'top',
+            icon: 'success',
+            title: 'Booking Confirmed!',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            didClose: () => {
+                window.location.href = "home.php";
+            }
+        });
+    }
+
+    const issueInput = modal.querySelector('[name="issue_date"]');
+    const returnInput = modal.querySelector('[name="return_date"]');
+
+    const issueError = modal.querySelector('.issue-error');
+    const returnError = modal.querySelector('.return-error');
+
+    const confirmBtn = document.querySelector('.btn-confirm');
+
+    function validateDates() {
+
+        const issueDate = new Date(issueInput.value);
+        const returnDate = new Date(returnInput.value);
+        const today = new Date().setHours(0, 0, 0, 0);
+
+        let valid = true;
+
+        // ISSUE DATE VALIDATION
+        if (issueInput.value === "") {
+            issueError.textContent = "Please select issue date";
+            valid = false;
+        } else if (issueDate < today) {
+            issueError.textContent = "Issue date cannot be in past";
+            valid = false;
+        } else {
+            issueError.textContent = "";
+        }
+
+        // RETURN DATE VALIDATION
+        if (returnInput.value === "") {
+            returnError.textContent = "Please select return date";
+            valid = false;
+        } else if (returnDate <= issueDate) {
+            returnError.textContent = "Return date must be after issue date";
+            valid = false;
+        } else {
+            returnError.textContent = "";
+        }
+
+        // Enable/disable confirm button
+        confirmBtn.disabled = !valid;
+    }
+
+    // Live validation triggers
+    issueInput.addEventListener("change", validateDates);
+    returnInput.addEventListener("change", validateDates);
 </script>
 
 <script>
