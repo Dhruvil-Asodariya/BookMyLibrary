@@ -445,7 +445,7 @@
 
                     <div class="form-group">
                         <label>Email</label>
-                        <p class="p" id="viewEmail">library@gmail.com</p>
+                        <p class="p" id="viewEmail">admin@gmail.com</p>
                     </div>
 
                     <div class="form-group">
@@ -486,7 +486,7 @@
 
                     <div class="form-group">
                         <label>Email</label>
-                        <input type="email" id="editEmail" placeholder="Enter email">
+                        <input type="email" id="editEmail" placeholder="Enter email" disabled>
                         <span id="emailError" class="error"></span>
                     </div>
 

@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Table & Chair View | Library System</title>
+    <title>View Table & Chair | Library System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="../image/title_image.png" type="image/png">
 

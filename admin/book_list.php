@@ -650,8 +650,10 @@
                         <th>Author</th>
                         <th>Category</th>
                         <th>Year</th>
+                        <th>Language</th>
                         <th>Total Copy</th>
                         <th>Available Copy</th>
+                        <th>Rating</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -666,8 +668,10 @@
                         <td>James Gosling</td>
                         <td>Programming</td>
                         <td>2020</td>
+                        <td>English</td>
                         <td>4</td>
                         <td>2</td>
+                        <td>4.5</td>
                         <?php
                         $available = 2;
                         if ($available != 0) {
@@ -691,8 +695,10 @@
                         <td>R. Ramakrishnan</td>
                         <td>Database</td>
                         <td>2019</td>
+                        <td>Hindi</td>
                         <td>3</td>
                         <td>0</td>
+                        <td>5</td>
                         <?php
                         $available = 0;
                         if ($available != 0) {
@@ -716,8 +722,10 @@
                         <td>James Gosling</td>
                         <td>Programming</td>
                         <td>2020</td>
+                        <td>Gujarati</td>
                         <td>4</td>
                         <td>2</td>
+                        <td>3</td>
                         <?php
                         $available = 2;
                         if ($available != 0) {
@@ -741,8 +749,10 @@
                         <td>R. Ramakrishnan</td>
                         <td>Database</td>
                         <td>2019</td>
+                        <td>English</td>
                         <td>3</td>
                         <td>0</td>
+                        <td>3</td>
                         <?php
                         $available = 0;
                         if ($available != 0) {
@@ -765,8 +775,10 @@
                         <td>James Gosling</td>
                         <td>Programming</td>
                         <td>2020</td>
+                        <td>English</td>
                         <td>4</td>
                         <td>2</td>
+                        <td>4.5</td>
                         <?php
                         $available = 2;
                         if ($available != 0) {
@@ -790,8 +802,10 @@
                         <td>R. Ramakrishnan</td>
                         <td>Database</td>
                         <td>2019</td>
+                        <td>English</td>
                         <td>3</td>
                         <td>0</td>
+                        <td>3.5</td>
                         <?php
                         $available = 0;
                         if ($available != 0) {
@@ -814,8 +828,10 @@
                         <td>James Gosling</td>
                         <td>Programming</td>
                         <td>2020</td>
+                        <td>English</td>
                         <td>4</td>
                         <td>2</td>
+                        <td>4</td>
                         <?php
                         $available = 2;
                         if ($available != 0) {
@@ -839,8 +855,10 @@
                         <td>R. Ramakrishnan</td>
                         <td>Database</td>
                         <td>2019</td>
+                        <td>English</td>
                         <td>3</td>
                         <td>0</td>
+                        <td>2</td>
                         <?php
                         $available = 0;
                         if ($available != 0) {
@@ -863,8 +881,10 @@
                         <td>James Gosling</td>
                         <td>Programming</td>
                         <td>2020</td>
+                        <td>English</td>
                         <td>4</td>
                         <td>2</td>
+                        <td>2.5</td>
                         <?php
                         $available = 2;
                         if ($available != 0) {
@@ -888,8 +908,10 @@
                         <td>R. Ramakrishnan</td>
                         <td>Programming</td>
                         <td>2019</td>
+                        <td>English</td>
                         <td>3</td>
                         <td>0</td>
+                        <td>1</td>
                         <?php
                         $available = 0;
                         if ($available != 0) {

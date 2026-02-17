@@ -3,11 +3,11 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Add Book | Library System</title>
+    <title>Register | Library System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" href="../image/title_image.png" type="image/png">
+    <link rel="icon" href="image/title_image.png" type="image/png">
     <style>
         * {
             margin: 0;
@@ -98,7 +98,7 @@
         /* Fields */
         .form-fields {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 18px;
         }
 
@@ -280,29 +280,13 @@
 
 <body>
 
-    <!-- NAVBAR -->
-    <?php include 'navbar.php'; ?>
-
-    <div class="breadcrumb-wrapper">
-        <nav class="breadcrumb">
-            <a href="home.php" class="dashboard">Dashboard</a>
-            <span class="separator">›</span>
-            <a href="book_list.php"><span class="dashboard">Book List</span></a>
-            <span class="separator">›</span>
-            <span class="current">Add Book</span>
-        </nav>
-    </div>
-
     <!-- MAIN CONTENT -->
     <div class="main-content">
-
-
-
         <div class="edit-card">
-            <form id="editBookForm">
+            <form id="registerForm">
                 <div class="page-header">
-                    <h2>Add Book</h2>
-                    <p>Add book details in your library system</p>
+                    <h2>Register Form</h2>
+                    <p>Add your details in library system</p>
                 </div>
                 <div class="form-grid">
 
@@ -318,66 +302,43 @@
                     <div class="form-fields">
 
                         <div class="form-group">
-                            <label>Title</label>
-                            <input type="text" id="title">
+                            <label>First Name</label>
+                            <input type="text" id="firstName">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
-                            <label>Author</label>
-                            <input type="text" id="author">
+                            <label>Last Name</label>
+                            <input type="text" id="lastName">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
-                            <label>Category</label>
-                            <select id="category">
-                                <option value="">Select Category</option>
-                                <option value="Programming">Programming</option>
-                                <option value="Science">Science</option>
-                                <option value="Database">Database</option>
-                                <option value="Mathematics">Mathematics</option>
+                            <label>Email</label>
+                            <input type="email" id="email">
+                            <div class="error"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Gender</label>
+                            <select id="gender">
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
                             </select>
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
-                            <label>Year</label>
-                            <input type="number" id="year">
+                            <label>Contact Number</label>
+                            <input type="number" id="contactNumber">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
-                            <label>Library</label>
-                            <select id="library">
-                                <option value="">Select Library</option>
-                                <option value="Main Library">Main Library</option>
-                                <option value="Science Block">Science Block</option>
-                                <option value="Engineering Wing">Engineering Wing</option>
-                            </select>
-                            <div class="error"></div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Total Copies</label>
-                            <input type="number" id="total">
-                            <div class="error"></div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Available Copies</label>
-                            <input type="number" id="available">
-                            <div class="error"></div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Language</label>
-                            <select id="language">
-                                <option value="">Select Language</option>
-                                <option value="English">English</option>
-                                <option value="Hindi">Hindi</option>
-                                <option value="Gujarati">Gujarati</option>
-                            </select>
+                            <label>Address</label>
+                            <input type="text" id="address">
                             <div class="error"></div>
                         </div>
 
@@ -387,7 +348,7 @@
                 <!-- Buttons -->
                 <div class="actions">
                     <button type="reset" class="btn btn-cancel">Cancel</button>
-                    <button type="submit" class="btn btn-save">Add Book</button>
+                    <button type="submit" class="btn btn-save">Register</button>
                 </div>
 
             </form>
@@ -395,20 +356,14 @@
 
     </div>
 
-    <!-- FOOTER -->
-    <?php include 'footer.php'; ?>
-
     <script>
-        const form = document.getElementById("editBookForm");
-        const title = document.getElementById("title");
-        const author = document.getElementById("author");
-        const category = document.getElementById("category");
-        const year = document.getElementById("year");
-        const library = document.getElementById("library");
-        const language = document.getElementById("language");
-        const total = document.getElementById("total");
-        const available = document.getElementById("available");
-        const imageInput = document.getElementById("imageInput");
+        const form = document.getElementById("registerForm");
+        const firstName = document.getElementById("firstName");
+        const lastName = document.getElementById("lastName");
+        const email = document.getElementById("email");
+        const contactNumber = document.getElementById("contactNumber");
+        const gender = document.getElementById("gender");
+        const address = document.getElementById("address");
         const previewImage = document.getElementById("previewImage");
         const imageError = imageInput.parentElement.querySelector(".error");
 
@@ -547,14 +502,12 @@
         }
 
 
-        title.addEventListener("input", () => validateText(title));
-        author.addEventListener("input", () => validateText(author));
-        category.addEventListener("change", () => validateSelect(category));
-        library.addEventListener("change", () => validateSelect(library));
-        language.addEventListener("change", () => validateSelect(language));
-        year.addEventListener("input", validateYear);
-        total.addEventListener("input", validateCopies);
-        available.addEventListener("input", validateCopies);
+        firstName.addEventListener("input", () => validateText(firstName));
+        lastName.addEventListener("input", () => validateText(lastName));
+        email.addEventListener("change", () => validateSelect(email));
+        contactNumber.addEventListener("change", () => validateSelect(contactNumber));
+        gender.addEventListener("input", validateYear);
+        address.addEventListener("input", validateCopies);
 
         imageInput.addEventListener("change", function(event) {
             const file = event.target.files[0];
@@ -579,12 +532,11 @@
                 validateSelect(category) &
                 validateYear() &
                 validateSelect(library) &
-                validateSelect(language) &
                 validateCopies() &
                 validateImage(imageInput.files[0]);
 
             if (isValid) {
-               Swal.fire({
+                Swal.fire({
                     toast: true,
                     position: 'top',
                     icon: 'success',

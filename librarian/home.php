@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Admin Dashboard | Library System</title>
+    <title>Library Dashboard | Library System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Chart.js CDN -->

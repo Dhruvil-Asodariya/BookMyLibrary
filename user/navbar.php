@@ -195,18 +195,22 @@
             <a href="home.php">Dashboard</a>
 
             <!-- Books Dropdown -->
-            <div class="dropdown">
+            <!-- <div class="dropdown">
                 <a href="javascript:void(0);" class="dropbtn">Book <i class="fa-solid fa-caret-down"></i></a>
                 <div class="dropdown-content">
                     <a href="book_list.php">Book List</a>
                     <a href="issued_book.php">Issued Book</a>
                 </div>
-            </div>
+            </div> -->
 
-            <a href="user_list.php">User</a>
+            <a href="book.php">Book</a>
+
+            <a href="issued_book.php">Issued Book</a>
+
+            <!-- <a href="user_list.php">User</a> -->
 
             <!-- Library Dropdown -->
-            <a href="library_list.php">Library</a>
+            <!-- <a href="library_list.php">Library</a> -->
 
             <div class="dropdown">
                 <a href="javascript:void(0);" class="dropbtn">Fine <i class="fa-solid fa-caret-down"></i></a>
@@ -217,7 +221,7 @@
             </div>
 
             <!-- Category Dropdown -->
-            <a href="category_list.php">Category</a>
+            <!-- <a href="category_list.php">Category</a> -->
 
             <a href="review&rating_list.php">Review & Rating</a>
 

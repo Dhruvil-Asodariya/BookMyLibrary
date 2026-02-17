@@ -514,6 +514,7 @@
                         <th>Last Name</th>
                         <th>Email ID</th>
                         <th>Contact Number</th>
+                        <th>Gender</th>
                         <th>Address</th>
                         <th>Role</th>
                         <th>Status</th>
@@ -529,6 +530,7 @@
                         <td>Doe</td>
                         <td>john.doe@example.com</td>
                         <td>1234567890</td>
+                        <td>Male</td>
                         <td>123 Main St, Cityville</td>
                         <!-- ROLE COLUMN -->
                         <td><span class="roleSpan user">User</span></td>

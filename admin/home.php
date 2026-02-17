@@ -452,7 +452,7 @@
 
             <a href="category_list.php">Category</a>
 
-            <!-- <a href="view_table&chair.php">View Table & Chair</a> -->
+            <a href="review&rating_list.php">Review & Rating</a>
         </div>
 
         <div class="nav-right">

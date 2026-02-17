@@ -486,7 +486,7 @@
 
                     <div class="form-group">
                         <label>Email</label>
-                        <input type="email" id="editEmail" placeholder="Enter email">
+                        <input type="email" id="editEmail" placeholder="Enter email" disabled>
                         <span id="emailError" class="error"></span>
                     </div>
 
@@ -595,7 +595,7 @@
 
                     <div class="form-group">
                         <label>Library Email</label>
-                        <input type="email" id="editLibraryEmail" placeholder="Enter library email">
+                        <input type="email" id="editLibraryEmail" placeholder="Enter library email" disabled>
                         <span id="libraryEmailError" class="error"></span>
                     </div>
 
