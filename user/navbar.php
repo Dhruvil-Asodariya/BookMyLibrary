@@ -223,7 +223,7 @@
             <!-- Category Dropdown -->
             <!-- <a href="category_list.php">Category</a> -->
 
-            <a href="review&rating_list.php">Review & Rating</a>
+            <!-- <a href="review&rating_list.php">Review & Rating</a> -->
 
             <a href="view_table&chair.php">View Table & Chair</a>
         </div>

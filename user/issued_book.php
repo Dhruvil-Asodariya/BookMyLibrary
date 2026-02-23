@@ -1151,6 +1151,12 @@
                                 data-return="2026-02-08">
                                 Return
                             </button>
+                            <button class="btn btn-renew"
+                                data-book="24842354"
+                                data-return="2026-02-08">
+                                Renew
+                            </button>
+
 
                         </td>
                     </tr>
@@ -1164,17 +1170,17 @@
                         <td>100</td>
                         <td><span class="status unissued">Unissued</span></td>
                         <td>
-                            <button class="btn btn-renew"
+                            <button class="btn btn-return"
                                 data-book="24842354"
+                                data-issue="2026-01-12"
                                 data-return="2026-02-08">
-                                Renew
+                                Return
                             </button>
-
-                            <button class="btn btn-pay"
+                            <!-- <button class="btn btn-pay"
                                 data-amount="1"
                                 data-book="24842354">
                                 Pay
-                            </button>
+                            </button> -->
 
                         </td>
                     </tr>
@@ -1680,6 +1686,8 @@
         const returnBtn = returnModal.querySelector(".return-confirm");
         const returnError = returnModal.querySelector(".return-error");
 
+        const today = new Date().setHours(0, 0, 0, 0);
+
         // OPEN RETURN
         document.querySelectorAll(".btn-return").forEach(btn => {
             btn.addEventListener("click", function() {
@@ -1694,6 +1702,9 @@
 
                 returnModal.querySelector('[name="expected_return"]').value =
                     this.dataset.return;
+
+                returnModal.querySelector('[name="actual_return"]').value =
+                    today;
 
                 actualDateInput.value = "";
                 fineInput.value = "0";

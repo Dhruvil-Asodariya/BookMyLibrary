@@ -1053,7 +1053,7 @@
         $('#filterStatus').on('change', function() {
             var value = this.value.toLowerCase();
 
-            table.column(10).search(value ? '^' + value + '$' : '', true, false).draw();
+            table.column(12).search(value ? '^' + value + '$' : '', true, false).draw();
         });
 
         // LOCATION filter

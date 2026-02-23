@@ -436,7 +436,7 @@
             <!-- Category Dropdown -->
             <!-- <a href="category_list.php">Category</a> -->
 
-            <a href="review&rating_list.php">Review & Rating</a>
+            <!-- <a href="review&rating_list.php">Review & Rating</a> -->
 
             <a href="view_table&chair.php">View Table & Chair</a>
         </div>
@@ -481,7 +481,7 @@
                 </div>
             </div>
 
-            <div class="card issued" onclick="card_isseud()">
+            <div class="card issued" onclick="card_issued()">
                 <div class="card-content">
                     <h2>Total Issued Books</h2>
                     <div class="value" id="totalIssued">480</div>
@@ -507,7 +507,7 @@
 
             <div class="card totalfine" onclick="card_totalfine()">
                 <div class="card-content">
-                    <h2>Total Fine Collected (₹)</h2>
+                    <h2>Total Fine To Be Paid (₹)</h2>
                     <div class="value" id="fineCollected">8600</div>
                     <div class="sub">Overall revenue</div>
                 </div>
@@ -643,7 +643,7 @@
         }
 
         function card_returned() {
-            window.location.href = "library_list.php";
+            window.location.href = "issued_book.php";
         }
 
         function card_pending() {

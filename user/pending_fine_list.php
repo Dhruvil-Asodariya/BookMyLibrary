@@ -749,7 +749,7 @@
         <nav class="breadcrumb">
             <a href="home.php" class="dashboard">Dashboard</a>
             <span class="separator">›</span>
-            <span class="current">Fine List</span>
+            <span class="current">Pending Fine List</span>
         </nav>
     </div>
     <div class="container">
@@ -782,7 +782,7 @@
                         <th>Sr No.</th>
                         <th>Fine ID</th>
                         <th>Book ID</th>
-                        <th>User ID</th>
+                        <!-- <th>User ID</th> -->
                         <th>Fine Per Day</th>
                         <th>Fine Days</th>
                         <th>Fine Amount</th>
@@ -795,7 +795,7 @@
                         <td>1</td>
                         <td>24842354</td>
                         <td class="model-link" onclick="openBookModal()">24842354</td>
-                        <td class="model-link" onclick="openUserModal()">24842353</td>
+                        <!-- <td class="model-link" onclick="openUserModal()">24842353</td> -->
                         <td>10</td>
                         <td>20</td>
                         <td>200</td>
@@ -820,7 +820,7 @@
                         <td>1</td>
                         <td>24842354</td>
                         <td class="model-link" onclick="openBookModal()">24842354</td>
-                        <td class="model-link" onclick="openUserModal()">24842353</td>
+                        <!-- <td class="model-link" onclick="openUserModal()">24842353</td> -->
                         <td>10</td>
                         <td>20</td>
                         <td>200</td>
@@ -1024,19 +1024,19 @@
             buttons: [{
                     extend: 'excelHtml5',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7] // column indexes you want
+                        columns: [0, 1, 2, 3, 4, 5, 6] // column indexes you want
                     }
                 },
                 {
                     extend: 'pdfHtml5',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                        columns: [0, 1, 2, 3, 4, 5, 6]
                     }
                 },
                 {
                     extend: 'print',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                        columns: [0, 1, 2, 3, 4, 5, 6]
                     }
                 }
             ],

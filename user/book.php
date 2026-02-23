@@ -944,6 +944,47 @@
         if (e.target === modal) modal.style.display = "none";
     };
 
+    function openTC() {
+        document.getElementById("tcModal").style.display = "flex";
+    }
+
+    function closeTC() {
+        document.getElementById("tcModal").style.display = "none";
+    }
+
+    function confirmBooking() {
+
+        const agreeTC = document.querySelector('input[name="agree_tc"]');
+
+        // Check Terms & Conditions only
+        if (!agreeTC.checked) {
+            Swal.fire({
+                toast: true,
+                position: 'top',
+                icon: 'warning',
+                title: 'Please agree to Terms & Conditions',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true
+            });
+            return;
+        }
+
+        // Success toast
+        Swal.fire({
+            toast: true,
+            position: 'top',
+            icon: 'success',
+            title: 'Booking Confirmed!',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            didClose: () => {
+                window.location.href = "home.php";
+            }
+        });
+    }
+
 
 
     function printStars(rating) {
@@ -971,28 +1012,6 @@
         textEl.textContent = "(" + rating + ")";
     });
 
-    function openTC() {
-        document.getElementById("tcModal").style.display = "flex";
-    }
-
-    function closeTC() {
-        document.getElementById("tcModal").style.display = "none";
-    }
-
-    function confirmBooking() {
-        Swal.fire({
-            toast: true,
-            position: 'top',
-            icon: 'success',
-            title: 'Booking Confirmed!',
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: true,
-            didClose: () => {
-                window.location.href = "home.php";
-            }
-        });
-    }
 
     const issueInput = modal.querySelector('[name="issue_date"]');
     const returnInput = modal.querySelector('[name="return_date"]');

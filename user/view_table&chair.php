@@ -67,7 +67,7 @@
 
         /* Main Hall */
         .hall {
-            display: grid;
+            display: none;
             grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
             gap: 40px;
             /* space between tables */
@@ -366,7 +366,7 @@
         <button class="btn" onclick="openAddTablePopup()">+ Add New Table</button>
     </div>';
     }
-    
+
     ?>
     <!-- <div class="actions">
         <button class="btn" onclick="openAddTablePopup()">+ Add New Table</button>
@@ -374,6 +374,18 @@
 
 
     <!-- <h2>Table & Chair Booking</h2> -->
+
+    <div class="actions">
+        <label style="margin-right:10px;font-weight:600;">Select Library:</label>
+
+        <select id="librarySelect" class="btn" style="max-width:250px;padding:10px;">
+            <option value="">-- Choose Library --</option>
+            <option value="central">Central Library</option>
+            <option value="reading">Reading Room</option>
+            <option value="digital">Digital Library</option>
+        </select>
+    </div>
+
 
     <div class="hall">
 
@@ -798,6 +810,26 @@
         tableCounter++;
         closeAddPopup();
     }
+</script>
+
+<script>
+    document.getElementById("librarySelect").addEventListener("change", function() {
+
+        const library = this.value;
+
+        if (!library) {
+            document.querySelector(".hall").style.display = "none";
+            return;
+        }
+
+        // Show tables
+        document.querySelector(".hall").style.display = "grid";
+
+        // Example: change heading / data based on library
+        // alert(this.options[this.selectedIndex].text + " selected");
+
+        // Future: load tables from database using AJAX
+    });
 </script>
 
 
