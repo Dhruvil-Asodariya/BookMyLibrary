@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+<?php include '../db_config.php'; ?>
 
 <head>
     <meta charset="UTF-8">
@@ -412,6 +413,47 @@
                 font-size: 13px;
             }
         }
+
+        .alert-box {
+            width: 350px;
+            margin: 20px auto;
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .alert-success {
+            background: #e6f9ec;
+            color: #1e7e34;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-error {
+            background: #fdecea;
+            color: #c82333;
+            border-left: 4px solid #dc3545;
+        }
+
+        .alert-close {
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 
@@ -475,6 +517,26 @@
         </div>
     </nav>
 
+    <?php
+    if (isset($_COOKIE['success'])) {
+    ?>
+        <div class="alert-box alert-success">
+            <span><?php echo $_COOKIE['success']; ?></span>
+            <span class="alert-close" onclick="this.parentElement.style.display='none'">&times;</span>
+        </div>
+    <?php
+    }
+
+    if (isset($_COOKIE['error'])) {
+    ?>
+        <div class="alert-box alert-error">
+            <span><?php echo $_COOKIE['error']; ?></span>
+            <span class="alert-close" onclick="this.parentElement.style.display='none'">&times;</span>
+        </div>
+    <?php
+    }
+    ?>
+
     <!-- <div class="breadcrumb-wrapper">
         <nav class="breadcrumb">
             <span class="current">Dashboard</span>
@@ -486,11 +548,21 @@
         <!-- <h1>Admin Dashboard</h1> -->
 
         <!-- CARDS -->
+        <?php
+        $books = mysqli_query($con, "SELECT * FROM book_list WHERE status='Available'");
+        $book_count = mysqli_num_rows($books);
+
+        $library = mysqli_query($con, "SELECT * FROM library");
+        $library_count = mysqli_num_rows($library);
+
+        $category = mysqli_query($con, "SELECT * FROM category WHERE status='Active'");
+        $category_count = mysqli_num_rows($category);
+        ?>
         <div class="dashboard">
             <div class="card books" onclick="card_book()">
                 <div class="card-content">
                     <h2>Total Registered Books</h2>
-                    <div class="value" id="totalBooks">1200</div>
+                    <div class="value" id="totalBooks"><?php echo $book_count; ?></div>
                     <div class="sub">All books in system</div>
                 </div>
             </div>
@@ -506,7 +578,7 @@
             <div class="card libraries" onclick="card_libraries()">
                 <div class="card-content">
                     <h2>Total Registered Libraries</h2>
-                    <div class="value" id="totalLibraries">25</div>
+                    <div class="value" id="totalLibraries"><?php echo $library_count; ?></div>
                     <div class="sub">Libraries in network</div>
                 </div>
             </div>
@@ -514,7 +586,7 @@
             <div class="card category" onclick="card_category()">
                 <div class="card-content">
                     <h2>Total Categories</h2>
-                    <div class="value" id="totalCategories">15</div>
+                    <div class="value" id="totalCategories"><?php echo $category_count; ?></div>
                     <div class="sub">Book categories in system</div>
                 </div>
             </div>
@@ -522,7 +594,7 @@
             <div class="card issued" onclick="card_issued()">
                 <div class="card-content">
                     <h2>Total Issued Books</h2>
-                    <div class="value" id="totalIssued">350</div>
+                    <div class="value" id="totalIssued">2</div>
                     <div class="sub">Currently borrowed</div>
                 </div>
             </div>
@@ -591,19 +663,10 @@
         });
 
         // 🔒 FIXED VALUES
-        const books = 100; // Total Registered Books (fixed)
-        const collected = 3250; // Total Fine Collected (fixed)
-        const category = 15; // Total Registered Categories (fixed)
-
-        // 🔄 LIVE VALUES
-        let issued = 30;
-        let users = 480;
-        let pending = 1250;
-
-        // Set fixed values once
-        document.getElementById("totalBooks").textContent = books;
-        document.getElementById("fineCollected").textContent = collected;
-        document.getElementById("totalCategories").textContent = category;
+        const books = parseInt(document.getElementById("totalBooks").textContent);
+        const collected = parseInt(document.getElementById("fineCollected").textContent);
+        const issued = parseInt(document.getElementById("totalIssued").textContent);
+        const pending = parseInt(document.getElementById("finePending").textContent);
 
         // Charts
         const booksCtx = document.getElementById('booksChart').getContext('2d');
@@ -686,28 +749,6 @@
             plugins: [ChartDataLabels]
         });
 
-
-        // 🔁 LIVE UPDATE (ONLY FOR DYNAMIC VALUES)
-        function updateAdminDashboard() {
-            issued = Math.floor(Math.random() * 80) + 1;
-            users = Math.floor(Math.random() * 1200) + 200;
-            pending = Math.floor(Math.random() * 3000);
-
-            document.getElementById("totalIssued").textContent = issued;
-            document.getElementById("totalUsers").textContent = users;
-            document.getElementById("finePending").textContent = pending;
-
-            // Update charts
-            booksChart.data.datasets[0].data = [issued, books - issued];
-            booksChart.update();
-
-            fineChart.data.datasets[0].data = [pending, collected];
-            fineChart.update();
-        }
-
-        // Update every 5 seconds
-        setInterval(updateAdminDashboard, 5000);
-
         function card_book() {
             window.location.href = "book_list.php";
         }
@@ -735,6 +776,13 @@
         function card_totalfine() {
             window.location.href = "fine_list.php";
         }
+
+        setTimeout(() => {
+            document.querySelectorAll(".alert-box").forEach(alert => {
+                alert.style.opacity = "0";
+                setTimeout(() => alert.remove(), 400);
+            });
+        }, 5000);
     </script>
 
 

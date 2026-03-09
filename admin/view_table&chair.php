@@ -342,6 +342,8 @@
         <nav class="breadcrumb">
             <a href="home.php" class="dashboard">Dashboard</a>
             <span class="separator">›</span>
+            <a href="library_list.php"><span class="dashboard">Library List</span></a>
+            <span class="separator">›</span>
             <span class="current">View Table & Chair</span>
         </nav>
     </div>

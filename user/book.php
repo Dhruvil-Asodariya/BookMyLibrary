@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Library Books</title>
-
+    <title>Book | Library System</title>
+    <link rel="icon" href="../image/title_image.png" type="image/png">
     <style>
         * {
             margin: 0;
@@ -117,16 +117,19 @@
             opacity: 1;
         }
 
-        .book-card.programming .glass {
-            background: linear-gradient(to top, rgba(99, 102, 241, 0.95), rgba(59, 130, 246, 0.6), transparent);
+        .book-card.available .glass {
+            background: linear-gradient(to top,
+                    rgba(16, 185, 129, 0.95),
+                    rgba(34, 197, 94, 0.6),
+                    transparent);
         }
 
-        .book-card.history .glass {
-            background: linear-gradient(to top, rgba(180, 83, 9, 0.95), rgba(234, 88, 12, 0.6), transparent);
-        }
 
-        .book-card.science .glass {
-            background: linear-gradient(to top, rgba(16, 185, 129, 0.95), rgba(6, 182, 212, 0.6), transparent);
+        .book-card.unavailable .glass {
+            background: linear-gradient(to top,
+                    rgba(220, 38, 38, 0.95),
+                    rgba(239, 68, 68, 0.6),
+                    transparent);
         }
 
 
@@ -581,31 +584,44 @@
 
             <select id="categoryFilter">
                 <option value="">All Categories</option>
-                <option value="Programming">Programming</option>
-                <option value="Science">Science</option>
-                <option value="History">History</option>
+                <?php
+                $categorys = mysqli_query($con, "SELECT * FROM category WHERE status = 'Active'");
+
+                foreach ($categorys as $row) {
+                    echo "<option value='{$row['category_name']}'>
+                                             {$row['category_name']}
+                                          </option>";
+                }
+                ?>
             </select>
 
             <select id="statusFilter">
-                <option value="">Status</option>
+                <option value="">All Status</option>
                 <option value="Available">Available</option>
                 <option value="Unavailable">Unavailable</option>
             </select>
 
             <select id="libraryFilter">
-                <option value="">Library</option>
-                <option value="Main Library">Main Library</option>
-                <option value="Central Library">Central Library</option>
+                <option value="">All Library</option>
+                <?php
+                $libraries = mysqli_query($con, "SELECT * FROM library WHERE status = 'Active'");
+
+                foreach ($libraries as $row) {
+                    echo "<option value='{$row['library_name']}'>
+                                             {$row['library_name']}
+                                          </option>";
+                }
+                ?>
             </select>
 
             <select id="languageFilter">
-                <option value="">Language</option>
+                <option value="">All Language</option>
                 <option value="English">English</option>
                 <option value="Hindi">Hindi</option>
             </select>
 
             <select id="ratingFilter">
-                <option value="">Rating</option>
+                <option value="">All Rating</option>
                 <option value="5">5 Star</option>
                 <option value="4">4 Star & Above</option>
                 <option value="3">3 Star & Above</option>
@@ -618,163 +634,61 @@
 
 
         <div class="book-grid" id="bookGrid">
-            <div class="book-card programming"
-                data-id="24842354"
-                data-title="Java Programming"
-                data-author="James Gosling"
-                data-year="2020"
-                data-category="Programming"
-                data-status="Available"
-                data-library="Main Library"
-                data-language="English"
-                data-rating="4.5">
 
-                <div class="book-img"
-                    style="background-image:url('../image/91xUz2EuYdL._AC_UF1000\,1000_QL80_.jpg')">
+            <?php
+            $books = mysqli_query($con, "SELECT * FROM book_list WHERE status='Available'");
 
-                    <!-- Glass blur overlay -->
-                    <div class="glass"></div>
+            foreach ($books as $row) {
 
-                    <!-- Hidden content -->
-                    <div class="book-content">
-                        <div class="status-badge available">Available</div>
+                $statusClass = ($row['available_copy'] == 0) ? "unavailable" : "available";
+                $statusText  = ($row['available_copy'] == 0) ? "Unavailable" : "Available";
+                $library_name = mysqli_fetch_assoc(mysqli_query($con, "SELECT library_name FROM library WHERE library_id = {$row['library_id']}"));
 
-                        <div class="book-title">Java Programming</div>
+                echo "
+                        <div class='book-card " . strtolower($statusClass) . "'
+                            data-id='{$row['book_id']}'
+                            data-title='{$row['title']}'
+                            data-author='{$row['author']}'
+                            data-year='{$row['year']}'
+                            data-category='{$row['category']}'
+                            data-status='{$statusText}'
+                            data-library='{$library_name['library_name']}'
+                            data-language='{$row['language']}'
+                            data-rating='{$row['rating']}'>
 
-                        <div class="book-info">Author: James Gosling</div>
-                        <div class="book-info">Year: 2020</div>
-                        <div class="book-info">Category: Programming</div>
-                        <div class="book-info">Library: Main Library</div>
-                        <div class="book-info">Language: English</div>
-                        <div class="book-info">Available Copy: 3</div>
+                            <div class='book-img'
+                                style=\"background-image:url('../book_images/{$row['image']}')\">
 
-                        <div class="book-rating">
-                            <span class="stars"></span>
-                            <span class="rating-text">(4.5)</span>
+                                <div class='glass'></div>
+
+                                <div class='book-content'>
+                                    <div class='status-badge {$statusClass}'>{$statusText}</div>
+
+                                    <div class='book-title'>{$row['title']}</div>
+
+                                    <div class='book-info'>Author: {$row['author']}</div>
+                                    <div class='book-info'>Year: {$row['year']}</div>
+                                    <div class='book-info'>Category: {$row['category']}</div>
+                                    <div class='book-info'>Library: {$library_name['library_name']}</div>
+                                    <div class='book-info'>Language: {$row['language']}</div>
+                                    <div class='book-info'>Available Copy: {$row['available_copy']}</div>
+
+                                    <div class='book-rating'>
+                                        <span class='stars'></span>
+                                        <span class='rating-text'>({$row['rating']})</span>
+                                    </div>
+
+                                    <button class='book-btn'
+                                        data-status='{$statusText}'
+                                        data-id='{$row['book_id']}'>
+                                        Book Now
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-
-                        <button class="book-btn" onclick="openModel()">Book Now</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="book-card science"
-                data-title="Database Management System"
-                data-author="Abraham Silberschatz"
-                data-year="2019"
-                data-category="Science"
-                data-status="Available"
-                data-library="Central Library"
-                data-language="English"
-                data-rating="4.2">
-
-                <div class="book-img"
-                    style="background-image:url('../image/91xUz2EuYdL._AC_UF1000\,1000_QL80_.jpg')">
-
-                    <!-- Glass blur overlay -->
-                    <div class="glass"></div>
-
-                    <!-- Hidden content -->
-                    <div class="book-content">
-                        <div class="status-badge available">Available</div>
-
-                        <div class="book-title">Database Management System</div>
-
-                        <div class="book-info">Author: Abraham Silberschatz</div>
-                        <div class="book-info">Year: 2019</div>
-                        <div class="book-info">Category: Science</div>
-                        <div class="book-info">Library: Central Library</div>
-                        <div class="book-info">Language: English</div>
-                        <div class="book-info">Available Copy: 5</div>
-
-                        <div class="book-rating">
-                            <span class="stars"></span>
-                            <span class="rating-text">(4.2)</span>
-                        </div>
-
-                        <button class="book-btn" onclick="openModel()">Book Now</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="book-card programming"
-                data-title="Python Programming"
-                data-author="Guido van Rossum"
-                data-year="2021"
-                data-category="Programming"
-                data-status="Available"
-                data-library="Main Library"
-                data-language="English"
-                data-rating="4.7">
-
-                <div class="book-img"
-                    style="background-image:url('../image/91xUz2EuYdL._AC_UF1000\,1000_QL80_.jpg')">
-
-                    <!-- Glass blur overlay -->
-                    <div class="glass"></div>
-
-                    <!-- Hidden content -->
-                    <div class="book-content">
-                        <div class="status-badge available">Available</div>
-
-                        <div class="book-title">Python Programming</div>
-
-                        <div class="book-info">Author: Guido van Rossum</div>
-                        <div class="book-info">Year: 2021</div>
-                        <div class="book-info">Category: Programming</div>
-                        <div class="book-info">Library: Main Library</div>
-                        <div class="book-info">Language: English</div>
-                        <div class="book-info">Available Copy: 2</div>
-
-                        <div class="book-rating">
-                            <span class="stars"></span>
-                            <span class="rating-text">(4.7)</span>
-                        </div>
-
-                        <button class="book-btn" onclick="openModel()">Book Now</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="book-card history"
-                data-title="World History"
-                data-author="Howard Zinn"
-                data-year="2018"
-                data-category="History"
-                data-status="Unavailable"
-                data-library="Central Library"
-                data-language="Hindi"
-                data-rating="3.9">
-
-                <div class="book-img"
-                    style="background-image:url('../image/91xUz2EuYdL._AC_UF1000\,1000_QL80_.jpg')">
-
-                    <!-- Glass blur overlay -->
-                    <div class="glass"></div>
-
-                    <!-- Hidden content -->
-                    <div class="book-content">
-                        <div class="status-badge unavailable">Unavailable</div>
-
-                        <div class="book-title">World History</div>
-
-
-                        <div class="book-info">Author: Howard Zinn</div>
-                        <div class="book-info">Year: 2018</div>
-                        <div class="book-info">Category: History</div>
-                        <div class="book-info">Library: Central Library</div>
-                        <div class="book-info">Language: Hindi</div>
-                        <div class="book-info">Available Copy: 4</div>
-
-                        <div class="book-rating">
-                            <span class="stars"></span>
-                            <span class="rating-text">(3.9)</span>
-                        </div>
-
-                        <button class="book-btn" onclick="openModel()">Book Now</button>
-                    </div>
-                </div>
-            </div>
+                        ";
+            }
+            ?>
 
         </div>
 
@@ -904,6 +818,24 @@
     // OPEN MODAL
     document.querySelectorAll(".book-btn").forEach(btn => {
         btn.addEventListener("click", function() {
+
+            const status = this.dataset.status; // get status from button
+
+            // 🚫 If Unavailable → Show Toast
+            if (status.toLowerCase() === "unavailable") {
+
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'error',
+                    title: 'This book is currently unavailable',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true
+                });
+
+                return; // stop here
+            }
 
             const card = this.closest(".book-card");
 

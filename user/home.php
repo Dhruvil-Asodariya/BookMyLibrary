@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+<?php include '../db_config.php'; ?>
 
 <head>
     <meta charset="UTF-8">
-    <title>Admin Dashboard | Library System</title>
+    <title>User Dashboard | Library System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Chart.js CDN -->
@@ -391,6 +392,47 @@
                 font-size: 13px;
             }
         }
+
+        .alert-box {
+            width: 350px;
+            margin: 20px auto;
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .alert-success {
+            background: #e6f9ec;
+            color: #1e7e34;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-error {
+            background: #fdecea;
+            color: #c82333;
+            border-left: 4px solid #dc3545;
+        }
+
+        .alert-close {
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 
@@ -461,6 +503,26 @@
         </div>
     </nav>
 
+    <?php
+    if (isset($_COOKIE['success'])) {
+    ?>
+        <div class="alert-box alert-success">
+            <span><?php echo $_COOKIE['success']; ?></span>
+            <span class="alert-close" onclick="this.parentElement.style.display='none'">&times;</span>
+        </div>
+    <?php
+    }
+
+    if (isset($_COOKIE['error'])) {
+    ?>
+        <div class="alert-box alert-error">
+            <span><?php echo $_COOKIE['error']; ?></span>
+            <span class="alert-close" onclick="this.parentElement.style.display='none'">&times;</span>
+        </div>
+    <?php
+    }
+    ?>
+
     <!-- <div class="breadcrumb-wrapper">
         <nav class="breadcrumb">
             <span class="current">Dashboard</span>
@@ -472,11 +534,15 @@
         <!-- <h1>Admin Dashboard</h1> -->
 
         <!-- CARDS -->
+        <?php
+        $books = mysqli_query($con, "SELECT * FROM book_list WHERE status='Available'");
+        $book_count = mysqli_num_rows($books);
+        ?>
         <div class="dashboard">
             <div class="card books" onclick="card_book()">
                 <div class="card-content">
                     <h2>Total Registered Books</h2>
-                    <div class="value" id="totalBooks">1200</div>
+                    <div class="value" id="totalBooks"><?php echo "$book_count" ?></div>
                     <div class="sub">All books in system</div>
                 </div>
             </div>
@@ -556,7 +622,6 @@
         });
 
         // 🔒 FIXED VALUES
-        const books = 100;
         const collected = 3250;
         const returned = 25;
 
@@ -565,7 +630,6 @@
         let pending = 1250;
 
         // Set fixed values once
-        document.getElementById("totalBooks").textContent = books;
         document.getElementById("fineCollected").textContent = collected;
         document.getElementById("totalReturned").textContent = returned;
 
@@ -653,6 +717,13 @@
         function card_totalfine() {
             window.location.href = "fine_list.php";
         }
+
+        setTimeout(() => {
+            document.querySelectorAll(".alert-box").forEach(alert => {
+                alert.style.opacity = "0";
+                setTimeout(() => alert.remove(), 400);
+            });
+        }, 5000);
     </script>
 
 

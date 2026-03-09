@@ -9,6 +9,7 @@
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="icon" href="../image/title_image.png" type="image/png">
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -459,7 +460,6 @@
                 </div>
                 <a href="add_category.php"><button class="btn btn-add">➕ Add Category</button></a>
             </div>
-
             <table id="bookTable" class="display">
                 <thead>
                     <tr>
@@ -472,31 +472,46 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>2484</td>
-                        <td>Programming</td>
-                        <td>Books related to programming languages, software development, and coding.</td>
-                        <?php
-                        $a = "Active"; // Change to "inactive" to test
-                        if ($a == "Active") {
-                            echo '<td><span class="status active">Active</span></td>';
+                    <?php
+                    $category = mysqli_query($con, "SELECT * FROM category");
+                    $i = 1;
+                    foreach ($category as $row) {
+
+                        // Dynamic Status Logic
+                        if ($row['status'] == "Active") {
+                            $statusClass = "active";
+                            $statusText  = "Active";
+                            $buttonText = "Inactive";
                         } else {
-                            echo '<td><span class="status inactive">Inactive</span></td>';
+                            $statusClass = "inactive";
+                            $statusText  = "Inactive";
+                            $buttonText = "Active";
                         }
-                        ?>
-                        <td>
-                            <a href="edit_category.php?category_id=2484"><button class="btn btn-edit">Edit</button></a>
-                            <?php
-                            if ($a == "Active") {
-                                echo '<button class="btn btn-toggle">Inactive</button>';
-                            } else {
-                                echo '<button class="btn btn-toggle">Active</button>';
-                            }
-                            ?>
-                            <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br>
+
+                        echo "
+                    <tr>
+                        <td>{$i}</td>
+                        <td>{$row['category_id']}</td>
+                        <td>{$row['category_name']}</td>
+                        <td>{$row['category_description']}</td>
+                        <td><span id='status_{$row['category_id']}' 
+                                class='status {$statusClass}'>
+                                {$statusText}
+                            </span>
                         </td>
-                    </tr>
+                        <td>
+                            <a href='edit_category.php?category_id={$row['category_id']}'><button class='btn btn-edit'>Edit</button></a>
+                           <button 
+                                class='btn btn-toggle'
+                                onclick='toggleStatus({$row['category_id']}, " . json_encode($statusText) . ", this)'>
+                                {$buttonText}
+                            </button>
+                            <button class='btn btn-delete' onclick='openDeleteModal()'>Delete</button>
+                        </td>
+                    </tr>";
+                        $i++;
+                    }
+                    ?>
 
                 </tbody>
             </table>
@@ -538,6 +553,15 @@
         var table = $('#bookTable').DataTable({
             responsive: true,
             dom: 'Brtip',
+            columnDefs: [{
+                targets: 0, // Sr No column
+                orderable: false,
+                searchable: false
+            }],
+
+            order: [
+                [1, 'asc']
+            ],
             buttons: [{
                     extend: 'excelHtml5',
                     exportOptions: {
@@ -562,6 +586,18 @@
             scrollX: true,
             scrollCollapse: true
         });
+
+        // ✅ AUTO UPDATE SERIAL NUMBER
+        table.on('order.dt search.dt draw.dt', function() {
+            table.column(0, {
+                    search: 'applied',
+                    order: 'applied'
+                })
+                .nodes()
+                .each(function(cell, i) {
+                    cell.innerHTML = i + 1;
+                });
+        }).draw();
 
         // STATUS filter
         $('#filterStatus').on('change', function() {
@@ -598,30 +634,67 @@
             alert("Category record deleted successfully!");
             // Here you can remove the row or call backend later
         }
+    </script>
 
-        document.addEventListener("click", function(e) {
-            if (e.target.classList.contains("btn-toggle")) {
+    <script>
+        function toggleStatus(category_id, current_status, btn) {
 
-                const row = e.target.closest("tr");
-                const status = row.querySelector(".status");
+            fetch("category_status_update.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: "category_id=" + category_id + "&current_status=" + current_status
+                })
+                .then(response => response.json())
+                .then(data => {
 
-                if (status.classList.contains("active")) {
-                    // Change to Inactive
-                    status.textContent = "Inactive";
-                    status.classList.remove("active");
-                    status.classList.add("inactive");
+                    if (data.status === "success") {
 
-                    e.target.textContent = "Active";
-                } else {
-                    // Change to Active
-                    status.textContent = "Active";
-                    status.classList.remove("inactive");
-                    status.classList.add("active");
+                        Swal.fire({
+                            toast: true,
+                            position: 'top',
+                            icon: 'success',
+                            title: 'Status Updated Successfully!',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
 
-                    e.target.textContent = "Inactive";
-                }
-            }
-        });
+                        // 🔥 Update Button Text Instantly
+                        btn.innerText = data.buttonText;
+
+                        // Update onclick with new status
+                        btn.setAttribute("onclick",
+                            "toggleStatus(" + category_id + ", '" + data.newStatus + "', this)");
+
+                        // ✅ Update Status Column Text
+                        let statusSpan = document.getElementById("status_" + category_id);
+                        statusSpan.innerText = data.newStatus;
+
+                        // ✅ Update Status Badge Class
+                        statusSpan.classList.remove("active", "inactive");
+
+                        if (data.newStatus === "Active") {
+                            statusSpan.classList.add("active");
+                        } else {
+                            statusSpan.classList.add("inactive");
+                        }
+
+                    } else {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top',
+                            icon: 'error',
+                            title: 'Failed to update status!',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
+                    }
+
+                });
+        }
     </script>
 
 </body>

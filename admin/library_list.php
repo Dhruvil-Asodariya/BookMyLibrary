@@ -475,83 +475,58 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>24842354</td>
-                        <td>Central City Library</td>
-                        <td>James Gosling</td>
-                        <td>120</td>
-                        <td>240</td>
-                        <td>08:00 AM</td>
-                        <td>09:00 PM</td>
-                        <td>Downtown, Rajkot</td>
+                    <?php
+                    $librarys = mysqli_query($con, "SELECT * FROM library");
+                    $i = 1;
+                    foreach ($librarys as $row) {
 
-                        <?php
-                        $a = "Active";
-                        if ($a == "Active") {
-                            echo '<td><span class="status active">Active</span></td>';
+                        // Dynamic Status Logic
+                        if ($row['status'] == "Active") {
+                            $statusClass = "active";
+                            $statusText  = "Active";
+                            $buttonText = "Inactive";
                         } else {
-                            echo '<td><span class="status inactive">Inactive</span></td>';
+                            $statusClass = "inactive";
+                            $statusText  = "Inactive";
+                            $buttonText = "Active";
                         }
-                        ?>
+
+                    echo "
+                        <tr>
+                        <td>{$i}</td>
+                        <td>{$row['library_id']}</td>
+                        <td>{$row['library_name']}</td>
+                        <td>{$row['library_owner_name']}</td>
+                        <td>{$row['table_capacity']}</td>
+                        <td>{$row['chair_capacity']}</td>
+                        <td>{$row['open_at']}</td>
+                        <td>{$row['close_at']}</td>
+                        <td>{$row['library_location']}</td>
+                        <td><span id='status_{$row['library_id']}' 
+                                class='status {$statusClass}'>
+                                {$statusText}
+                            </span></td>
 
                         <td>
-                            <a href="edit_library.php?library_id=24842354" style="text-decoration: none;">
-                                <button class="btn btn-edit">Edit</button>
+                            <a href='edit_library.php?library_id=24842354' style='text-decoration: none;'>
+                                <button class='btn btn-edit'>Edit</button>
                             </a>
-                            <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br>
-
-                            <?php
-                            if ($a == "Active") {
-                                echo '<button class="btn btn-toggle">Inactive</button>';
-                            } else {
-                                echo '<button class="btn btn-toggle">Active</button>';
-                            }
-                            ?>
-                            <a href="view_table&chair.php?library_id=24842354" style="text-decoration: none;">
-                                <button class="btn btn-edit">View Table & Chair</button>
+                            <button class='btn btn-delete' onclick='openDeleteModal()'>Delete</button><br>
+                            <button 
+                                class='btn btn-toggle'
+                                onclick='toggleStatus({$row['library_id']}, " . json_encode($statusText) . ", this)'>
+                                {$buttonText}
+                            </button>
+                            <a href='view_table&chair.php?library_id=24842354' style='text-decoration: none;'>
+                                <button class='btn btn-edit'>View Table & Chair</button>
                             </a>
                         </td>
                     </tr>
+                    ";
 
-                    <tr>
-                        <td>2</td>
-                        <td>24842354</td>
-                        <td>Central City Library</td>
-                        <td>James Gosling</td>
-                        <td>120</td>
-                        <td>240</td>
-                        <td>08:00 AM</td>
-                        <td>09:00 PM</td>
-                        <td>Downtown, Rajkot</td>
-
-                        <?php
-                        $a = "Inactive";
-                        if ($a == "Active") {
-                            echo '<td><span class="status active">Active</span></td>';
-                        } else {
-                            echo '<td><span class="status inactive">Inactive</span></td>';
-                        }
-                        ?>
-
-                        <td>
-                            <a href="edit_book.php?book_id=24842354" style="text-decoration: none;">
-                                <button class="btn btn-edit">Edit</button>
-                            </a>
-                            <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br>
-
-                            <?php
-                            if ($a == "Active") {
-                                echo '<button class="btn btn-toggle">Inactive</button>';
-                            } else {
-                                echo '<button class="btn btn-toggle">Active</button>';
-                            }
-                            ?>
-                            <a href="view_table&chair.php?library_id=24842354" style="text-decoration: none;">
-                                <button class="btn btn-edit">View Table & Chair</button>
-                            </a>
-                        </td>
-                    </tr>
+                    $i++;
+                    }
+                    ?>
 
                 </tbody>
             </table>
@@ -659,29 +634,67 @@
             // Here you can remove the row or call backend later
         }
 
-        document.addEventListener("click", function(e) {
-            if (e.target.classList.contains("btn-toggle")) {
+    </script>
 
-                const row = e.target.closest("tr");
-                const status = row.querySelector(".status");
+    <script>
+        function toggleStatus(library_id, current_status, btn) {
 
-                if (status.classList.contains("active")) {
-                    // Change to Inactive
-                    status.textContent = "Inactive";
-                    status.classList.remove("active");
-                    status.classList.add("inactive");
+            fetch("library_status_update.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: "library_id=" + library_id + "&current_status=" + current_status
+                })
+                .then(response => response.json())
+                .then(data => {
 
-                    e.target.textContent = "Active";
-                } else {
-                    // Change to Active
-                    status.textContent = "Active";
-                    status.classList.remove("inactive");
-                    status.classList.add("active");
+                    if (data.status === "success") {
 
-                    e.target.textContent = "Inactive";
-                }
-            }
-        });
+                        Swal.fire({
+                            toast: true,
+                            position: 'top',
+                            icon: 'success',
+                            title: 'Status Updated Successfully!',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
+
+                        // 🔥 Update Button Text Instantly
+                        btn.innerText = data.buttonText;
+
+                        // Update onclick with new status
+                        btn.setAttribute("onclick",
+                            "toggleStatus(" + library_id + ", '" + data.newStatus + "', this)");
+
+                        // ✅ Update Status Column Text
+                        let statusSpan = document.getElementById("status_" + library_id);
+                        statusSpan.innerText = data.newStatus;
+
+                        // ✅ Update Status Badge Class
+                        statusSpan.classList.remove("active", "inactive");
+
+                        if (data.newStatus === "Active") {
+                            statusSpan.classList.add("active");
+                        } else {
+                            statusSpan.classList.add("inactive");
+                        }
+
+                    } else {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top',
+                            icon: 'error',
+                            title: 'Failed to update status!',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
+                    }
+
+                });
+        }
     </script>
 
 </body>

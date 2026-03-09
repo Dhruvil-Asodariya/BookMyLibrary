@@ -3,11 +3,11 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Register | Library System</title>
+    <title>Add Book | Library System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" href="image/title_image.png" type="image/png">
+    <link rel="icon" href="../image/title_image.png" type="image/png">
     <style>
         * {
             margin: 0;
@@ -98,7 +98,7 @@
         /* Fields */
         .form-fields {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 18px;
         }
 
@@ -280,13 +280,27 @@
 
 <body>
 
+
+    <div class="breadcrumb-wrapper">
+        <nav class="breadcrumb">
+            <a href="home.php" class="dashboard">Dashboard</a>
+            <span class="separator">›</span>
+            <a href="book_list.php"><span class="dashboard">Book List</span></a>
+            <span class="separator">›</span>
+            <span class="current">Add Book</span>
+        </nav>
+    </div>
+
     <!-- MAIN CONTENT -->
     <div class="main-content">
+
+
+
         <div class="edit-card">
-            <form id="registerForm">
+            <form id="editBookForm" method="POST" enctype="multipart/form-data">
                 <div class="page-header">
-                    <h2>Register Form</h2>
-                    <p>Add your details in library system</p>
+                    <h2>Add Book</h2>
+                    <p>Add book details in your library system</p>
                 </div>
                 <div class="form-grid">
 
@@ -294,7 +308,7 @@
                     <label class="image-box">
                         <img id="previewImage" src="https://via.placeholder.com/160x220?text=Book+Cover"><br>
                         <span>Click to upload book image</span>
-                        <input type="file" accept="image/*" id="imageInput">
+                        <input type="file" accept="image/*" id="imageInput" name="image">
                         <div class="error"></div>
                     </label>
 
@@ -303,42 +317,61 @@
 
                         <div class="form-group">
                             <label>First Name</label>
-                            <input type="text" id="firstName">
+                            <input type="text" id="first_name" name="first_name">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
-                            <label>Last Name</label>
-                            <input type="text" id="lastName">
+                            <label>Author</label>
+                            <input type="text" id="author" name="author">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
-                            <label>Email</label>
-                            <input type="email" id="email">
-                            <div class="error"></div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Gender</label>
-                            <select id="gender">
-                                <option value="">Select Gender</option>
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                                <option value="Other">Other</option>
+                            <label>Category</label>
+                            <select id="category" name="category">
+                                <option value="">Select Category</option>
+                                
                             </select>
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
-                            <label>Contact Number</label>
-                            <input type="number" id="contactNumber">
+                            <label>Year</label>
+                            <input type="number" id="year" name="year">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
-                            <label>Address</label>
-                            <input type="text" id="address">
+                            <label>Library</label>
+                            <select id="library" name="library">
+                                <option value="">Select Library</option>
+                                
+                                ?>
+                            </select>
+                            <div class="error"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Total Copies</label>
+                            <input type="number" id="total" name="total_copy">
+                            <div class="error"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Available Copies</label>
+                            <input type="number" id="available" name="available_copy">
+                            <div class="error"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Language</label>
+                            <select id="language" name="language">
+                                <option value="">Select Language</option>
+                                <option value="English">English</option>
+                                <option value="Hindi">Hindi</option>
+                                <option value="Gujarati">Gujarati</option>
+                            </select>
                             <div class="error"></div>
                         </div>
 
@@ -348,7 +381,7 @@
                 <!-- Buttons -->
                 <div class="actions">
                     <button type="reset" class="btn btn-cancel">Cancel</button>
-                    <button type="submit" class="btn btn-save">Register</button>
+                    <button type="submit" name="add_book_btn" class="btn btn-save">Add Book</button>
                 </div>
 
             </form>
@@ -356,14 +389,96 @@
 
     </div>
 
+    <?php
+    // if (isset($_POST['add_book_btn'])) {
+
+    //     // 🔁 Generate Unique Random ID
+    //     do {
+    //         $book_id = rand(10000000, 99999999);
+
+    //         $check_query = mysqli_query(
+    //             $con,
+    //             "SELECT book_id FROM book_list WHERE book_id = '$book_id'"
+    //         );
+    //     } while (mysqli_num_rows($check_query) > 0);
+
+    //     $library_id = $_POST['library'];
+    //     $title = $_POST['title'];
+    //     $author = $_POST['author'];
+    //     $category = $_POST['category'];
+    //     $year = $_POST['year'];
+    //     $language = $_POST['language'];
+    //     $total_copy = $_POST['total_copy'];
+    //     $available_copy = $_POST['available_copy'];
+    //     $rating = 0.0;
+    //     if ($available_copy == 0) {
+    //         $status = "Unavailable";
+    //     } else {
+    //         $status = "Available";
+    //     }
+    //     $image = uniqid() . $_FILES['image']['name'];
+    //     $image_tmp = $_FILES['image']['tmp_name'];
+    //     $upload_dir = '../book_images/';
+
+    //     if (!is_dir($upload_dir)) {
+    //         mkdir($upload_dir);
+    //     }
+
+    //     $insert_query = "INSERT INTO book_list 
+    //                     (book_id, library_id, title, author, category, year, language, total_copy, available_copy, rating, status, image)
+    //                     VALUES($book_id, $library_id, '$title', '$author', '$category', $year, '$language', $total_copy, $available_copy, $rating, '$status', '$image')";
+
+    //     if (mysqli_query($con, $insert_query)) {
+    //         move_uploaded_file($image_tmp, $upload_dir . $image);
+    //         echo "<script>
+    //                 previewImage.src = '../book_images/$image';
+    //                 document.addEventListener('DOMContentLoaded', function(){
+    //                 Swal.fire({
+    //                     toast: true,
+    //                     position: 'top',
+    //                     icon: 'success',
+    //                     title: 'Book Added Successfully!',
+    //                     showConfirmButton: false,
+    //                     timer: 2000,
+    //                     timerProgressBar: true
+    //                 }).then(() => {
+    //                     window.location.href = 'book_list.php';
+    //                 });
+    //             });
+    //         </script>";
+    //     } else {
+    //         echo "<script>
+    //                 previewImage.src = '../book_images/$image';
+    //                 document.addEventListener('DOMContentLoaded', function(){
+    //                 Swal.fire({
+    //                     toast: true,
+    //                     position: 'top',
+    //                     icon: 'error',
+    //                     title: 'Failed to add book. Please try again.',
+    //                     showConfirmButton: false,
+    //                     timer: 2000,
+    //                     timerProgressBar: true
+    //                 });
+    //             });
+    //         </script>";
+    //     }
+    // }
+    ?>
+
+    <!-- FOOTER -->
+    
+
     <script>
-        const form = document.getElementById("registerForm");
-        const firstName = document.getElementById("firstName");
-        const lastName = document.getElementById("lastName");
-        const email = document.getElementById("email");
-        const contactNumber = document.getElementById("contactNumber");
-        const gender = document.getElementById("gender");
-        const address = document.getElementById("address");
+        const form = document.getElementById("editBookForm");
+        const title = document.getElementById("title");
+        const author = document.getElementById("author");
+        const category = document.getElementById("category");
+        const year = document.getElementById("year");
+        const library = document.getElementById("library");
+        const language = document.getElementById("language");
+        const total = document.getElementById("total");
+        const available = document.getElementById("available");
+        const imageInput = document.getElementById("imageInput");
         const previewImage = document.getElementById("previewImage");
         const imageError = imageInput.parentElement.querySelector(".error");
 
@@ -384,7 +499,7 @@
 
         function validateText(input) {
             const value = input.value.trim();
-            const regex = /^[A-Za-z\s]+$/;
+            const regex = /^[A-Za-z\s.]+$/;
 
             if (value === "") {
                 showError(input, "This field is required");
@@ -502,12 +617,14 @@
         }
 
 
-        firstName.addEventListener("input", () => validateText(firstName));
-        lastName.addEventListener("input", () => validateText(lastName));
-        email.addEventListener("change", () => validateSelect(email));
-        contactNumber.addEventListener("change", () => validateSelect(contactNumber));
-        gender.addEventListener("input", validateYear);
-        address.addEventListener("input", validateCopies);
+        title.addEventListener("input", () => validateText(title));
+        author.addEventListener("input", () => validateText(author));
+        category.addEventListener("change", () => validateSelect(category));
+        library.addEventListener("change", () => validateSelect(library));
+        language.addEventListener("change", () => validateSelect(language));
+        year.addEventListener("input", validateYear);
+        total.addEventListener("input", validateCopies);
+        available.addEventListener("input", validateCopies);
 
         imageInput.addEventListener("change", function(event) {
             const file = event.target.files[0];
@@ -524,32 +641,21 @@
 
 
         form.addEventListener("submit", function(e) {
-            e.preventDefault();
 
             const isValid =
                 validateText(title) &
                 validateText(author) &
                 validateSelect(category) &
-                validateYear() &
                 validateSelect(library) &
+                validateYear() &
+                validateSelect(language) &
                 validateCopies() &
                 validateImage(imageInput.files[0]);
 
-            if (isValid) {
-                Swal.fire({
-                    toast: true,
-                    position: 'top',
-                    icon: 'success',
-                    title: 'Book details added successfully!',
-                    showConfirmButton: false,
-                    timer: 2000,
-                    timerProgressBar: true,
-                    didClose: () => {
-                        window.location.href = "book_list.php";
-                    }
-                });
-                previewImage.src = "https://via.placeholder.com/160x220?text=Book+Cover";
+            if (!isValid) {
+                e.preventDefault();
             }
+
         });
     </script>
 

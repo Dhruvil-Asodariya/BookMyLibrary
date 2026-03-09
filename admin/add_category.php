@@ -265,7 +265,7 @@
 
 
         <div class="edit-card">
-            <form id="editCategoryForm">
+            <form id="editCategoryForm" method="POST">
                 <div class="page-header">
                     <h2>Add Category</h2>
                     <p>Add category details in your library system</p>
@@ -277,14 +277,14 @@
 
                         <div class="form-group">
                             <label>Category Name</label>
-                            <input type="text" id="categoryName">
-                            <div class="error">Category Name is required</div>
+                            <input type="text" id="categoryName" name="categoryName">
+                            <div class="error"></div>
                         </div>
 
                         <div class="form-group">
-                            <label>Description</label>
-                            <input type="text" id="categoryDescription">
-                            <div class="error">Category Description is required</div>
+                            <label>Description (optional)</label>
+                            <input type="text" id="categoryDescription" name="categoryDescription">
+                            <div class="error"></div>
                         </div>
 
                     </div>
@@ -293,13 +293,71 @@
                 <!-- Buttons -->
                 <div class="actions">
                     <button type="reset" class="btn btn-cancel">Cancel</button>
-                    <button type="submit" class="btn btn-save">Add Category</button>
+                    <button type="submit" class="btn btn-save" name="add_category_btn">Add Category</button>
                 </div>
 
             </form>
         </div>
 
     </div>
+
+    <?php
+    if (isset($_POST['add_category_btn'])) {
+
+        // 🔁 Generate Unique Random ID
+        do {
+            $category_id = rand(1000, 9999);
+
+            $check_query = mysqli_query(
+                $con,
+                "SELECT category_id FROM category WHERE category_id = '$category_id'"
+            );
+        } while (mysqli_num_rows($check_query) > 0);
+
+        $category_name = $_POST['categoryName'];
+
+        $category_description = !empty($_POST['categoryDescription']) ? $_POST['categoryDescription'] : "N/A";
+
+        $status = "Active";
+
+        $insert_query = "INSERT INTO category 
+                        (category_id, category_name, category_description, status)
+                        VALUES($category_id, '$category_name', '$category_description', '$status')";
+
+        if (mysqli_query($con, $insert_query)) {
+            echo "<script>
+                    document.addEventListener('DOMContentLoaded', function(){
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'success',
+                        title: 'Category added successfully!',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true,
+                        didClose: () => {
+                            window.location.href = 'category_list.php';
+                        }
+                    });
+                });
+            </script>";
+        } else {
+            echo "<script>
+                    document.addEventListener('DOMContentLoaded', function(){
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'error',
+                        title: 'Failed to add category. Please try again.',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    });
+                });
+            </script>";
+        }
+    }
+    ?>
 
     <!-- FOOTER -->
     <?php include 'footer.php'; ?>
@@ -344,28 +402,14 @@
         }
 
         categoryName.addEventListener("input", () => validateText(categoryName));
-        categoryDescription.addEventListener("input", () => validateText(categoryDescription));
 
         form.addEventListener("submit", function(e) {
-            e.preventDefault();
 
             const isValid =
-                validateText(categoryName) &
-                validateText(categoryDescription);
+                validateText(categoryName);
 
-            if (isValid) {
-                Swal.fire({
-                    toast: true,
-                    position: 'top',
-                    icon: 'success',
-                    title: 'Category added successfully!',
-                    showConfirmButton: false,
-                    timer: 2000,
-                    timerProgressBar: true,
-                    didClose: () => {
-                        window.location.href = "category_list.php";
-                    }
-                });
+            if (!isValid) {
+                e.preventDefault();
             }
         });
     </script>

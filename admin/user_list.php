@@ -472,12 +472,16 @@
                         <input type="text" id="filterLastName" placeholder="Filter by Last Name">
                     </div>
                     <div class="filter-box">
-                        <label>Email</label>
-                        <input type="text" id="filterEmail" placeholder="Filter by Email">
-                    </div>
-                    <div class="filter-box">
                         <label>Contact Number</label>
                         <input type="text" id="filterContactNumber" placeholder="Filter by Contact Number">
+                    </div>
+                    <div class="filter-box">
+                        <label>Gender</label>
+                        <select id="filterGender">
+                            <option value="">All Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
                     </div>
                     <div class="filter-box">
                         <label>Role</label>
@@ -522,54 +526,56 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td><img src="../image/default_profile.png" class="cover"></td>
-                        <td>24842354</td>
-                        <td>John</td>
-                        <td>Doe</td>
-                        <td>john.doe@example.com</td>
-                        <td>1234567890</td>
-                        <td>Male</td>
-                        <td>123 Main St, Cityville</td>
-                        <!-- ROLE COLUMN -->
-                        <td><span class="roleSpan user">User</span></td>
+                    <?php
+                    $user = mysqli_query($con, "SELECT * FROM user");
+                    $i = 1;
+                    foreach ($user as $row) {
 
-                        <!-- STATUS COLUMN -->
-
-                        <?php
-                        $a = "Active"; // Change to "inactive" to test
-                        if ($a == "Active") {
-                            echo '<td><span class="status active">Active</span></td>';
+                        // Dynamic Status Logic
+                        if ($row['status'] == "Active") {
+                            $statusClass = "active";
+                            $statusText  = "Active";
                         } else {
-                            echo '<td><span class="status inactive">Inactive</span></td>';
+                            $statusClass = "inactive";
+                            $statusText  = "Inactive";
                         }
-                        ?>
+
+                        $roleClass = strtolower($row['role']);
+
+                        echo "<tr>
+                        <td>1</td>
+                        <td><img src='../image/{$row['image']}' class='cover'></td>
+                        <td>{$row['user_id']}</td>
+                        <td>{$row['first_name']}</td>
+                        <td>{$row['last_name']}</td>
+                        <td>{$row['email']}</td>
+                        <td>{$row['contact_no']}</td>
+                        <td>{$row['gender']}</td>
+                        <td>{$row['address']}</td>
+                        <!-- ROLE COLUMN -->
+                        <td><span class='roleSpan {$roleClass}'>{$row['role']}</span></td>
+
+                        <td><span class='status {$statusClass}'>{$statusText}</span></td>
 
                         <!-- ACTIONS -->
 
                         <td>
-                            <a href="edit_user.php?user_id=24842354"><button class="btn btn-edit">Edit</button></a>
-                            <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br>
-                            <!-- STATUS TOGGLE BUTTON -->
-                            <?php
-                            if ($a == "Active") {
-                                echo '<button class="btn btn-toggle">Inactive</button>';
-                            } else {
-                                echo '<button class="btn btn-toggle">Active</button>';
-                            }
-                            ?>
+                            <a href='edit_user.php?user_id={$row['user_id']}'><button class='btn btn-edit'>Edit</button></a>
+                            <button class='btn btn-delete' onclick='openDeleteModal()'>Delete</button><br>
+                            <button class='btn btn-toggle'>Active</button>
 
                             <!-- ROLE SELECT -->
-                            <select class="btn btn-role">
-                                <option value="" selected disabled>Change Role</option>
-                                <option value="Librarian">Librarian</option>
-                                <option value="User">User</option>
-                                <option value="Admin">Admin</option>
+                            <select class='btn btn-role'>
+                                <option value='' selected disabled>Change Role</option>
+                                <option value='Librarian'>Librarian</option>
+                                <option value='User'>User</option>
+                                <option value='Admin'>Admin</option>
                             </select>
 
                         </td>
-                    </tr>
+                    </tr>";
+                    }
+                    ?>
 
                 </tbody>
             </table>
@@ -613,19 +619,19 @@
             buttons: [{
                     extend: 'excelHtml5',
                     exportOptions: {
-                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9] // column indexes you want
+                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9, 10] // column indexes you want
                     }
                 },
                 {
                     extend: 'pdfHtml5',
                     exportOptions: {
-                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9]
+                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9, 10]
                     }
                 },
                 {
                     extend: 'print',
                     exportOptions: {
-                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9]
+                        columns: [0, 2, 3, 4, 5, 6, 7, 8, 9, 10]
                     }
                 }
             ],
@@ -639,13 +645,20 @@
         $('#filterStatus').on('change', function() {
             var value = this.value.toLowerCase();
 
-            table.column(9).search(value ? '^' + value + '$' : '', true, false).draw();
+            table.column(10).search(value ? '^' + value + '$' : '', true, false).draw();
         });
         // Role filter
         $('#filterRole').on('change', function() {
             var value = this.value.toLowerCase();
 
-            table.column(8).search(value ? '^' + value + '$' : '', true, false).draw();
+            table.column(9).search(value ? '^' + value + '$' : '', true, false).draw();
+        });
+
+        // Gender filter
+        $('#filterGender').on('change', function() {
+            var value = this.value.toLowerCase();
+
+            table.column(7).search(value ? '^' + value + '$' : '', true, false).draw();
         });
 
         // LOCATION filter
@@ -656,11 +669,6 @@
         // OWNER filter
         $('#filterLastName').on('keyup', function() {
             table.column(4).search(this.value).draw();
-        });
-
-        // CATEGORY filter
-        $('#filterEmail').on('keyup', function() {
-            table.column(5).search(this.value).draw();
         });
 
         // CATEGORY filter

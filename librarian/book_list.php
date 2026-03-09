@@ -649,6 +649,7 @@
                         <th>Author</th>
                         <th>Category</th>
                         <th>Year</th>
+                        <th>Language</th>
                         <th>Total Copy</th>
                         <th>Available Copy</th>
                         <th>Rating</th>
@@ -657,252 +658,43 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td><img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" class="cover"></td>
-                        <td>24842354</td>
-                        <td>Introduction to Java</td>
-                        <td>James Gosling</td>
-                        <td>Programming</td>
-                        <td>2020</td>
-                        <td>4</td>
-                        <td>2</td>
-                        <td>4.5</td>
-                        <?php
-                        $available = 2;
-                        if ($available != 0) {
-                            echo '<td><span class="status available">Available</span></td>';
-                        } else {
-                            echo '<td><span class="status unavailable">Unavailable</span></td>';
-                        }
-                        ?>
-                        <td>
-                            <a href="edit_book.php?book_id=24842354"><button class="btn btn-edit">Edit</button></a>
-                            <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button>
-                        </td>
-                    </tr>
+                    <?php
+                    $books = mysqli_query($con, "SELECT * FROM book_list");
+                    $i = 1;
+                    foreach ($books as $row) {
 
-                    <tr>
-                        <td>2</td>
-                        <td><img src="../image/DMNS-500x500.jpg" class="cover"></td>
-                        <td>86651985</td>
-                        <td>Database Management</td>
-                        <td>R. Ramakrishnan</td>
-                        <td>Database</td>
-                        <td>2019</td>
-                        <td>3</td>
-                        <td>0</td>
-                        <td>5</td>
-                        <?php
-                        $available = 0;
-                        if ($available != 0) {
-                            echo '<td><span class="status available">Available</span></td>';
+                        // Dynamic Status Logic
+                        if ($row['available_copy'] == 0) {
+                            $statusClass = "unavailable";
+                            $statusText  = "Unavailable";
                         } else {
-                            echo '<td><span class="status unavailable">Unavailable</span></td>';
+                            $statusClass = "available";
+                            $statusText  = "Available";
                         }
-                        ?>
-                        <td>
-                            <button class="btn btn-edit">Edit</button>
-                            <button class="btn btn-delete">Delete</button>
-                        </td>
-                    </tr>
 
-                    <tr>
-                        <td>3</td>
-                        <td><img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" class="cover"></td>
-                        <td>24842354</td>
-                        <td>Introduction to Java</td>
-                        <td>James Gosling</td>
-                        <td>Programming</td>
-                        <td>2020</td>
-                        <td>4</td>
-                        <td>2</td>
-                        <td>3</td>
-                        <?php
-                        $available = 2;
-                        if ($available != 0) {
-                            echo '<td><span class="status available">Available</span></td>';
-                        } else {
-                            echo '<td><span class="status unavailable">Unavailable</span></td>';
-                        }
-                        ?>
-                        <td>
-                            <button class="btn btn-edit">Edit</button>
-                            <button class="btn btn-delete">Delete</button>
-                        </td>
-                    </tr>
 
-                    <tr>
-                        <td>4</td>
-                        <td><img src="../image/DMNS-500x500.jpg" class="cover"></td>
-                        <td>86651985</td>
-                        <td>Database Management</td>
-                        <td>R. Ramakrishnan</td>
-                        <td>Database</td>
-                        <td>2019</td>
-                        <td>3</td>
-                        <td>0</td>
-                        <td>3.5</td>
-                        <?php
-                        $available = 0;
-                        if ($available != 0) {
-                            echo '<td><span class="status available">Available</span></td>';
-                        } else {
-                            echo '<td><span class="status unavailable">Unavailable</span></td>';
-                        }
-                        ?>
+                        echo "<tr>
+                        <td>{$i}</td>
+                        <td><img src='../book_images/{$row['image']}' class='cover'></td>
+                        <td>{$row['book_id']}</td>
+                        <td>{$row['title']}</td>
+                        <td>{$row['author']}</td>
+                        <td>{$row['category']}</td>
+                        <td>{$row['year']}</td>
+                        <td>{$row['language']}</td>
+                        <td>{$row['total_copy']}</td>
+                        <td>{$row['available_copy']}</td>
+                        <td>{$row['rating']}</td>
+                        <td><span class='status {$statusClass}'>{$statusText}</span></td>
                         <td>
-                            <button class="btn btn-edit">Edit</button>
-                            <button class="btn btn-delete">Delete</button>
+                            <a href='edit_book.php?book_id={$row['book_id']}'><button class='btn btn-edit'>Edit</button></a>
+                            <button class='btn btn-delete' onclick='openDeleteModal()'>Delete</button>
                         </td>
-                    </tr>
-                    <tr>
-                        <td>5</td>
-                        <td><img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" class="cover"></td>
-                        <td>24842354</td>
-                        <td>Introduction to Java</td>
-                        <td>James Gosling</td>
-                        <td>Programming</td>
-                        <td>2020</td>
-                        <td>4</td>
-                        <td>2</td>
-                        <td>4.5</td>
-                        <?php
-                        $available = 2;
-                        if ($available != 0) {
-                            echo '<td><span class="status available">Available</span></td>';
-                        } else {
-                            echo '<td><span class="status unavailable">Unavailable</span></td>';
-                        }
-                        ?>
-                        <td>
-                            <button class="btn btn-edit">Edit</button>
-                            <button class="btn btn-delete">Delete</button>
-                        </td>
-                    </tr>
+                    </tr>";
 
-                    <tr>
-                        <td>6</td>
-                        <td><img src="../image/DMNS-500x500.jpg" class="cover"></td>
-                        <td>86651985</td>
-                        <td>Database Management</td>
-                        <td>R. Ramakrishnan</td>
-                        <td>Database</td>
-                        <td>2019</td>
-                        <td>3</td>
-                        <td>0</td>
-                        <td>2</td>
-                        <?php
-                        $available = 0;
-                        if ($available != 0) {
-                            echo '<td><span class="status available">Available</span></td>';
-                        } else {
-                            echo '<td><span class="status unavailable">Unavailable</span></td>';
-                        }
-                        ?>
-                        <td>
-                            <button class="btn btn-edit">Edit</button>
-                            <button class="btn btn-delete">Delete</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>7</td>
-                        <td><img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" class="cover"></td>
-                        <td>24842354</td>
-                        <td>Introduction to Java</td>
-                        <td>James Gosling</td>
-                        <td>Programming</td>
-                        <td>2020</td>
-                        <td>4</td>
-                        <td>2</td>
-                        <td>2.5</td>
-                        <?php
-                        $available = 2;
-                        if ($available != 0) {
-                            echo '<td><span class="status available">Available</span></td>';
-                        } else {
-                            echo '<td><span class="status unavailable">Unavailable</span></td>';
-                        }
-                        ?>
-                        <td>
-                            <button class="btn btn-edit">Edit</button>
-                            <button class="btn btn-delete">Delete</button>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>8</td>
-                        <td><img src="../image/DMNS-500x500.jpg" class="cover"></td>
-                        <td>86651985</td>
-                        <td>Database Management</td>
-                        <td>R. Ramakrishnan</td>
-                        <td>Database</td>
-                        <td>2019</td>
-                        <td>3</td>
-                        <td>0</td>
-                        <td>1</td>
-                        <?php
-                        $available = 0;
-                        if ($available != 0) {
-                            echo '<td><span class="status available">Available</span></td>';
-                        } else {
-                            echo '<td><span class="status unavailable">Unavailable</span></td>';
-                        }
-                        ?>
-                        <td>
-                            <button class="btn btn-edit">Edit</button>
-                            <button class="btn btn-delete">Delete</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>9</td>
-                        <td><img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" class="cover"></td>
-                        <td>24842354</td>
-                        <td>Introduction to Java</td>
-                        <td>James Gosling</td>
-                        <td>Programming</td>
-                        <td>2020</td>
-                        <td>4</td>
-                        <td>2</td>
-                        <td>3.5</td>
-                        <?php
-                        $available = 2;
-                        if ($available != 0) {
-                            echo '<td><span class="status available">Available</span></td>';
-                        } else {
-                            echo '<td><span class="status unavailable">Unavailable</span></td>';
-                        }
-                        ?>
-                        <td>
-                            <button class="btn btn-edit">Edit</button>
-                            <button class="btn btn-delete">Delete</button>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>10</td>
-                        <td><img src="../image/DMNS-500x500.jpg" class="cover"></td>
-                        <td>86651985</td>
-                        <td>Database Management</td>
-                        <td>R. Ramakrishnan</td>
-                        <td>Programming</td>
-                        <td>2019</td>
-                        <td>3</td>
-                        <td>0</td>
-                        <td>4</td>
-                        <?php
-                        $available = 0;
-                        if ($available != 0) {
-                            echo '<td><span class="status available">Available</span></td>';
-                        } else {
-                            echo '<td><span class="status unavailable">Unavailable</span></td>';
-                        }
-                        ?>
-                        <td>
-                            <button class="btn btn-edit">Edit</button>
-                            <button class="btn btn-delete">Delete</button>
-                        </td>
-                    </tr>
+                        $i++;
+                    }
+                    ?>
                 </tbody>
             </table>
         </div>

@@ -277,43 +277,43 @@
 
                         <div class="form-group">
                             <label>Library Name</label>
-                            <input type="text" id="libraryName">
+                            <input type="text" id="libraryName" name="libraryName">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Library Owner Name</label>
-                            <input type="text" id="libraryOwnerName">
+                            <input type="text" id="libraryOwnerName" name="libraryOwnerName">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Table Capacity</label>
-                            <input type="number" id="tableCapacity">
+                            <input type="number" id="tableCapacity" name="tableCapacity">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Chair Capacity</label>
-                            <input type="number" id="chairCapacity">
+                            <input type="number" id="chairCapacity" name="chairCapacity">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Open At</label>
-                            <input type="time" id="openAt">
+                            <input type="time" id="openAt" name="openAt">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Close At</label>
-                            <input type="time" id="closeAt">
+                            <input type="time" id="closeAt" name="closeAt">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Library Location</label>
-                            <input type="text" id="libraryLocation">
+                            <input type="text" id="libraryLocation" name="libraryLocation">
                             <div class="error"></div>
                         </div>
 
@@ -323,13 +323,73 @@
                 <!-- Buttons -->
                 <div class="actions">
                     <button type="reset" class="btn btn-cancel">Cancel</button>
-                    <button type="submit" class="btn btn-save">Add Library</button>
+                    <button type="submit" class="btn btn-save" name="add_library">Add Library</button>
                 </div>
 
             </form>
         </div>
 
     </div>
+
+    <?php
+    if (isset($_POST['add_library'])) {
+        // 🔁 Generate Unique Random ID
+        do {
+            $library_id = rand(10000000, 99999999);
+
+            $check_query = mysqli_query(
+                $con,
+                "SELECT library_id FROM library WHERE library_id = '$library_id'"
+            );
+        } while (mysqli_num_rows($check_query) > 0);
+
+        $library_name = $_POST['libraryName'];
+        $library_owner_name = $_POST['libraryOwnerName'];
+        $table_capacity = $_POST['tableCapacity'];
+        $chair_capacity = $_POST['chairCapacity'];
+        $open_at = $_POST['openAt'];
+        $close_at = $_POST['closeAt'];
+        $library_location = $_POST['libraryLocation'];
+        $status = "Active";
+
+        $insert_query = "INSERT INTO library
+                        (library_id, library_name, library_owner_name, table_capacity, chair_capacity, open_at, close_at, library_location, status)
+                        VALUES($library_id, '$library_name', '$library_owner_name', $table_capacity, $chair_capacity, '$open_at', '$close_at', '$library_location', '$status')";
+
+
+        if (mysqli_query($con, $insert_query)) {
+            echo "<script>
+                    document.addEventListener('DOMContentLoaded', function(){
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'success',
+                        title: 'Library Added Successfully!',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    }).then(() => {
+                        window.location.href = 'library_list.php';
+                    });
+                });
+            </script>";
+        } else {
+            echo "<script>
+                    document.addEventListener('DOMContentLoaded', function(){
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'error',
+                        title: 'Failed to add library. Please try again.',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    });
+                });
+            </script>";
+        }
+    }
+    ?>
 
     <!-- FOOTER -->
     <?php include 'footer.php'; ?>
@@ -467,7 +527,7 @@
         libraryLocation.addEventListener("input", validateLocation);
 
         form.addEventListener("submit", function(e) {
-            e.preventDefault();
+
 
             const isValid =
                 validateText(libraryName) &
@@ -478,20 +538,24 @@
                 validateTime() &
                 validateLocation();
 
-            if (isValid) {
-                Swal.fire({
-                    toast: true,
-                    position: 'top',
-                    icon: 'success',
-                    title: 'Library details added successfully!',
-                    showConfirmButton: false,
-                    timer: 2000,
-                    timerProgressBar: true,
-                    didClose: () => {
-                        window.location.href = "library_list.php";
-                    }
-                });
+            if (!isValid) {
+                e.preventDefault();
             }
+
+            // if (isValid) {
+            //     Swal.fire({
+            //         toast: true,
+            //         position: 'top',
+            //         icon: 'success',
+            //         title: 'Library details added successfully!',
+            //         showConfirmButton: false,
+            //         timer: 2000,
+            //         timerProgressBar: true,
+            //         didClose: () => {
+            //             window.location.href = "library_list.php";
+            //         }
+            //     });
+            // }
         });
     </script>
 

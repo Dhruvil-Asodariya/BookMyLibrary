@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+<?php include '../db_config.php'; ?>
 
 <head>
     <meta charset="UTF-8">
@@ -412,6 +413,47 @@
                 font-size: 13px;
             }
         }
+
+        .alert-box {
+            width: 350px;
+            margin: 20px auto;
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .alert-success {
+            background: #e6f9ec;
+            color: #1e7e34;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-error {
+            background: #fdecea;
+            color: #c82333;
+            border-left: 4px solid #dc3545;
+        }
+
+        .alert-close {
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 
@@ -474,6 +516,26 @@
             <a href="../login.php" class="logout-btn">Logout</a>
         </div>
     </nav>
+
+    <?php
+    if (isset($_COOKIE['success'])) {
+    ?>
+        <div class="alert-box alert-success">
+            <span><?php echo $_COOKIE['success']; ?></span>
+            <span class="alert-close" onclick="this.parentElement.style.display='none'">&times;</span>
+        </div>
+    <?php
+    }
+
+    if (isset($_COOKIE['error'])) {
+    ?>
+        <div class="alert-box alert-error">
+            <span><?php echo $_COOKIE['error']; ?></span>
+            <span class="alert-close" onclick="this.parentElement.style.display='none'">&times;</span>
+        </div>
+    <?php
+    }
+    ?>
 
     <!-- <div class="breadcrumb-wrapper">
         <nav class="breadcrumb">
@@ -681,7 +743,8 @@
 
         function card_book() {
             window.location.href = "book_list.php";
-        }ow.location.href = "category_list.php";
+        }
+        ow.location.href = "category_list.php";
 
         function card_issued() {
             window.location.href = "issued_book.php";
@@ -694,6 +757,13 @@
         function card_totalfine() {
             window.location.href = "fine_list.php";
         }
+
+        setTimeout(() => {
+            document.querySelectorAll(".alert-box").forEach(alert => {
+                alert.style.opacity = "0";
+                setTimeout(() => alert.remove(), 400);
+            });
+        }, 5000);
     </script>
 
 

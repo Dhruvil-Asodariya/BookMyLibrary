@@ -270,8 +270,15 @@
     <!-- MAIN CONTENT -->
     <div class="main-content">
 
+        <?php
+        $category_id = intval($_GET['category_id']);
+        $category = mysqli_query($con, "SELECT * FROM category WHERE category_id = $category_id");
+        $data = mysqli_fetch_assoc($category);
+
+        ?>
+
         <div class="edit-card">
-            <form id="editCategoryForm" action="#" method="POST">
+            <form id="editCategoryForm" method="POST">
                 <div class="page-header">
                     <h2>Edit Category</h2>
                     <p>Edit category details in your library system</p>
@@ -289,13 +296,13 @@
 
                         <div class="form-group">
                             <label>Category Name</label>
-                            <input type="text" id="categoryName" value="Programming">
+                            <input type="text" id="categoryName" value="<?php echo $data['category_name']; ?>" name="categoryName">
                             <div class="error">Category Name is required</div>
                         </div>
 
                         <div class="form-group">
-                            <label>Description</label>
-                            <input type="text" id="description" value="Books related to programming languages, software development, and coding.">
+                            <label>Description(optional)</label>
+                            <input type="text" id="description" value="<?php if($data['category_description'] == "N/A"){echo "";} else{echo $data['category_description'];} ?>" name="categoryDescription">
                             <div class="error">Description is required</div>
                         </div>
 
@@ -305,13 +312,60 @@
                 <!-- Buttons -->
                 <div class="actions">
                     <button type="reset" class="btn btn-cancel">Cancel</button>
-                    <button type="submit" class="btn btn-save">Save Change</button>
+                    <button type="submit" class="btn btn-save" name="save_btn">Save Change</button>
                 </div>
 
             </form>
         </div>
 
     </div>
+    <?php
+    if (isset($_POST['save_btn'])) {
+        $category_name = $_POST['categoryName'];
+
+        if($_POST['categoryDescription'] == ""){
+            $category_description = "N/A";
+        }
+        else{
+            $category_description = $_POST['categoryDescription'];
+        }
+
+        $update_query = "UPDATE category SET 
+                        category_name = '$category_name', 
+                        category_description = '$category_description' 
+                        WHERE category_id = $category_id";
+
+
+        if (mysqli_query($con, $update_query)) {
+            echo "<script>
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'success',
+                        title: 'Category details updated successfully!',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true,
+                        didClose: () => {
+                            window.location.href = 'category_list.php';
+                        }
+                    });
+                </script>";
+        } else {
+            echo "<script>
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'error',
+                        title: 'Failed to update category details. Please try again.',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    });
+                </script>";
+        }
+    }
+    ?>
 
     <!-- FOOTER -->
     <?php include 'footer.php'; ?>
@@ -376,30 +430,17 @@
         }
 
         categoryName.addEventListener("input", () => validateText(categoryName));
-        description.addEventListener("input", validateDescription);
 
         form.addEventListener("submit", function(e) {
-            e.preventDefault();
+        
+            if(!isValid){
+                e.preventDefault();
+            }
 
             const isValid =
                 // validFineAmount(fineAmount) &
-                validateText(categoryName) &
-                validateDescription();
+                validateText(categoryName);
 
-            if (isValid) {
-                Swal.fire({
-                    toast: true,
-                    position: 'top',
-                    icon: 'success',
-                    title: 'Category details updated successfully!',
-                    showConfirmButton: false,
-                    timer: 2000,
-                    timerProgressBar: true,
-                    didClose: () => {
-                        window.location.href = "category_list.php";
-                    }
-                });
-            }
         });
     </script>
 

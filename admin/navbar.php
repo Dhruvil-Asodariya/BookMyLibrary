@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+<?php include '../db_config.php'; ?>
 
 <head>
     <meta charset="UTF-8">

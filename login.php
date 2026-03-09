@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+<?php include 'db_config.php'; ?>
 
 <head>
     <meta charset="UTF-8">
@@ -10,7 +11,74 @@
     <link rel="icon" href="image/title_image.png" type="image/png">
 </head>
 
+<?php
+if (isset($_POST['login_btn'])) {
+
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+
+    $query = "SELECT * FROM user WHERE email = '$email'";
+    $result = mysqli_query($con, $query);
+
+    if (mysqli_num_rows($result) == 1) {
+
+        $user_data = mysqli_fetch_assoc($result);
+
+        if ($user_data['status'] == "Active") {
+
+            if ($user_data['role'] == "User") {
+
+                $_SESSION['user'] = $user_data['email'];
+                setcookie("success", "Login successful", time() + 2);
+
+                header("Location: user/home.php");
+                exit();
+            } else {
+
+                $_SESSION['admin'] = $user_data['email'];
+                setcookie("success", "Login successful", time() + 2);
+
+                header("Location: admin/home.php");
+                exit();
+            }
+        } else {
+
+            setcookie("error", "Your account is inactive. Please contact the administration.", time() + 2);
+            header("Location: login.php");
+            exit();
+        }
+    } else {
+
+        setcookie("error", "Invalid email or password", time() + 2);
+        header("Location: login.php");
+        exit();
+    }
+}
+?>
+
 <body>
+
+    <?php
+    if (isset($_COOKIE['success'])) {
+    ?>
+        <div class="alert-box alert-success">
+            <span><?php echo $_COOKIE['success']; ?></span>
+            <span class="alert-close" onclick="this.parentElement.remove()">&times;</span>
+        </div>
+    <?php
+        setcookie("success", "", time() - 3600);
+    }
+
+    if (isset($_COOKIE['error'])) {
+    ?>
+        <div class="alert-box alert-error">
+            <span><?php echo $_COOKIE['error']; ?></span>
+            <span class="alert-close" onclick="this.parentElement.remove()">&times;</span>
+        </div>
+    <?php
+        setcookie("error", "", time() - 3600);
+    }
+    ?>
 
     <div class="login-wrapper">
         <div class="login-card">
@@ -48,7 +116,7 @@
                     <a href="forgot_password.php" class="forgot">Forgot password?</a>
                 </div>
 
-                <button type="submit">Login</button>
+                <button type="submit" name="login_btn">Login</button>
 
                 <p class="back-to-login">
                     Don’t have an account?
@@ -59,7 +127,92 @@
         </div>
     </div>
 
-    <script src="js/login.js"></script>
+    <script>
+        const email = document.getElementById("email");
+        const password = document.getElementById("password");
+
+        const emailError = document.getElementById("emailError");
+        const passwordError = document.getElementById("passwordError");
+
+        const togglePassword = document.getElementById("togglePassword");
+
+        /* Email Validation */
+        function validateEmail() {
+            const value = email.value.trim();
+            const emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,}$/;
+
+            if (value === "") {
+                emailError.textContent = "Email is required";
+                email.classList.add("error-input");
+                return false;
+            } else if (!emailPattern.test(value)) {
+                emailError.textContent = "Enter a valid email address";
+                email.classList.add("error-input");
+                return false;
+            } else {
+                emailError.textContent = "";
+                email.classList.remove("error-input");
+                return true;
+            }
+        }
+
+        /* Password Validation */
+        function validatePassword() {
+            const value = password.value.trim();
+            const digitPattern = /^[0-9]{6}$/;
+
+            if (value === "") {
+                passwordError.textContent = "Password is required";
+                password.classList.add("error-input");
+                return false;
+            } else if (!digitPattern.test(value)) {
+                passwordError.textContent = "Password must be exactly 6 digits";
+                password.classList.add("error-input");
+                return false;
+            } else {
+                passwordError.textContent = "";
+                password.classList.remove("error-input");
+                return true;
+            }
+        }
+
+
+        /* Live validation */
+        email.addEventListener("input", validateEmail);
+        password.addEventListener("input", validatePassword);
+
+        /* Show / Hide password */
+        togglePassword.addEventListener("click", () => {
+            if (password.type === "password") {
+                password.type = "text";
+                togglePassword.classList.replace("fa-eye", "fa-eye-slash");
+            } else {
+                password.type = "password";
+                togglePassword.classList.replace("fa-eye-slash", "fa-eye");
+            }
+        });
+
+        /* Submit Validation (SHOW ALL ERRORS) */
+        document.getElementById("loginForm").addEventListener("submit", function(e) {
+
+            const isEmailValid = validateEmail();
+            const isPasswordValid = validatePassword();
+
+            if (!isEmailValid || !isPasswordValid) {
+                e.preventDefault(); // stop submit only if invalid
+                return;
+            }
+
+        });
+
+        setTimeout(() => {
+            document.querySelectorAll(".alert-box").forEach(alert => {
+                alert.style.opacity = "0";
+                setTimeout(() => alert.remove(), 400);
+            });
+        }, 5000);
+    </script>
 </body>
+
 
 </html>
