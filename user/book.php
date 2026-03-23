@@ -1,3 +1,11 @@
+<?php
+require "../session_check.php";
+
+if ($_SESSION['role'] != "User") {
+    header("Location: ../login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -636,7 +644,7 @@
         <div class="book-grid" id="bookGrid">
 
             <?php
-            $books = mysqli_query($con, "SELECT * FROM book_list WHERE status='Available'");
+            $books = mysqli_query($con, "SELECT * FROM book_list");
 
             foreach ($books as $row) {
 
@@ -697,80 +705,186 @@
 
     <!-- BOOK NOW MODAL -->
     <div class="modal-backdrop" id="bookModal">
-        <div class="modal-card">
+        <form method="post">
+            <div class="modal-card">
 
-            <div class="modal-header-p">
-                <h3>Book Details</h3>
-                <span class="close-icon" onclick="closeModal()">×</span>
-            </div>
-
-            <div class="modal-body-p">
-                <div class="book-image">
-                    <img class="modalBookImage" src="" alt="Book Image">
+                <div class="modal-header-p">
+                    <h3>Book Details</h3>
+                    <span class="close-icon" onclick="closeModal()">×</span>
                 </div>
 
-                <div class="book-details">
-
-                    <div class="detail">
-                        <span>Book ID</span>
-                        <input type="text" name="book_id" disabled>
+                <div class="modal-body-p">
+                    <div class="book-image">
+                        <img class="modalBookImage" src="" alt="Book Image">
                     </div>
 
-                    <div class="detail">
-                        <span>Title</span>
-                        <input type="text" name="title" disabled>
-                    </div>
+                    <div class="book-details">
 
-                    <div class="detail">
-                        <span>Author</span>
-                        <input type="text" name="author" disabled>
-                    </div>
+                        <div class="detail">
+                            <span>Book ID</span>
+                            <input type="text" name="book_id" readonly>
+                        </div>
 
-                    <div class="detail">
-                        <span>Category</span>
-                        <input type="text" name="category" disabled>
-                    </div>
+                        <div class="detail">
+                            <span>Title</span>
+                            <input type="text" name="title" readonly>
+                        </div>
 
-                    <div class="detail">
-                        <span>Publish Year</span>
-                        <input type="text" name="year" disabled>
-                    </div>
+                        <div class="detail">
+                            <span>Author</span>
+                            <input type="text" name="author" readonly>
+                        </div>
 
-                    <div class="detail">
-                        <span>Library Name</span>
-                        <input type="text" name="library" disabled>
-                    </div>
+                        <div class="detail">
+                            <span>Category</span>
+                            <input type="text" name="category" readonly>
+                        </div>
 
-                    <!-- NEW FIELD -->
-                    <div class="detail">
-                        <span>Issue Date</span>
-                        <input type="date" name="issue_date">
-                        <small class="date-error issue-error"></small>
-                    </div>
+                        <div class="detail">
+                            <span>Publish Year</span>
+                            <input type="text" name="year" readonly>
+                        </div>
 
-                    <div class="detail">
-                        <span>Return Date</span>
-                        <input type="date" name="return_date">
-                        <small class="date-error return-error"></small>
-                    </div>
+                        <div class="detail">
+                            <span>Library Name</span>
+                            <input type="text" name="library" readonly>
+                        </div>
 
+                        <!-- NEW FIELD -->
+                        <div class="detail">
+                            <span>Issue Date</span>
+                            <input type="date" name="issue_date">
+                            <small class="date-error issue-error"></small>
+                        </div>
+
+                        <div class="detail">
+                            <span>Return Date</span>
+                            <input type="date" name="return_date">
+                            <small class="date-error return-error"></small>
+                        </div>
+
+                    </div>
                 </div>
+
+                <div class="modal-footer">
+
+                    <label class="tc-box">
+                        <input type="checkbox" name="agree_tc" id="agree_tc">
+                        I agree to
+                        <span class="view-tc" onclick="openTC()">Terms & Conditions</span>
+                    </label>
+
+                    <button type="button" class="btn-secondary" onclick="closeModal()">Close</button>
+                    <button type="submit" class="btn-confirm" name="confirm_btn" id="confirm_btn" disabled>
+                        Confirm Booking
+                    </button>
+                </div>
+
             </div>
-
-            <div class="modal-footer">
-
-                <label class="tc-box">
-                    <input type="checkbox" name="agree_tc">
-                    I agree to
-                    <span class="view-tc" onclick="openTC()">Terms & Conditions</span>
-                </label>
-
-                <button class="btn-secondary" onclick="closeModal()">Close</button>
-                <button class="btn-confirm" onclick="confirmBooking()">Confirm Booking</button>
-            </div>
-
-        </div>
+        </form>
     </div>
+
+    <?php
+    if (isset($_POST['confirm_btn'])) {
+
+        if (!isset($_POST['agree_tc'])) {
+            echo "<script>
+                document.addEventListener('DOMContentLoaded', function(){
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'warning',
+                        title: 'Please accept Terms & Conditions first!',
+                        showConfirmButton: false,
+                        timer: 2500,
+                        timerProgressBar: true
+                    });
+                });
+              </script>";
+        } else {
+
+            // 🔁 Generate Unique Random ID
+            do {
+                $issue_id = rand(10000000, 99999999);
+
+                $check_query = mysqli_query(
+                    $con,
+                    "SELECT issue_id FROM issue WHERE issue_id = '$issue_id'"
+                );
+            } while (mysqli_num_rows($check_query) > 0);
+
+            $book_id = $_POST['book_id'];
+            $user_id = $_SESSION['id'];
+            $library_name = $_POST['library'];
+
+            $query = "SELECT library_id FROM library WHERE library_name = '$library_name'";
+            $result = mysqli_query($con, $query);
+            $row = mysqli_fetch_assoc($result);
+
+            $library_id = $row['library_id'];
+            $issue_date = $_POST['issue_date'];
+            $return_date = $_POST['return_date'];
+            $fine_amount = 0;
+            $status = "Issued";
+
+            $insert_query = "INSERT INTO issue 
+                        (issue_id, book_id, user_id, library_id, issue_date, return_date, fine_amount, status)
+                        VALUES($issue_id, $book_id, $user_id, $library_id, '$issue_date', '$return_date', $fine_amount, '$status')";
+
+            $checkIssue = mysqli_query($con, "SELECT * FROM issue WHERE book_id = '$book_id' AND status != 'Returned' ");
+
+            if (mysqli_num_rows($checkIssue) > 0) {
+                echo "<script>
+                    document.addEventListener('DOMContentLoaded', function(){
+                        Swal.fire({
+                            toast: true,
+                            position: 'top',
+                            icon: 'warning',
+                            title: 'Book is already issued and not returned!',
+                            showConfirmButton: false,
+                            timer: 2500,
+                            timerProgressBar: true
+                        });
+                    });
+                </script>";
+            } else {
+                if (mysqli_query($con, $insert_query)) {
+                    mysqli_query($con, "UPDATE book_list SET available_copy = available_copy - 1 WHERE book_id='$book_id'");
+                                                echo "<script>
+                    document.addEventListener('DOMContentLoaded', function(){
+                        Swal.fire({
+                            toast: true,
+                            position: 'top',
+                            icon: 'success',
+                            title: 'Booking confirmed successfully!',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true,
+                            didClose: () => {
+                                window.location.href = 'issued_book.php';
+                            }
+                        });
+                    });
+                </script>";
+                } else {
+                    echo "<script>
+                    document.addEventListener('DOMContentLoaded', function(){
+                        Swal.fire({
+                            toast: true,
+                            position: 'top',
+                            icon: 'error',
+                            title: 'Failed to confirm booking. Please try again.',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
+                    });
+                </script>";
+                }
+            }
+        }
+    }
+    ?>
 
     <div class="tc-modal" id="tcModal">
         <div class="tc-box-card">
@@ -788,6 +902,8 @@
                     <li>Only registered users can issue books.</li>
                     <li>Maximum 2 books allowed per user.</li>
                     <li>Library ID must be shown while collecting book.</li>
+                    <li>Maintain silence and discipline inside the library.</li>
+                    <li>Books should be handled carefully and kept clean.</li>
                 </ul>
             </div>
 
@@ -809,21 +925,15 @@
         document.getElementById("bookModal").style.display = "flex";
     }
 
-    function closeModal() {
-        document.getElementById("bookModal").style.display = "none";
-    }
-
     const modal = document.getElementById("bookModal");
 
     // OPEN MODAL
     document.querySelectorAll(".book-btn").forEach(btn => {
         btn.addEventListener("click", function() {
 
-            const status = this.dataset.status; // get status from button
+            const status = this.dataset.status;
 
-            // 🚫 If Unavailable → Show Toast
             if (status.toLowerCase() === "unavailable") {
-
                 Swal.fire({
                     toast: true,
                     position: 'top',
@@ -833,13 +943,11 @@
                     timer: 2000,
                     timerProgressBar: true
                 });
-
-                return; // stop here
+                return;
             }
 
             const card = this.closest(".book-card");
 
-            // fill inputs using name attribute
             modal.querySelector('[name="book_id"]').value = card.dataset.id || "N/A";
             modal.querySelector('[name="title"]').value = card.dataset.title;
             modal.querySelector('[name="author"]').value = card.dataset.author;
@@ -847,31 +955,29 @@
             modal.querySelector('[name="year"]').value = card.dataset.year;
             modal.querySelector('[name="library"]').value = card.dataset.library;
 
-            // image auto-fill
             const bg = card.querySelector(".book-img").style.backgroundImage;
             const url = bg.slice(5, -2);
             modal.querySelector(".modalBookImage").src = url;
 
-            // auto issue date = today
             const today = new Date().toISOString().split('T')[0];
             modal.querySelector('[name="issue_date"]').value = today;
 
-            // auto return date = +7 days
             const returnDate = new Date();
             returnDate.setDate(returnDate.getDate() + 7);
-            modal.querySelector('[name="return_date"]').value =
-                returnDate.toISOString().split('T')[0];
+            modal.querySelector('[name="return_date"]').value = returnDate.toISOString().split('T')[0];
 
+            // reset checkbox every time modal opens
+            modal.querySelector('[name="agree_tc"]').checked = false;
+
+            validateForm();
             modal.style.display = "flex";
         });
     });
 
-    // CLOSE
     function closeModal() {
         modal.style.display = "none";
     }
 
-    // CLICK OUTSIDE
     window.onclick = function(e) {
         if (e.target === modal) modal.style.display = "none";
     };
@@ -884,85 +990,28 @@
         document.getElementById("tcModal").style.display = "none";
     }
 
-    function confirmBooking() {
-
-        const agreeTC = document.querySelector('input[name="agree_tc"]');
-
-        // Check Terms & Conditions only
-        if (!agreeTC.checked) {
-            Swal.fire({
-                toast: true,
-                position: 'top',
-                icon: 'warning',
-                title: 'Please agree to Terms & Conditions',
-                showConfirmButton: false,
-                timer: 2000,
-                timerProgressBar: true
-            });
-            return;
-        }
-
-        // Success toast
-        Swal.fire({
-            toast: true,
-            position: 'top',
-            icon: 'success',
-            title: 'Booking Confirmed!',
-            showConfirmButton: false,
-            timer: 2000,
-            timerProgressBar: true,
-            didClose: () => {
-                window.location.href = "home.php";
-            }
-        });
-    }
-
-
-
-    function printStars(rating) {
-        let full = Math.floor(rating);
-        let half = rating % 1 >= 0.5 ? 1 : 0;
-        let empty = 5 - full - half;
-
-        return "★".repeat(full) + (half ? "⯪" : "") + "☆".repeat(empty);
-    }
-
-    /* get rating from text */
-    let ratingValue = 3.9;
-
-    document.querySelector(".stars").textContent = printStars(ratingValue);
-    document.querySelector(".rating-text").textContent = "(" + ratingValue + ")";
-
-    document.querySelectorAll(".book-card").forEach(card => {
-
-        let rating = parseFloat(card.dataset.rating);
-
-        let starsEl = card.querySelector(".stars");
-        let textEl = card.querySelector(".rating-text");
-
-        starsEl.textContent = printStars(rating);
-        textEl.textContent = "(" + rating + ")";
-    });
-
-
     const issueInput = modal.querySelector('[name="issue_date"]');
     const returnInput = modal.querySelector('[name="return_date"]');
+    const agreeTC = modal.querySelector('[name="agree_tc"]');
 
     const issueError = modal.querySelector('.issue-error');
     const returnError = modal.querySelector('.return-error');
 
-    const confirmBtn = document.querySelector('.btn-confirm');
+    const confirmBtn = modal.querySelector('.btn-confirm');
 
-    function validateDates() {
+    function validateForm() {
+        const issueValue = issueInput.value;
+        const returnValue = returnInput.value;
 
-        const issueDate = new Date(issueInput.value);
-        const returnDate = new Date(returnInput.value);
-        const today = new Date().setHours(0, 0, 0, 0);
+        const issueDate = issueValue ? new Date(issueValue) : null;
+        const returnDate = returnValue ? new Date(returnValue) : null;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
         let valid = true;
 
         // ISSUE DATE VALIDATION
-        if (issueInput.value === "") {
+        if (issueValue === "") {
             issueError.textContent = "Please select issue date";
             valid = false;
         } else if (issueDate < today) {
@@ -973,7 +1022,7 @@
         }
 
         // RETURN DATE VALIDATION
-        if (returnInput.value === "") {
+        if (returnValue === "") {
             returnError.textContent = "Please select return date";
             valid = false;
         } else if (returnDate <= issueDate) {
@@ -983,13 +1032,58 @@
             returnError.textContent = "";
         }
 
-        // Enable/disable confirm button
+        // T&C must be checked
+        if (!agreeTC.checked) {
+            valid = false;
+        }
+
         confirmBtn.disabled = !valid;
+        return valid;
     }
 
-    // Live validation triggers
-    issueInput.addEventListener("change", validateDates);
-    returnInput.addEventListener("change", validateDates);
+    function confirmBooking(event) {
+        if (!validateForm()) {
+            event.preventDefault();
+
+            if (!agreeTC.checked) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'warning',
+                    title: 'Please agree to Terms & Conditions',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true
+                });
+            }
+        }
+    }
+
+    issueInput.addEventListener("change", validateForm);
+    returnInput.addEventListener("change", validateForm);
+    agreeTC.addEventListener("change", validateForm);
+
+    function printStars(rating) {
+        let full = Math.floor(rating);
+        let half = rating % 1 >= 0.5 ? 1 : 0;
+        let empty = 5 - full - half;
+
+        return "★".repeat(full) + (half ? "⯪" : "") + "☆".repeat(empty);
+    }
+
+    let ratingValue = 3.9;
+
+    document.querySelector(".stars").textContent = printStars(ratingValue);
+    document.querySelector(".rating-text").textContent = "(" + ratingValue + ")";
+
+    document.querySelectorAll(".book-card").forEach(card => {
+        let rating = parseFloat(card.dataset.rating);
+        let starsEl = card.querySelector(".stars");
+        let textEl = card.querySelector(".rating-text");
+
+        starsEl.textContent = printStars(rating);
+        textEl.textContent = "(" + rating + ")";
+    });
 </script>
 
 <script>

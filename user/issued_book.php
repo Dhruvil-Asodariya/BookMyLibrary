@@ -1,3 +1,11 @@
+<?php
+require "../session_check.php";
+
+if ($_SESSION['role'] != "User") {
+    header("Location: ../login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -163,9 +171,24 @@
             color: #166534;
         }
 
-        .unissued {
+        .returned {
+            background: #dbeafe;
+            color: #1e3a8a;
+        }
+
+        .yet-to-return {
+            background: #fef9c3;
+            color: #854d0e;
+        }
+
+        .overdue {
             background: #fee2e2;
             color: #991b1b;
+        }
+
+        .return-at-library {
+            background: #fff7ed;
+            color: #c2410c;
         }
 
         img.cover {
@@ -1062,13 +1085,20 @@
             cursor: pointer;
         }
 
-        .stars-select span {
-            font-size: 26px;
-            cursor: pointer;
-            color: #ccc;
+        .stars {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
         }
 
-        .stars-select span.active {
+        .stars span {
+            font-size: 30px;
+            cursor: pointer;
+            color: #bbb;
+            transition: 0.2s;
+        }
+
+        .stars span.active {
             color: gold;
         }
 
@@ -1109,6 +1139,18 @@
                         <input type="date" id="filterReturnDate">
                     </div>
 
+                    <div class="filter-box">
+                        <label>Status</label>
+                        <select id="filterStatus">
+                            <option value="">All Status</option>
+                            <option value="Issued">Issued</option>
+                            <option value="Returned">Returned</option>
+                            <option value="Yet to return">Yet to return</option>
+                            <option value="Overdue">Overdue</option>
+                            <option value="Return at library">Return at library</option>
+                        </select>
+                    </div>
+
                     <div class="filter-box btn-area">
                         <label>&nbsp;</label>
                         <button class="btn btn-add" onclick="resetFilters()">Reset</button>
@@ -1134,56 +1176,113 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>24842354</td>
-                        <td><span class="model-link" onclick="openBookModal()">24842354</span></td>
-                        <td>12-01-2026</td>
-                        <td>08-02-2026</td>
-                        <td>0</td>
-                        <td><span class="status issued">Issued</span></td>
-                        <td>
-                            <!-- <a><button class="btn btn-edit">Renew</button></a> -->
-                            <!-- <button class="btn btn-pay">Pay</button><br> -->
-                            <button class="btn btn-return"
-                                data-book="24842354"
-                                data-issue="2026-01-12"
-                                data-return="2026-02-08">
-                                Return
-                            </button>
-                            <button class="btn btn-renew"
-                                data-book="24842354"
-                                data-return="2026-02-08">
-                                Renew
-                            </button>
+
+                    <?php
+                    if (session_status() === PHP_SESSION_NONE) {
+                        session_start();
+                    }
+                    $user_id = $_SESSION['id'];
+                    $issue = mysqli_query($con, "SELECT * FROM issue WHERE user_id = '$user_id' ORDER BY issue_date DESC");
+                    $i = 1;
+                    foreach ($issue as $row) {
+
+                        // Dynamic Status Logic
+                        if ($row['status'] == "Issued") {
+                            $statusClass = "issued";
+                            $statusText  = "Issued";
+                        }
+                        if ($row['status'] == "Returned") {
+                            $statusClass = "returned";
+                            $statusText  = "Returned";
+                        }
+                        if ($row['status'] == "Yet to return") {
+                            $statusClass = "yet-to-return";
+                            $statusText  = "Yet to return";
+                        }
+                        if ($row['status'] == "Overdue") {
+                            $statusClass = "overdue";
+                            $statusText  = "Overdue";
+                        }
+                        if ($row['status'] == "Return at library") {
+                            $statusClass = "return-at-library";
+                            $statusText  = "Return at library";
+                        }
+
+                        $showRenew = false;
+
+                        if ($statusText == "Yet to return" && $row['renew_count'] < 2) {
+                            $showRenew = true;
+                        }
+
+                        $book_data = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM book_list WHERE book_id = '{$row['book_id']}'"));
+                        $library_data = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM library WHERE library_id = '{$row['library_id']}'"));
+
+                        echo "<tr>
+                                <td>{$i}</td>
+                                <td>{$row['issue_id']}</td>
+                                <td>
+                                    <span class='model-link'
+                                    onclick=\"openBookModal(
+                                    '{$book_data['book_id']}',
+                                    '../book_images/{$book_data['image']}',
+                                    '" . htmlspecialchars($book_data['title'], ENT_QUOTES) . "',
+                                    '" . htmlspecialchars($book_data['author'], ENT_QUOTES) . "',
+                                    '" . htmlspecialchars($book_data['category'], ENT_QUOTES) . "',
+                                    '{$book_data['year']}',
+                                    '" . htmlspecialchars($library_data['library_name'], ENT_QUOTES) . "'
+                                    )\">
+                                    {$row['book_id']}
+                                    </span>
+                                </td>
+                                <td>{$row['issue_date']}</td>
+                                <td>{$row['return_date']}</td>
+                                <td>₹ {$row['fine_amount']}</td>
+                                <td><span class='status {$statusClass}'>{$statusText}</span></td>
+                                <td>";
+
+                        // 🔁 RENEW BUTTON
+                        if ($showRenew) {
+                            echo "<button class='btn btn-renew'
+                                        data-book='{$row['book_id']}'
+                                        data-return='{$row['return_date']}'
+                                        data-renew='{$row['renew_count']}'>
+                                        Renew
+                                    </button>";
+                        } elseif ($row['renew_count'] >= 2) {
+                            echo "<button class='btn btn-renew' disabled style='cursor:not-allowed;'>
+                                        Renew Limit Reached
+                                    </button>";
+                        }
+
+                        // 💰 PAY BUTTON
+                        if ($row['fine_amount'] > 0 && $row['status'] == 'Overdue') {
+                            echo "<button class='btn btn-pay'
+                                    data-issue='{$row['issue_id']}'
+                                    data-book='{$row['book_id']}'
+                                    data-library='{$row['library_id']}'
+                                    data-amount='{$row['fine_amount']}'>
+                                    Pay ₹{$row['fine_amount']}
+                                </button>";
+                        }
+
+                        // ⭐ RATING BUTTON (NEW)
+                        if ($row['status'] == "Returned" && $row['is_rated'] == 0) {
+                            echo "<button class='btn btn-rate'
+                                        onclick='openRatingModal(\"{$row['issue_id']}\", \"{$row['book_id']}\")'>
+                                        Rate
+                                    </button>";
+                        } elseif ($row['status'] == "Returned" && $row['is_rated'] == 1) {
+                            echo "<span class='status returned'>Rated</span>";
+                        }
 
 
-                        </td>
-                    </tr>
+                        echo "</td>
+                                    </tr>";
 
-                    <tr>
-                        <td>1</td>
-                        <td>24842354</td>
-                        <td><span class="model-link" onclick="openBookModal()">24842354</span></td>
-                        <td>12-01-2026</td>
-                        <td>08-02-2026</td>
-                        <td>100</td>
-                        <td><span class="status unissued">Unissued</span></td>
-                        <td>
-                            <button class="btn btn-return"
-                                data-book="24842354"
-                                data-issue="2026-01-12"
-                                data-return="2026-02-08">
-                                Return
-                            </button>
-                            <!-- <button class="btn btn-pay"
-                                data-amount="1"
-                                data-book="24842354">
-                                Pay
-                            </button> -->
 
-                        </td>
-                    </tr>
+                        $i++;
+                    }
+                    ?>
 
                 </tbody>
             </table>
@@ -1200,99 +1299,39 @@
 
             <div class="modal-body-p">
                 <div class="book-image">
-                    <img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" alt="Book Image">
+                    <img id="modalBookImage" src="" alt="Book Image">
                 </div>
 
                 <div class="book-details">
                     <div class="detail">
                         <span>Book ID</span>
-                        <p>24842354</p>
+                        <p id="modalBookId"></p>
                     </div>
                     <div class="detail">
                         <span>Title</span>
-                        <p>Introduction to Java</p>
+                        <p id="modalBookTitle"></p>
                     </div>
                     <div class="detail">
                         <span>Author</span>
-                        <p>James Gosling</p>
+                        <p id="modalBookAuthor"></p>
                     </div>
                     <div class="detail">
                         <span>Category</span>
-                        <p>Programming</p>
+                        <p id="modalBookCategory"></p>
                     </div>
                     <div class="detail">
                         <span>Publish Year</span>
-                        <p>2020</p>
+                        <p id="modalBookYear"></p>
                     </div>
                     <div class="detail">
                         <span>Library Name</span>
-                        <p>Main Library</p>
+                        <p id="modalBookLibrary"></p>
                     </div>
                 </div>
             </div>
 
             <div class="modal-footer">
                 <button class="btn-secondary" onclick="closeBookModal()">Close</button>
-            </div>
-
-        </div>
-    </div>
-
-    <div class="l-modal-backdrop" id="libraryModal">
-        <div class="l-modal-card">
-
-            <div class="l-modal-header-p">
-                <div class="l-header-left">
-                    <h3>Library Details</h3>
-
-                    <div class="l-pill-group">
-                        <span class="l-pill pill-active">Active</span>
-                        <!-- <span class="pill pill-inactive">Inactive</span> -->
-                    </div>
-                </div>
-                <span class="close-icon" onclick="closeLibraryModal()">×</span>
-            </div>
-
-            <div class="l-modal-body-p">
-
-                <div class="l-book-details">
-                    <div class="l-detail">
-                        <span>Library ID</span>
-                        <p>24842354</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Library Name</span>
-                        <p>Central City Library</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Library Owner Name</span>
-                        <p>James Gosling</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Table capacity</span>
-                        <p>120</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Chair Capacity</span>
-                        <p>240</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Open At</span>
-                        <p>08:00 AM</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Close At</span>
-                        <p>09:00 PM</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Library Location</span>
-                        <p>Downtown, Rajkot</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="l-modal-footer">
-                <button class="l-btn-secondary" onclick="closeLibraryModal()">Close</button>
             </div>
 
         </div>
@@ -1344,14 +1383,162 @@
 
             </div>
 
-            <div class="upi-footer">
-                <button class="upi-cancel" onclick="closeUPIModal()">Cancel</button>
-                <button class="upi-paid" onclick="demoSuccess()">I have paid</button>
-            </div>
+            <form method="post">
+                <input type="hidden" name="issue_id" id="issueId">
+                <input type="hidden" name="library_id" id="libraryId">
+                <input type="hidden" name="amount" id="amount">
+                <div class="upi-footer">
+                    <button type="button" class="upi-cancel" onclick="closeUPIModal()">Cancel</button>
+                    <button class="upi-paid" name="paid_btn">I have paid</button>
+                </div>
+            </form>
 
         </div>
 
     </div>
+
+    <?php
+
+    if (isset($_POST['paid_btn'])) {
+
+        $issue_id   = intval($_POST['issue_id']);
+        $library_id = intval($_POST['library_id']);
+        $amount     = intval($_POST['amount']);
+        $user_id    = $_SESSION['id'];
+
+        // Get issue + user + book details first
+        $details_query = mysqli_query($con, "
+        SELECT 
+            i.issue_id,
+            i.return_date,
+            i.book_id,
+            u.user_id,
+            u.first_name,
+            u.last_name,
+            u.email,
+            b.title AS book_title
+        FROM issue i
+        INNER JOIN user u ON i.user_id = u.user_id
+        INNER JOIN book_list b ON i.book_id = b.book_id
+        WHERE i.issue_id = '$issue_id' AND i.user_id = '$user_id'
+        LIMIT 1
+    ");
+
+        $details = mysqli_fetch_assoc($details_query);
+
+        if (!$details) {
+            echo "<script>
+            document.addEventListener('DOMContentLoaded', function(){
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'error',
+                    title: 'Issue details not found.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true
+                });
+            });
+        </script>";
+            exit;
+        }
+
+        // 🔁 Generate Unique Random ID
+        do {
+            $payment_id = rand(10000, 99999);
+
+            $check_query = mysqli_query(
+                $con,
+                "SELECT payment_id FROM payment_history WHERE payment_id = '$payment_id'"
+            );
+        } while (mysqli_num_rows($check_query) > 0);
+
+        $payment_method = "UPI";
+        $payment_status = "Paid";
+        $payment_date   = date("Y-m-d");
+
+        // Insert payment
+        $insert_payment = mysqli_query(
+            $con,
+            "INSERT INTO payment_history 
+        (payment_id, issue_id, user_id, library_id, amount, payment_method, payment_status, payment_date)
+        VALUES
+        ('$payment_id', '$issue_id', '$user_id', '$library_id', '$amount', '$payment_method', '$payment_status', '$payment_date')"
+        );
+
+        if ($insert_payment) {
+
+            $formattedReturnDate = date("d M Y", strtotime($details['return_date']));
+
+            $update = mysqli_query($con, "
+            UPDATE issue 
+            SET fine_amount = 0,
+                status = 'Return at library',
+                last_mailed_status = 'Return at library'
+            WHERE issue_id = '$issue_id'
+        ");
+
+            if ($update) {
+
+                // Send mail after successful update
+                sendLibraryMail(
+                    $details['email'],
+                    $details['first_name'] . ' ' . $details['last_name'],
+                    $details['book_title'],
+                    'Return at library',
+                    $formattedReturnDate,
+                    $amount
+                );
+
+                echo "<script>
+                document.addEventListener('DOMContentLoaded', function(){
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'success',
+                        title: 'Payment Successfully!',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    }).then(() => {
+                        window.location.href = 'fine_list.php';
+                    });
+                });
+            </script>";
+            } else {
+                echo "<script>
+                document.addEventListener('DOMContentLoaded', function(){
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'error',
+                        title: 'Payment saved but issue update failed.',
+                        showConfirmButton: false,
+                        timer: 2500,
+                        timerProgressBar: true
+                    });
+                });
+            </script>";
+            }
+        } else {
+            echo "<script>
+            document.addEventListener('DOMContentLoaded', function(){
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'error',
+                    title: 'Failed to payment. Please try again.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true
+                });
+            });
+        </script>";
+        }
+    }
+
+    ?>
+
 
     <div id="renewModal" class="renew-modal">
 
@@ -1359,7 +1546,7 @@
 
             <div class="renew-header">
                 <h3>Renew Book</h3>
-                <span onclick="closeRenew()">×</span>
+                <span class="upi-close" onclick="closeRenew()">×</span>
             </div>
 
             <div class="renew-body">
@@ -1371,7 +1558,7 @@
                 <input type="date" name="old_return_date" readonly>
 
                 <label>New Return Date</label>
-                <input type="date" name="new_return_date">
+                <input type="date" name="new_return_date" readonly>
 
                 <small class="renew-error"></small>
 
@@ -1379,71 +1566,46 @@
 
             <div class="renew-footer">
                 <button class="renew-cancel" onclick="closeRenew()">Cancel</button>
-                <button class="renew-confirm" onclick="confirmRenew()">Confirm Renew</button>
+                <button type="button" class="renew-confirm" id="renewConfirmBtn">
+                    Confirm Renew
+                </button>
             </div>
 
         </div>
 
     </div>
 
-    <div id="returnModal" class="return-modal">
+    <div id="ratingModal" class="renew-modal" style="display:none;">
+        <div class="renew-card">
 
-        <div class="return-card">
-
-            <div class="return-header">
-                <h3>Return Book</h3>
-                <span onclick="closeReturn()">×</span>
+            <div class="renew-header">
+                <h3>Rate Book</h3>
+                <span class="upi-close" onclick="closeRatingModal()">×</span>
             </div>
 
-            <div class="return-body">
+            <div class="renew-body">
 
-                <label>Book ID</label>
-                <input type="text" name="return_book_id" readonly>
+                <input type="hidden" id="issue_id">
+                <input type="hidden" id="book_id">
+                <input type="hidden" id="selected_rating" value="0">
 
-                <label>Issue Date</label>
-                <input type="date" name="issue_date" readonly>
+                <label>Select Rating</label>
+                <div class="stars">
+                    <span onclick="setRating(1)">★</span>
+                    <span onclick="setRating(2)">★</span>
+                    <span onclick="setRating(3)">★</span>
+                    <span onclick="setRating(4)">★</span>
+                    <span onclick="setRating(5)">★</span>
+                </div>
 
-                <label>Expected Return Date</label>
-                <input type="date" name="expected_return" readonly>
-
-                <label>Actual Return Date</label>
-                <input type="date" name="actual_return">
-
-                <label>Fine (₹)</label>
-                <input type="text" name="fine_amount" readonly value="0">
-
-                <small class="return-error"></small>
+                <label style="margin-top:10px;">Write Review</label>
+                <textarea id="review_text" placeholder="Write your experience..." rows="3"></textarea>
 
             </div>
 
-            <div class="return-footer">
-                <button class="return-cancel" onclick="closeReturn()">Cancel</button>
-                <button class="return-confirm" onclick="confirmReturn()">Confirm Return</button>
-            </div>
-
-        </div>
-
-    </div>
-
-    <div id="ratingModal" class="rating-modal">
-
-        <div class="rating-card">
-
-            <h3>Rate this Book</h3>
-
-            <div class="stars-select">
-                <span data-rate="1">★</span>
-                <span data-rate="2">★</span>
-                <span data-rate="3">★</span>
-                <span data-rate="4">★</span>
-                <span data-rate="5">★</span>
-            </div>
-
-            <textarea placeholder="Write feedback (optional)"></textarea>
-
-            <div class="rating-actions">
-                <button class="skip-btn" onclick="skipRating()">Skip</button>
-                <button class="submit-btn" onclick="submitRating()">Submit Rating</button>
+            <div class="renew-footer">
+                <button class="renew-cancel" onclick="closeRatingModal()">Cancel</button>
+                <button class="renew-confirm" onclick="submitRating()">Submit</button>
             </div>
 
         </div>
@@ -1469,6 +1631,15 @@
         var table = $('#bookTable').DataTable({
             responsive: true,
             dom: 'Brtip',
+            columnDefs: [{
+                targets: 0, // Sr No column
+                orderable: false,
+                searchable: false
+            }],
+
+            order: [
+                [1, 'asc']
+            ],
             buttons: [{
                     extend: 'excelHtml5',
                     exportOptions: {
@@ -1494,23 +1665,33 @@
             scrollCollapse: true
         });
 
-        function formatDateForTable(date) {
-            if (!date) return "";
-            const parts = date.split("-");
-            return parts[2] + "-" + parts[1] + "-" + parts[0]; // yyyy-mm-dd → dd-mm-yyyy
-        }
+        // ✅ AUTO UPDATE SERIAL NUMBER
+        table.on('order.dt search.dt draw.dt', function() {
+            table.column(0, {
+                    search: 'applied',
+                    order: 'applied'
+                })
+                .nodes()
+                .each(function(cell, i) {
+                    cell.innerHTML = i + 1;
+                });
+        }).draw();
+        // STATUS filter
+        $('#filterStatus').on('change', function() {
+            var value = this.value.toLowerCase();
+
+            table.column(6).search(value ? '^' + value + '$' : '', true, false).draw();
+        });
 
         // Issue filter
         $('#filterIssueDate').on('change', function() {
-            let val = formatDateForTable(this.value);
-            table.column(5).search(val).draw();
+            table.column(3).search(this.value).draw();
         });
 
 
         // Return filter
         $('#filterReturnDate').on('change', function() {
-            let val = formatDateForTable(this.value);
-            table.column(7).search(val).draw();
+            table.column(4).search(this.value).draw();
         });
 
 
@@ -1518,6 +1699,7 @@
         function resetFilters() {
             $('#filterIssueDate').val('');
             $('#filterReturnDate').val('');
+            $('#filterStatus').val('');
 
             table.columns().search('').draw();
         }
@@ -1538,20 +1720,20 @@
             // Here you can remove the row or call backend later
         }
 
-        function openBookModal() {
+        function openBookModal(bookId, image, title, author, category, year, library) {
+            document.getElementById("modalBookId").innerText = bookId;
+            document.getElementById("modalBookImage").src = image;
+            document.getElementById("modalBookTitle").innerText = title;
+            document.getElementById("modalBookAuthor").innerText = author;
+            document.getElementById("modalBookCategory").innerText = category;
+            document.getElementById("modalBookYear").innerText = year;
+            document.getElementById("modalBookLibrary").innerText = library;
+
             document.getElementById("bookModal").style.display = "flex";
         }
 
         function closeBookModal() {
             document.getElementById("bookModal").style.display = "none";
-        }
-
-        function openLibraryModal() {
-            document.getElementById("libraryModal").style.display = "flex";
-        }
-
-        function closeLibraryModal() {
-            document.getElementById("libraryModal").style.display = "none";
         }
     </script>
 
@@ -1559,18 +1741,22 @@
         document.querySelectorAll(".btn-pay").forEach(btn => {
             btn.addEventListener("click", function() {
 
-                const amount = this.dataset.amount || 100;
-                const bookId = this.dataset.book || "TEST";
+                const amount = parseInt(this.dataset.amount);
+                const issueId = parseInt(this.dataset.issue);
+                const bookId = parseInt(this.dataset.book);
+                const libraryId = parseInt(this.dataset.library); // now we define bookId properly
 
-                const upiLink =
-                    `upi://pay?pa=test@upi&pn=BookMyLibrary&am=${amount}&cu=INR&tn=Book:${bookId}`;
+                const upiLink = `upi://pay?pa=test@upi&pn=BookMyLibrary&am=${amount}&cu=INR&tn=Book My Library`;
 
-                const qrURL =
-                    "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" +
-                    encodeURIComponent(upiLink);
+                const qrURL = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" + encodeURIComponent(upiLink);
 
                 document.getElementById("upiQR").src = qrURL;
                 document.getElementById("upiAmount").textContent = amount;
+
+                // Set hidden form inputs
+                document.getElementById("issueId").value = issueId;
+                document.getElementById("libraryId").value = libraryId;
+                document.getElementById("amount").value = amount;
 
                 document.getElementById("upiModal").style.display = "flex";
             });
@@ -1596,246 +1782,189 @@
 
     <script>
         const renewModal = document.getElementById("renewModal");
-        const newDateInput = renewModal.querySelector('[name="new_return_date"]');
+        const bookIdInput = renewModal.querySelector('[name="renew_book_id"]');
         const oldDateInput = renewModal.querySelector('[name="old_return_date"]');
-        const renewBtn = renewModal.querySelector(".renew-confirm");
-        const errorBox = renewModal.querySelector(".renew-error");
+        const newDateInput = renewModal.querySelector('[name="new_return_date"]');
+        const renewBtn = document.getElementById("renewConfirmBtn");
 
-        // OPEN RENEW
+        // OPEN MODAL
         document.querySelectorAll(".btn-renew").forEach(btn => {
             btn.addEventListener("click", function() {
 
+                const renewCount = parseInt(this.dataset.renew);
+
+                // 🚫 Limit reached
+                if (renewCount >= 2) {
+
+                    Swal.fire({
+                        toast: true,
+                        position: "top",
+                        icon: "error",
+                        title: "Renew limit reached (Max 2 renewals)",
+                        showConfirmButton: false,
+                        timer: 2500,
+                        timerProgressBar: true
+                    });
+
+                    return;
+                }
+
+                // OPEN MODAL
                 renewModal.style.display = "flex";
 
-                oldDateInput.value = formatDate(this.dataset.return);
-                newDateInput.value = "";
+                bookIdInput.value = this.dataset.book;
 
-                renewBtn.disabled = true;
-                errorBox.textContent = "";
+                const oldDate = new Date(this.dataset.return);
+                oldDateInput.value = formatDate(oldDate);
+
+                const newDate = new Date(oldDate);
+                newDate.setDate(newDate.getDate() + 7);
+
+                newDateInput.value = formatDate(newDate);
             });
         });
 
-        // CLOSE
+        // FORMAT DATE
+        function formatDate(dateObj) {
+            const d = new Date(dateObj);
+            return d.toISOString().split('T')[0];
+        }
+
+        // CLOSE MODAL
         function closeRenew() {
             renewModal.style.display = "none";
         }
 
-        // FORMAT DATE
-        function formatDate(dateStr) {
-            const d = new Date(dateStr);
-            return d.toISOString().split('T')[0];
-        }
+        // CONFIRM RENEW
+        renewBtn.addEventListener("click", confirmRenew);
 
-
-        // 🟢 LIVE VALIDATION
-        newDateInput.addEventListener("input", function() {
-
-            const today = new Date().setHours(0, 0, 0, 0);
-            const oldDate = new Date(oldDateInput.value).setHours(0, 0, 0, 0);
-            const newDate = new Date(this.value).setHours(0, 0, 0, 0);
-
-            if (!this.value) {
-                errorBox.textContent = "Please select new return date";
-                renewBtn.disabled = true;
-                return;
-            }
-
-            if (newDate < today) {
-                errorBox.textContent = "Past date not allowed";
-                renewBtn.disabled = true;
-                return;
-            }
-
-            if (newDate <= oldDate) {
-                errorBox.textContent = "New return date must be after current return date";
-                renewBtn.disabled = true;
-                return;
-            }
-
-            // valid
-            errorBox.textContent = "";
-            renewBtn.disabled = false;
-        });
-
-
-        // CONFIRM
         function confirmRenew() {
 
-            if (renewBtn.disabled) return;
+            const bookId = bookIdInput.value;
+            const newDate = newDateInput.value;
 
-            Swal.fire({
-                toast: true,
-                position: 'top',
-                icon: 'success',
-                title: 'Book renewed successfully!',
-                showConfirmButton: false,
-                timer: 2000,
-                timerProgressBar: true
-            });
+            fetch("renew_book.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: `book_id=${bookId}&new_return_date=${newDate}`
+                })
+                .then(res => res.json())
+                .then(data => {
 
-            closeRenew();
+                    if (data.status === "success") {
+
+                        Swal.fire({
+                            toast: true,
+                            position: 'top',
+                            icon: 'success',
+                            title: 'Book renewed successfully!',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
+
+                        closeRenew();
+                        setTimeout(() => location.reload(), 1200);
+
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: data.message
+                        });
+                    }
+
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Server error");
+                });
         }
     </script>
 
     <script>
-        const returnModal = document.getElementById("returnModal");
+        function openRatingModal(issue_id, book_id) {
+            const modal = document.getElementById("ratingModal");
+            const issueInput = document.getElementById("issue_id");
+            const bookInput = document.getElementById("book_id");
+            const ratingInput = document.getElementById("selected_rating");
 
-        const actualDateInput = returnModal.querySelector('[name="actual_return"]');
-        const expectedInput = returnModal.querySelector('[name="expected_return"]');
-        const fineInput = returnModal.querySelector('[name="fine_amount"]');
-        const returnBtn = returnModal.querySelector(".return-confirm");
-        const returnError = returnModal.querySelector(".return-error");
-
-        const today = new Date().setHours(0, 0, 0, 0);
-
-        // OPEN RETURN
-        document.querySelectorAll(".btn-return").forEach(btn => {
-            btn.addEventListener("click", function() {
-
-                returnModal.style.display = "flex";
-
-                returnModal.querySelector('[name="return_book_id"]').value =
-                    this.dataset.book;
-
-                returnModal.querySelector('[name="issue_date"]').value =
-                    this.dataset.issue;
-
-                returnModal.querySelector('[name="expected_return"]').value =
-                    this.dataset.return;
-
-                returnModal.querySelector('[name="actual_return"]').value =
-                    today;
-
-                actualDateInput.value = "";
-                fineInput.value = "0";
-                returnBtn.disabled = true;
-                returnError.textContent = "";
-            });
-        });
-
-        // CLOSE
-        function closeReturn() {
-            returnModal.style.display = "none";
-        }
-
-
-        // 🟢 LIVE VALIDATION + FINE CALCULATION
-        actualDateInput.addEventListener("input", function() {
-
-            const actualDate = new Date(this.value);
-            const expectedDate = new Date(expectedInput.value);
-
-            if (!this.value) {
-                returnError.textContent = "Select return date";
-                returnBtn.disabled = true;
+            if (!modal || !issueInput || !bookInput || !ratingInput) {
+                console.log("Rating modal elements not found");
                 return;
             }
 
-            // fine calculation ₹5 per day
-            if (actualDate > expectedDate) {
-                const diffDays =
-                    Math.ceil((actualDate - expectedDate) / (1000 * 60 * 60 * 24));
-                fineInput.value = diffDays * 5;
-            } else {
-                fineInput.value = 0;
-            }
+            issueInput.value = issue_id;
+            bookInput.value = book_id;
+            ratingInput.value = 0;
 
-            returnError.textContent = "";
-            returnBtn.disabled = false;
-        });
+            document.querySelectorAll(".stars span").forEach(star => {
+                star.classList.remove("active");
+            });
 
+            modal.style.display = "flex";
+        }
 
-        // CONFIRM RETURN
-        function confirmReturn() {
+        function closeRatingModal() {
+            document.getElementById("ratingModal").style.display = "none";
+        }
 
-            if (returnBtn.disabled) return;
+        function setRating(rating) {
+            document.getElementById("selected_rating").value = rating;
 
-            const fine = parseInt(fineInput.value);
+            document.querySelectorAll(".stars span").forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add("active");
+                } else {
+                    star.classList.remove("active");
+                }
+            });
+        }
 
-            // 🟥 STEP 1 — IF FINE EXISTS → PAY FIRST
-            if (fine > 0) {
+        function submitRating() {
+            const issue_id = document.getElementById("issue_id").value;
+            const book_id = document.getElementById("book_id").value;
+            const rating = document.getElementById("selected_rating").value;
+            const review = document.getElementById("review_text").value;
+
+            if (rating == 0) {
                 Swal.fire({
                     toast: true,
-                    icon: 'warning',
                     position: 'top',
-                    title: 'Please pay fine before returning book',
-                    timer: 2500,
-                    showConfirmButton: false
+                    icon: 'warning',
+                    title: 'Please select a rating',
+                    showConfirmButton: false,
+                    timer: 2000
                 });
                 return;
             }
 
-            // 🟩 STEP 2 — RETURN SUCCESS
-            Swal.fire({
-                toast: true,
-                icon: 'success',
-                position: 'top',
-                title: 'Book returned successfully',
-                timer: 2000,
-                showConfirmButton: false
-            });
+            fetch("submit_rating.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: `issue_id=${issue_id}&book_id=${book_id}&rating=${rating}&review=${encodeURIComponent(review)}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: data.status,
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
 
-            closeReturn();
-
-            // 🟦 STEP 3 — OPEN RATING MODAL AFTER RETURN
-            setTimeout(() => {
-                openRatingModal();
-            }, 2000);
-        }
-
-        let selectedRating = 0;
-
-        function openRatingModal() {
-            document.getElementById("ratingModal").style.display = "flex";
-        }
-
-        // select stars
-        document.querySelectorAll(".stars-select span").forEach(star => {
-            star.addEventListener("click", function() {
-
-                selectedRating = this.dataset.rate;
-
-                document.querySelectorAll(".stars-select span")
-                    .forEach(s => s.classList.remove("active"));
-
-                for (let i = 0; i < selectedRating; i++) {
-                    document.querySelectorAll(".stars-select span")[i]
-                        .classList.add("active");
-                }
-            });
-        });
-
-        function submitRating() {
-
-            if (selectedRating == 0) {
-                alert("Please select rating");
-                return;
-            }
-
-            Swal.fire({
-                toast: true,
-                icon: 'success',
-                position: 'top',
-                title: 'Thank you for rating!',
-                timer: 2000,
-                showConfirmButton: false
-            });
-
-            document.getElementById("ratingModal").style.display = "none";
-        }
-
-        function skipRating() {
-
-            document.getElementById("ratingModal").style.display = "none";
-
-            Swal.fire({
-                toast: true,
-                icon: 'info',
-                position: 'top',
-                title: 'Rating skipped',
-                timer: 1800,
-                showConfirmButton: false
-            });
+                    if (data.status === "success") {
+                        closeRatingModal();
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    }
+                });
         }
     </script>
 

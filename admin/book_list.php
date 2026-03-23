@@ -1,3 +1,11 @@
+<?php
+require "../session_check.php";
+
+if ($_SESSION['role'] != "Admin") {
+    header("Location: ../login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -603,6 +611,7 @@
             <span class="current">Book List</span>
         </nav>
     </div>
+
     <div class="container">
         <div class="card">
             <div class="top-actions">
@@ -621,7 +630,18 @@
                     </div>
                     <div class="filter-box">
                         <label>Category</label>
-                        <input type="text" id="filterCategory" placeholder="Filter by Category">
+                        <select id="filterCategory">
+                            <option value="">All Categories</option>
+                            <?php
+                            $categories = mysqli_query($con, "SELECT * FROM category WHERE status = 'Active'");
+
+                            foreach ($categories as $row) {
+                                echo "<option value='{$row['category_name']}'>
+                                             {$row['category_name']}
+                                          </option>";
+                            }
+                            ?>
+                        </select>
                     </div>
                     <div class="filter-box">
                         <label>Status</label>
@@ -673,12 +693,29 @@
                             $statusText  = "Available";
                         }
 
+                        $library_data = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM library WHERE library_id = '{$row['library_id']}'"));
+
 
                         echo "<tr>
                         <td>{$i}</td>
                         <td><img src='../book_images/{$row['image']}' class='cover'></td>
                         <td>{$row['book_id']}</td>
-                        <td><span class='model-link' onclick='openLibraryModal()'>{$row['library_id']}</span></td>
+                        <td>
+                            <span class='model-link'
+                                onclick=\"openLibraryModal(
+                                '{$library_data['library_id']}',
+                                '" . htmlspecialchars($library_data['library_name'], ENT_QUOTES) . "',
+                                '" . htmlspecialchars($library_data['library_owner_name'], ENT_QUOTES) . "',
+                                '" . htmlspecialchars($library_data['table_capacity'], ENT_QUOTES) . "',
+                                '" . htmlspecialchars($library_data['chair_capacity'], ENT_QUOTES) . "',
+                                '" . htmlspecialchars($library_data['open_at'], ENT_QUOTES) . "',
+                                '" . htmlspecialchars($library_data['close_at'], ENT_QUOTES) . "',
+                                '" . htmlspecialchars($library_data['status'], ENT_QUOTES) . "',
+                                '" . htmlspecialchars($library_data['library_location'], ENT_QUOTES) . "'
+                                )\">
+                                {$row['library_id']}
+                            </span>
+                        </td>
                         <td>{$row['title']}</td>
                         <td>{$row['author']}</td>
                         <td>{$row['category']}</td>
@@ -690,7 +727,7 @@
                         <td><span class='status {$statusClass}'>{$statusText}</span></td>
                         <td>
                             <a href='edit_book.php?book_id={$row['book_id']}'><button class='btn btn-edit'>Edit</button></a>
-                            <button class='btn btn-delete' onclick='openDeleteModal()'>Delete</button>
+                            <button class='btn btn-delete' onclick='openDeleteModal({$row['book_id']})'>Delete</button>
                         </td>
                     </tr>";
 
@@ -710,10 +747,11 @@
                     <h3>Library Details</h3>
 
                     <div class="pill-group">
-                        <span class="pill pill-active">Active</span>
+                        <span id="modalLibraryStatus" class="pill"></span>
                         <!-- <span class="pill pill-inactive">Inactive</span> -->
                     </div>
                 </div>
+                <span class="close-icon" onclick="closeLibraryModal()">×</span>
             </div>
 
             <div class="modal-body-p">
@@ -721,35 +759,42 @@
                 <div class="book-details">
                     <div class="detail">
                         <span>Library ID</span>
-                        <p>24842354</p>
+                        <p id="modalLibraryId"></p>
                     </div>
+
                     <div class="detail">
                         <span>Library Name</span>
-                        <p>Central City Library</p>
+                        <p id="modalLibraryName"></p>
                     </div>
+
                     <div class="detail">
                         <span>Library Owner Name</span>
-                        <p>James Gosling</p>
+                        <p id="modalLibraryOwnerName"></p>
                     </div>
+
                     <div class="detail">
-                        <span>Table capacity</span>
-                        <p>120</p>
+                        <span>Table Capacity</span>
+                        <p id="modalLibraryTable"></p>
                     </div>
+
                     <div class="detail">
                         <span>Chair Capacity</span>
-                        <p>240</p>
+                        <p id="modalLibraryChair"></p>
                     </div>
+
                     <div class="detail">
                         <span>Open At</span>
-                        <p>08:00 AM</p>
+                        <p id="modalLibraryOpen"></p>
                     </div>
+
                     <div class="detail">
                         <span>Close At</span>
-                        <p>09:00 PM</p>
+                        <p id="modalLibraryClose"></p>
                     </div>
+
                     <div class="detail">
                         <span>Library Location</span>
-                        <p>Downtown, Rajkot</p>
+                        <p id="modalLibraryLocation"></p>
                     </div>
                 </div>
             </div>
@@ -762,22 +807,103 @@
     </div>
 
     <div class="modal-overlay" id="deleteModal">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3>Delete Book Record</h3>
-            </div>
+        <form method="post">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <h3>Delete Book Record</h3>
+                </div>
 
-            <div class="modal-body">
-                <p>⚠️ Are you sure you want to delete this book record?</p>
-                <span>This action cannot be undone.</span>
-            </div>
+                <div class="detail" style="display:none;">
+                    <input type="hidden" name="bookId" id="bookId">
+                </div>
 
-            <div class="modal-actions">
-                <button class="btn cancel-btn" onclick="closeDeleteModal()">Cancel</button>
-                <button class="btn delete-btn" onclick="confirmDelete()">Yes, Delete</button>
+                <div class="modal-body">
+                    <p>⚠️ Are you sure you want to delete this book record?</p>
+                    <span>This action cannot be undone.</span>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn cancel-btn" onclick="closeDeleteModal()">Cancel</button>
+                    <button type="submit" class="btn delete-btn" name="delete_btn">Yes, Delete</button>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
+
+    <?php
+    if (isset($_POST['delete_btn'])) {
+        $book_id = intval($_POST['bookId']);
+
+        $select_query = "SELECT image FROM book_list WHERE book_id = $book_id";
+        $select_result = mysqli_query($con, $select_query);
+
+        if ($select_result && mysqli_num_rows($select_result) > 0) {
+            $book_data = mysqli_fetch_assoc($select_result);
+            $image_name = $book_data['image'];
+
+            $image_deleted = true;
+
+            if (!empty($image_name) && $image_name != 'no-image.png') {
+                $image_path = "../book_images/" . $image_name;
+
+                if (file_exists($image_path)) {
+                    $image_deleted = unlink($image_path);
+                }
+            }
+
+            if ($image_deleted) {
+                $delete_query = "DELETE FROM book_list WHERE book_id = $book_id";
+
+                if (mysqli_query($con, $delete_query)) {
+                    echo "<script>
+                        document.addEventListener('DOMContentLoaded', function(){
+                            Swal.fire({
+                                toast: true,
+                                position: 'top',
+                                icon: 'success',
+                                title: 'Book deleted successfully!',
+                                showConfirmButton: false,
+                                timer: 2000,
+                                timerProgressBar: true
+                            }).then(() => {
+                                window.location.href = 'book_list.php';
+                            });
+                        });
+                    </script>";
+                } else {
+                    echo "<script>
+                        document.addEventListener('DOMContentLoaded', function(){
+                            Swal.fire({
+                                toast: true,
+                                position: 'top',
+                                icon: 'error',
+                                title: 'Failed to delete book record.',
+                                showConfirmButton: false,
+                                timer: 2000,
+                                timerProgressBar: true
+                            });
+                        });
+                    </script>";
+                }
+            } else {
+                echo "<script>
+                    document.addEventListener('DOMContentLoaded', function(){
+                        Swal.fire({
+                            toast: true,
+                            position: 'top',
+                            icon: 'error',
+                            title: 'Image could not be deleted.',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
+                    });
+                </script>";
+            }
+        }
+    }
+    ?>
+
     <?php include 'footer.php'; ?>
 
     <!-- Scripts -->
@@ -855,13 +981,15 @@
         });
 
         // OWNER filter
-        $('#filterAuthor').on('keyup', function() {
-            table.column(5).search(this.value).draw();
+        $('#filterCategory').on('change', function() {
+            var value = this.value.toLowerCase();
+
+            table.column(6).search(value ? '^' + value + '$' : '', true, false).draw();
         });
 
         // CATEGORY filter
-        $('#filterCategory').on('keyup', function() {
-            table.column(6).search(this.value).draw();
+        $('#filterAuthor').on('keyup', function() {
+            table.column(5).search(this.value).draw();
         });
 
         // RESET filters
@@ -876,7 +1004,8 @@
 
         const deleteModal = document.getElementById("deleteModal");
 
-        function openDeleteModal() {
+        function openDeleteModal(id) {
+            document.getElementById("bookId").value = id;
             deleteModal.style.display = "flex";
         }
 
@@ -884,37 +1013,28 @@
             deleteModal.style.display = "none";
         }
 
-        function confirmDelete() {
-            closeDeleteModal();
-            alert("Book record deleted successfully!");
-            // Here you can remove the row or call backend later
-        }
+        function openLibraryModal(id, name, owner_name, table, chair, open, close, status, location) {
 
-        document.addEventListener("click", function(e) {
-            if (e.target.classList.contains("btn-toggle")) {
+            document.getElementById("modalLibraryId").innerText = id;
+            document.getElementById("modalLibraryName").innerText = name;
+            document.getElementById("modalLibraryOwnerName").innerText = owner_name;
+            document.getElementById("modalLibraryTable").innerText = table;
+            document.getElementById("modalLibraryChair").innerText = chair;
+            document.getElementById("modalLibraryOpen").innerText = open;
+            document.getElementById("modalLibraryClose").innerText = close;
+            document.getElementById("modalLibraryLocation").innerText = location;
 
-                const row = e.target.closest("tr");
-                const status = row.querySelector(".status");
+            /* STATUS */
+            let statusElement = document.getElementById("modalLibraryStatus");
+            statusElement.innerText = status;
+            statusElement.className = "pill";
 
-                if (status.classList.contains("available")) {
-                    // Change to Unavailable
-                    status.textContent = "Unavailable";
-                    status.classList.remove("available");
-                    status.classList.add("unavailable");
-
-                    e.target.textContent = "Available";
-                } else {
-                    // Change to Available
-                    status.textContent = "Available";
-                    status.classList.remove("unavailable");
-                    status.classList.add("available");
-
-                    e.target.textContent = "Unavailable";
-                }
+            if (status === "Active") {
+                statusElement.classList.add("pill-active");
+            } else if (status === "Inactive") {
+                statusElement.classList.add("pill-inactive");
             }
-        });
 
-        function openLibraryModal() {
             document.getElementById("libraryModal").style.display = "flex";
         }
 

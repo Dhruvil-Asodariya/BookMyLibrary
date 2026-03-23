@@ -1,6 +1,15 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+?>
 <!DOCTYPE html>
 <html lang="en">
-<?php include '../db_config.php'; ?>
+<?php
+include '../db_config.php';
+include '../update_status.php';
+?>
 
 <head>
     <meta charset="UTF-8">
@@ -183,6 +192,11 @@
 </head>
 
 <body>
+    <?php
+    $user_id = $_SESSION['id'];
+    $user = mysqli_query($con, "SELECT * FROM user WHERE user_id = $user_id");
+    $data = mysqli_fetch_assoc($user);
+    ?>
     <!-- NAVBAR -->
     <nav class="navbar">
         <div class="nav-left">
@@ -226,10 +240,10 @@
 
         <div class="nav-right">
             <div class="profile">
-                <img src="../image/default_profile.png" alt="Profile">
+                <img src="../image/<?php echo $data['image']; ?>" alt="Profile">
                 <!-- Profile Dropdown -->
                 <div class="dropdown">
-                    <a href="javascript:void(0);" class="dropbtn">Asodariya Dhruvil</a>
+                    <a href="javascript:void(0);" class="dropbtn"><?php echo $data['first_name'] . " " . $data['last_name']; ?></a>
                     <div class="dropdown-content">
                         <a href="profile.php">My Profile</a>
                         <a href="../change_password.php">Change Password</a>

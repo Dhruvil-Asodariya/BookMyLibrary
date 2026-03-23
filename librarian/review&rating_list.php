@@ -1,3 +1,11 @@
+<?php
+require "../session_check.php";
+
+if ($_SESSION['role'] != "Librarian") {
+    header("Location: ../login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -830,7 +838,7 @@
                     <tr>
                         <th>Sr No.</th>
                         <th>Review ID</th>
-                        <!-- <th>Library ID</th> -->
+                        <th>Book ID</th>
                         <th>User ID</th>
                         <th>Review Comment</th>
                         <th>Rating</th>
@@ -839,39 +847,75 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>24842354</td>
-                        <!-- <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td> -->
-                        <td><span class="model-link" onclick="openUserModal()">24842353</span></td>
-                        <td class="review-cell"
-                            data-full="Great library with a vast collection of books. The staff is friendly and helpful. Highly recommend for book lovers!">
-                            Great library with a vast collection of ...
-                        </td>
-                        <td>5</td>
-                        <td>19-03-2026</td>
-                        <!-- <td>
-                            <a href="edit_fine.php?fine_id=24842354"><button class="btn btn-edit">Edit</button></a>
-                            <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br>
-                        </td> -->
-                    </tr>
+                    <?php
+                    $user_id = $_SESSION['id'];
+                    $library_id = mysqli_fetch_assoc(mysqli_query($con, "SELECT library_id FROM library WHERE user_id = $user_id"));
+                    $rating = mysqli_query($con, "SELECT * FROM rating WHERE library_id = {$library_id['library_id']}");
+                    $i = 1;
 
-                    <tr>
-                        <td>1</td>
-                        <td>24842354</td>
-                        <!-- <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td> -->
-                        <td><span class="model-link" onclick="openUserModal()">24842353</span></td>
-                        <td class="review-cell"
-                            data-full="Loved the ambiance and the quiet reading areas. The book selection is impressive, and the digital resources are a great addition. A perfect place to spend a day!">
-                            Loved the ambiance and the quiet readin...
-                        </td>
-                        <td>3</td>
-                        <td>19-03-2026</td>
-                        <!-- <td>
-                            <a href="edit_fine.php?fine_id=24842354"><button class="btn btn-edit">Edit</button></a>
-                            <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br>
-                        </td> -->
-                    </tr>
+                    foreach ($rating as $row) {
+
+                        $full_description = $row['description'];
+
+                        // get first 40 characters
+                        $short_description = substr($full_description, 0, 40);
+
+                        // add "..." if longer than 40
+                        if (strlen($full_description) > 40) {
+                            $short_description .= "...";
+                        }
+
+                        $book_data = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM book_list WHERE book_id = '{$row['book_id']}'"));
+                        $library_data = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM library WHERE library_id = '{$row['library_id']}'"));
+                        $user_data = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM user WHERE user_id = '{$row['user_id']}'"));
+
+                        echo "<tr>
+                                    <td>{$i}</td>
+                                    <td>{$row['rating_id']}</td>
+                                    <td>
+                                    <span class='model-link'
+                                    onclick=\"openBookModal(
+                                    '{$book_data['book_id']}',
+                                    '../book_images/{$book_data['image']}',
+                                    '" . htmlspecialchars($book_data['title'], ENT_QUOTES) . "',
+                                    '" . htmlspecialchars($book_data['author'], ENT_QUOTES) . "',
+                                    '" . htmlspecialchars($book_data['category'], ENT_QUOTES) . "',
+                                    '{$book_data['year']}',
+                                    '" . htmlspecialchars($library_data['library_name'], ENT_QUOTES) . "'
+                                    )\">
+                                    {$row['book_id']}
+                                    </span>
+                                    </td>
+
+                                    <td>
+                                        <span class='model-link'
+                                        onclick=\"openUserModal(
+                                        '{$user_data['user_id']}',
+                                        '../image/{$user_data['image']}',
+                                        '" . htmlspecialchars($user_data['first_name'], ENT_QUOTES) . "',
+                                        '" . htmlspecialchars($user_data['last_name'], ENT_QUOTES) . "',
+                                        '" . htmlspecialchars($user_data['email'], ENT_QUOTES) . "',
+                                        '" . htmlspecialchars($user_data['contact_no'], ENT_QUOTES) . "',
+                                        '" . htmlspecialchars($user_data['address'], ENT_QUOTES) . "',
+                                        '" . htmlspecialchars($user_data['role'], ENT_QUOTES) . "',
+                                        '" . htmlspecialchars($user_data['status'], ENT_QUOTES) . "'
+                                        )\">
+                                        {$row['user_id']}
+                                        </span>
+                                    </td>
+                                    
+                                    <td class='review-cell'
+                                        data-full='" . htmlspecialchars($full_description, ENT_QUOTES) . "'>
+                                        {$short_description}
+                                    </td>
+
+                                    <td>{$row['rating']}</td>
+                                    <td>{$row['rating_date']}</td>
+                                </tr>";
+
+                        $i++;
+                    }
+                    ?>
 
                 </tbody>
             </table>
@@ -879,61 +923,49 @@
         </div>
     </div>
 
-    <div class="l-modal-backdrop" id="libraryModal">
-        <div class="l-modal-card">
+    <div class="modal-backdrop" id="bookModal">
+        <div class="modal-card">
 
-            <div class="l-modal-header-p">
-                <div class="l-header-left">
-                    <h3>Library Details</h3>
-
-                    <div class="l-pill-group">
-                        <span class="l-pill pill-active">Active</span>
-                        <!-- <span class="pill pill-inactive">Inactive</span> -->
-                    </div>
-                </div>
-                <span class="close-icon" onclick="closeLibraryModal()">×</span>
+            <div class="modal-header-p">
+                <h3>Book Details</h3>
+                <span class="close-icon" onclick="closeBookModal()">×</span>
             </div>
 
-            <div class="l-modal-body-p">
+            <div class="modal-body-p">
+                <div class="book-image">
+                    <img id="modalBookImage" src="" alt="Book Image">
+                </div>
 
-                <div class="l-book-details">
-                    <div class="l-detail">
-                        <span>Library ID</span>
-                        <p>24842354</p>
+                <div class="book-details">
+                    <div class="detail">
+                        <span>Book ID</span>
+                        <p id="modalBookId"></p>
                     </div>
-                    <div class="l-detail">
+                    <div class="detail">
+                        <span>Title</span>
+                        <p id="modalBookTitle"></p>
+                    </div>
+                    <div class="detail">
+                        <span>Author</span>
+                        <p id="modalBookAuthor"></p>
+                    </div>
+                    <div class="detail">
+                        <span>Category</span>
+                        <p id="modalBookCategory"></p>
+                    </div>
+                    <div class="detail">
+                        <span>Publish Year</span>
+                        <p id="modalBookYear"></p>
+                    </div>
+                    <div class="detail">
                         <span>Library Name</span>
-                        <p>Central City Library</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Library Owner Name</span>
-                        <p>James Gosling</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Table capacity</span>
-                        <p>120</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Chair Capacity</span>
-                        <p>240</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Open At</span>
-                        <p>08:00 AM</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Close At</span>
-                        <p>09:00 PM</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Library Location</span>
-                        <p>Downtown, Rajkot</p>
+                        <p id="modalBookLibrary"></p>
                     </div>
                 </div>
             </div>
 
-            <div class="l-modal-footer">
-                <button class="l-btn-secondary" onclick="closeLibraryModal()">Close</button>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeBookModal()">Close</button>
             </div>
 
         </div>
@@ -947,10 +979,8 @@
                     <h3>User Details</h3>
 
                     <div class="pill-group">
-                        <span class="pill pill-role-librarian">Librarian</span>
-                        <!-- <span class="pill pill-role-user">User</span> -->
-                        <!-- <span class="pill pill-role-admin">Admin</span> -->
-                        <span class="pill pill-active">Active</span>
+                        <span id="modalUserRole" class="pill"></span>
+                        <span id="modalUserStatus" class="pill"></span>
                         <!-- <span class="pill pill-inactive">Inactive</span> -->
                     </div>
                 </div>
@@ -960,33 +990,33 @@
 
             <div class="modal-body-p">
                 <div class="book-image">
-                    <img src="../image/default_profile.png" alt="Book Image">
+                    <img id="modalUserImage" src="" alt="User Image">
                 </div>
 
                 <div class="book-details">
                     <div class="detail">
                         <span>User ID</span>
-                        <p>24842354</p>
+                        <p id="modalUserId"></p>
                     </div>
                     <div class="detail">
                         <span>First Name</span>
-                        <p>John</p>
+                        <p id="modalUserFirstName"></p>
                     </div>
                     <div class="detail">
                         <span>Last Name</span>
-                        <p>Doe</p>
+                        <p id="modalUserLastName"></p>
                     </div>
                     <div class="detail">
                         <span>Email ID</span>
-                        <p>john.doe@example.com </p>
+                        <p id="modalUserEmail"></p>
                     </div>
                     <div class="detail">
                         <span>Contact Number</span>
-                        <p>9876543210</p>
+                        <p id="modalUserContact"></p>
                     </div>
                     <div class="detail">
                         <span>Address</span>
-                        <p>123 Main St, Cityville</p>
+                        <p id="modalUserAddress"></p>
                     </div>
                 </div>
             </div>
@@ -1015,6 +1045,7 @@
             </div>
         </div>
     </div>
+
     <?php include 'footer.php'; ?>
 
     <!-- Scripts -->
@@ -1033,6 +1064,15 @@
         var table = $('#bookTable').DataTable({
             responsive: true,
             dom: 'Brtip',
+            columnDefs: [{
+                targets: 0, // Sr No column
+                orderable: false,
+                searchable: false
+            }],
+
+            order: [
+                [1, 'asc']
+            ],
             buttons: [{
                     extend: 'excelHtml5',
                     exportOptions: {
@@ -1057,6 +1097,18 @@
             scrollX: true,
             scrollCollapse: true
         });
+
+        // ✅ AUTO UPDATE SERIAL NUMBER
+        table.on('order.dt search.dt draw.dt', function() {
+            table.column(0, {
+                    search: 'applied',
+                    order: 'applied'
+                })
+                .nodes()
+                .each(function(cell, i) {
+                    cell.innerHTML = i + 1;
+                });
+        }).draw();
 
         // Rating filter
         $('#filterRating').on('change', function() {
@@ -1088,15 +1140,56 @@
             // Here you can remove the row or call backend later
         }
 
-        function openLibraryModal() {
-            document.getElementById("libraryModal").style.display = "flex";
+        function openBookModal(bookId, image, title, author, category, year, library) {
+            document.getElementById("modalBookId").innerText = bookId;
+            document.getElementById("modalBookImage").src = image;
+            document.getElementById("modalBookTitle").innerText = title;
+            document.getElementById("modalBookAuthor").innerText = author;
+            document.getElementById("modalBookCategory").innerText = category;
+            document.getElementById("modalBookYear").innerText = year;
+            document.getElementById("modalBookLibrary").innerText = library;
+
+            document.getElementById("bookModal").style.display = "flex";
         }
 
-        function closeLibraryModal() {
-            document.getElementById("libraryModal").style.display = "none";
+        function closeBookModal() {
+            document.getElementById("bookModal").style.display = "none";
         }
 
-        function openUserModal() {
+        function openUserModal(id, image, first, last, email, contact, address, role, status) {
+
+            document.getElementById("modalUserId").innerText = id;
+            document.getElementById("modalUserFirstName").innerText = first;
+            document.getElementById("modalUserLastName").innerText = last;
+            document.getElementById("modalUserEmail").innerText = email;
+            document.getElementById("modalUserContact").innerText = contact;
+            document.getElementById("modalUserAddress").innerText = address;
+            document.getElementById("modalUserImage").src = image;
+
+            /* ROLE */
+            let roleElement = document.getElementById("modalUserRole");
+            roleElement.innerText = role;
+            roleElement.className = "pill";
+
+            if (role === "Librarian") {
+                roleElement.classList.add("pill-role-librarian");
+            } else if (role === "User") {
+                roleElement.classList.add("pill-role-user");
+            } else if (role === "Admin") {
+                roleElement.classList.add("pill-role-admin");
+            }
+
+            /* STATUS */
+            let statusElement = document.getElementById("modalUserStatus");
+            statusElement.innerText = status;
+            statusElement.className = "pill";
+
+            if (status === "Active") {
+                statusElement.classList.add("pill-active");
+            } else if (status === "Inactive") {
+                statusElement.classList.add("pill-inactive");
+            }
+
             document.getElementById("userModal").style.display = "flex";
         }
 

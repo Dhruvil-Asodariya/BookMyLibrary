@@ -1,6 +1,17 @@
+<?php
+require "../session_check.php";
+
+if ($_SESSION['role'] != "Admin") {
+    header("Location: ../login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
-<?php include '../db_config.php'; ?>
+<?php 
+include '../db_config.php'; 
+include '../update_status.php';
+?>
 
 <head>
     <meta charset="UTF-8">
@@ -459,6 +470,12 @@
 
 <body>
 
+    <?php
+    $user_id = $_SESSION['id'];
+    $user = mysqli_query($con, "SELECT * FROM user WHERE user_id = $user_id");
+    $data = mysqli_fetch_assoc($user);
+    ?>
+
     <!-- NAVBAR -->
     <nav class="navbar">
         <div class="nav-left">
@@ -499,16 +516,16 @@
 
         <div class="nav-right">
             <div class="profile">
-                <img src="../image/default_profile.png" alt="Profile">
+                <img src="../image/<?php echo $data['image']; ?>" alt="Profile">
                 <!-- Profile Dropdown -->
                 <div class="dropdown">
-                    <a href="javascript:void(0);" class="dropbtn">Asodariya Dhruvil</a>
+                    <a href="javascript:void(0);" class="dropbtn"><?php echo $data['first_name'] . " " . $data['last_name']; ?></a>
                     <div class="dropdown-content">
                         <a href="profile.php">My Profile</a>
                         <a href="../change_password.php">Change Password</a>
                         <!-- <a href="#">Screen Lock</a> -->
                         <hr>
-                        <a href="logout.php">Logout</a>
+                        <a href="../logout.php">Logout</a>
 
                     </div>
                 </div>
@@ -549,14 +566,26 @@
 
         <!-- CARDS -->
         <?php
-        $books = mysqli_query($con, "SELECT * FROM book_list WHERE status='Available'");
+        $books = mysqli_query($con, "SELECT * FROM book_list");
         $book_count = mysqli_num_rows($books);
+
+        $users = mysqli_query($con, "SELECT * FROM user");
+        $user_count = mysqli_num_rows($users);
 
         $library = mysqli_query($con, "SELECT * FROM library");
         $library_count = mysqli_num_rows($library);
 
-        $category = mysqli_query($con, "SELECT * FROM category WHERE status='Active'");
+        $category = mysqli_query($con, "SELECT * FROM category");
         $category_count = mysqli_num_rows($category);
+
+        $issue = mysqli_query($con, "SELECT * FROM issue WHERE status = 'Issued' OR status = 'Overdue' OR status = 'Yet to Return' OR status = 'Return at library'");
+        $issue_count = mysqli_num_rows($issue);
+
+        $total_fine = mysqli_query($con, "SELECT SUM(amount) AS total FROM payment_history where payment_status = 'Paid'");
+        $fine_data = mysqli_fetch_assoc($total_fine);
+
+        $total_pending_fine = mysqli_query($con, "SELECT SUM(amount) AS total FROM payment_history where payment_status = 'Unpaid'");
+        $pending_fine_data = mysqli_fetch_assoc($total_pending_fine);
         ?>
         <div class="dashboard">
             <div class="card books" onclick="card_book()">
@@ -570,7 +599,7 @@
             <div class="card users" onclick="card_users()">
                 <div class="card-content">
                     <h2>Total Registered Users</h2>
-                    <div class="value" id="totalUsers">480</div>
+                    <div class="value" id="totalUsers"><?php echo $user_count; ?></div>
                     <div class="sub">Active members</div>
                 </div>
             </div>
@@ -594,7 +623,7 @@
             <div class="card issued" onclick="card_issued()">
                 <div class="card-content">
                     <h2>Total Issued Books</h2>
-                    <div class="value" id="totalIssued">2</div>
+                    <div class="value" id="totalIssued"><?php echo $issue_count; ?></div>
                     <div class="sub">Currently borrowed</div>
                 </div>
             </div>
@@ -602,7 +631,7 @@
             <div class="card pending" onclick="card_pending()">
                 <div class="card-content">
                     <h2>Total Fine Pending (₹)</h2>
-                    <div class="value" id="finePending">1250</div>
+                    <div class="value" id="finePending"><?php echo $pending_fine_data['total']; ?></div>
                     <div class="sub">Yet to be collected</div>
                 </div>
             </div>
@@ -610,7 +639,7 @@
             <div class="card totalfine" onclick="card_totalfine()">
                 <div class="card-content">
                     <h2>Total Fine Collected (₹)</h2>
-                    <div class="value" id="fineCollected">8600</div>
+                    <div class="value" id="fineCollected"><?php echo $fine_data['total']; ?></div>
                     <div class="sub">Overall revenue</div>
                 </div>
             </div>
@@ -663,10 +692,10 @@
         });
 
         // 🔒 FIXED VALUES
-        const books = parseInt(document.getElementById("totalBooks").textContent);
-        const collected = parseInt(document.getElementById("fineCollected").textContent);
-        const issued = parseInt(document.getElementById("totalIssued").textContent);
-        const pending = parseInt(document.getElementById("finePending").textContent);
+        const books = parseInt(document.getElementById("totalBooks").textContent) || 0;
+        const collected = parseInt(document.getElementById("fineCollected").textContent) || 0;
+        const issued = parseInt(document.getElementById("totalIssued").textContent) || 0;
+        const pending = parseInt(document.getElementById("finePending").textContent) || 0;
 
         // Charts
         const booksCtx = document.getElementById('booksChart').getContext('2d');

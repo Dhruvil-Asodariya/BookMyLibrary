@@ -1,3 +1,11 @@
+<?php
+require "../session_check.php";
+
+if ($_SESSION['role'] != "Admin") {
+    header("Location: ../login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -800,7 +808,7 @@
                         <label>Payment Method</label>
                         <select id="filterPaymentMethod">
                             <option value="">All Methods</option>
-                            <option value="Case">Cash</option>
+                            <option value="Cash">Cash</option>
                             <option value="UPI">UPI</option>
                         </select>
                     </div>
@@ -832,37 +840,35 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>24842354</td>
-                        <td><span class="model-link" onclick="openBookModal()">24842354</span></td>
-                        <td><span class="model-link" onclick="openUserModal()">24842353</span></td>
-                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
-                        <td>200</td>
-                        <td><span class="status paid">Paid</span></td>
-                        <td>UPI</td>
-                        <td>15-03-2026</td>
-                        <!-- <td>
-                            <a href="edit_fine.php?fine_id=24842354"><button class="btn btn-edit">Edit</button></a>
-                            <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br>
-                        </td> -->
-                    </tr>
+                    <?php
+                    $user_id = $_SESSION['id'];
+                    $fine = mysqli_query($con, "SELECT * FROM payment_history WHERE payment_status = 'Paid' ORDER BY payment_date DESC");
+                    $i = 1;
+                    foreach ($fine as $row) {
 
-                    <tr>
-                        <td>1</td>
-                        <td>24842354</td>
-                        <td><span class="model-link" onclick="openBookModal()">24842354</span></td>
-                        <td><span class="model-link" onclick="openUserModal()">24842353</span></td>
-                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
-                        <td>200</td>
-                        <td><span class="status paid">Paid</span></td>
-                        <td>UPI</td>
-                        <td>19-03-2026</td>
-                        <!-- <td>
-                            <a href="edit_fine.php?fine_id=24842354"><button class="btn btn-edit">Edit</button></a>
-                            <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br>
-                        </td> -->
-                    </tr>
+                        $book_id = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM issue WHERE issue_id = '{$row['issue_id']}'"));
+                        $user_id = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM issue WHERE issue_id = '{$row['issue_id']}'"));
+                        $library_id = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM issue WHERE issue_id = '{$row['issue_id']}'"));
+
+                        echo "<tr>
+                                <td>{$i}</td>
+                                <td>{$row['payment_id']}</td>
+                                <td><span class='model-link' onclick='openBookModal()'>{$book_id['book_id']}</span></td>
+                                <td><span class='model-link' onclick='openUserModal()'>{$user_id['user_id']}</span></td>
+                                <td><span class='model-link' onclick='openLibraryModal()'>{$library_id['library_id']}</span></td>
+                                <td>{$row['amount']}</td>
+                                <td><span class='status paid'>Paid</span></td>
+                                <td>{$row['payment_method']}</td>
+                                <td>{$row['payment_date']}</td>
+                                <!-- <td>
+                                    <a href='edit_fine.php?fine_id=24842354'><button class='btn btn-edit'>Edit</button></a>
+                                    <button class='btn btn-delete' onclick='openDeleteModal()'>Delete</button><br>
+                                </td> -->
+                            </tr>";
+
+                        $i++;
+                    }
+                    ?>
 
                 </tbody>
             </table>
@@ -1071,22 +1077,31 @@
         var table = $('#bookTable').DataTable({
             responsive: true,
             dom: 'Brtip',
+            columnDefs: [{
+                targets: 0,
+                orderable: false,
+                searchable: false
+            }],
+
+            order: [
+                [1, 'asc']
+            ],
             buttons: [{
                     extend: 'excelHtml5',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7] // column indexes you want
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8] // column indexes you want
                     }
                 },
                 {
                     extend: 'pdfHtml5',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8]
                     }
                 },
                 {
                     extend: 'print',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8]
                     }
                 }
             ],
@@ -1096,17 +1111,32 @@
             scrollCollapse: true
         });
 
+        // ✅ AUTO UPDATE SERIAL NUMBER
+        table.on('order.dt search.dt draw.dt', function() {
+            table.column(0, {
+                    search: 'applied',
+                    order: 'applied'
+                })
+                .nodes()
+                .each(function(cell, i) {
+                    cell.innerHTML = i + 1;
+                });
+        }).draw();
+
         // STATUS filter
         $('#filterPaymentMethod').on('change', function() {
-            var value = this.value.toLowerCase();
+            var value = this.value;
 
-            table.column(6).search(value ? '^' + value + '$' : '', true, false).draw();
+            if (value) {
+                table.column(7).search('^' + value + '$', true, false).draw();
+            } else {
+                table.column(7).search('').draw();
+            }
         });
 
         // Issue filter
         $('#filterPaymentDate').on('change', function() {
-            let val = formatDateForTable(this.value);
-            table.column(7).search(val).draw();
+            table.column(8).search(this.value).draw();
         });
 
         // LOCATION filter

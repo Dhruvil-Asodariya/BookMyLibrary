@@ -1,3 +1,11 @@
+<?php
+require "../session_check.php";
+
+if ($_SESSION['role'] != "Admin") {
+    header("Location: ../login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -535,9 +543,11 @@
                         if ($row['status'] == "Active") {
                             $statusClass = "active";
                             $statusText  = "Active";
+                            $buttonText = "Inactive";
                         } else {
                             $statusClass = "inactive";
                             $statusText  = "Inactive";
+                            $buttonText = "Active";
                         }
 
                         $roleClass = strtolower($row['role']);
@@ -553,24 +563,42 @@
                         <td>{$row['gender']}</td>
                         <td>{$row['address']}</td>
                         <!-- ROLE COLUMN -->
-                        <td><span class='roleSpan {$roleClass}'>{$row['role']}</span></td>
+                        <td>
+                            <span id='role_{$row['user_id']}' 
+                                class='roleSpan {$roleClass}'>
+                                {$row['role']}
+                            </span>
+                        </td>
 
-                        <td><span class='status {$statusClass}'>{$statusText}</span></td>
+                        <td><span id='status_{$row['user_id']}' 
+                                class='status {$statusClass}'>
+                                {$statusText}
+                            </span>
+                        </td>
 
                         <!-- ACTIONS -->
 
                         <td>
                             <a href='edit_user.php?user_id={$row['user_id']}'><button class='btn btn-edit'>Edit</button></a>
-                            <button class='btn btn-delete' onclick='openDeleteModal()'>Delete</button><br>
-                            <button class='btn btn-toggle'>Active</button>
-
+                            <button class='btn btn-delete' onclick='openDeleteModal({$row['user_id']})'>Delete</button><br>
+                            <button 
+                                class='btn btn-toggle'
+                                onclick='toggleStatus({$row['user_id']}, " . json_encode($statusText) . ", this)'>
+                                {$buttonText}
+                            </button>
                             <!-- ROLE SELECT -->
-                            <select class='btn btn-role'>
-                                <option value='' selected disabled>Change Role</option>
-                                <option value='Librarian'>Librarian</option>
-                                <option value='User'>User</option>
-                                <option value='Admin'>Admin</option>
-                            </select>
+                            
+                                <select class='btn btn-role'
+                                        onchange='changeRole({$row['user_id']}, this.value)'>
+
+                                    <option disabled selected>Change Role</option>
+
+                                    <option value='Admin'>Admin</option>
+                                    <option value='User'>User</option>
+                                    <option value='Librarian'>Librarian</option>
+
+                                </select>
+                                
 
                         </td>
                     </tr>";
@@ -582,22 +610,103 @@
         </div>
     </div>
     <div class="modal-overlay" id="deleteModal">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3>Delete User Record</h3>
-            </div>
+        <form method="post">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <h3>Delete User Record</h3>
+                </div>
 
-            <div class="modal-body">
-                <p>⚠️ Are you sure you want to delete this user record?</p>
-                <span>This action cannot be undone.</span>
-            </div>
+                <div class="detail" style="display:none;">
+                    <input type="hidden" name="userId" id="userId">
+                </div>
 
-            <div class="modal-actions">
-                <button class="btn cancel-btn" onclick="closeDeleteModal()">Cancel</button>
-                <button class="btn delete-btn" onclick="confirmDelete()">Yes, Delete</button>
+                <div class="modal-body">
+                    <p>⚠️ Are you sure you want to delete this user record?</p>
+                    <span>This action cannot be undone.</span>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn cancel-btn" onclick="closeDeleteModal()">Cancel</button>
+                    <button type="submit" class="btn delete-btn" name="delete_btn">Yes, Delete</button>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
+
+    <?php
+    if (isset($_POST['delete_btn'])) {
+        $user_id = intval($_POST['userId']);
+
+        $select_query = "SELECT image FROM user WHERE user_id = $user_id";
+        $select_result = mysqli_query($con, $select_query);
+
+        if ($select_result && mysqli_num_rows($select_result) > 0) {
+            $user_data = mysqli_fetch_assoc($select_result);
+            $image_name = $user_data['image'];
+
+            $image_deleted = true;
+
+            if (!empty($image_name) && $image_name != 'no-image.png' && $image_name != 'default_profile.png') {
+                $image_path = "../image/" . $image_name;
+
+                if (file_exists($image_path)) {
+                    $image_deleted = unlink($image_path);
+                }
+            }
+
+            if ($image_deleted) {
+                $delete_query = "DELETE FROM user WHERE user_id = $user_id";
+
+                if (mysqli_query($con, $delete_query)) {
+                    echo "<script>
+                        document.addEventListener('DOMContentLoaded', function(){
+                            Swal.fire({
+                                toast: true,
+                                position: 'top',
+                                icon: 'success',
+                                title: 'User deleted successfully!',
+                                showConfirmButton: false,
+                                timer: 2000,
+                                timerProgressBar: true
+                            }).then(() => {
+                                window.location.href = 'user_list.php';
+                            });
+                        });
+                    </script>";
+                } else {
+                    echo "<script>
+                        document.addEventListener('DOMContentLoaded', function(){
+                            Swal.fire({
+                                toast: true,
+                                position: 'top',
+                                icon: 'error',
+                                title: 'Failed to delete user record.',
+                                showConfirmButton: false,
+                                timer: 2000,
+                                timerProgressBar: true
+                            });
+                        });
+                    </script>";
+                }
+            } else {
+                echo "<script>
+                    document.addEventListener('DOMContentLoaded', function(){
+                        Swal.fire({
+                            toast: true,
+                            position: 'top',
+                            icon: 'error',
+                            title: 'Image could not be deleted.',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
+                    });
+                </script>";
+            }
+        }
+    }
+    ?>
+
     <?php include 'footer.php'; ?>
 
     <!-- Scripts -->
@@ -616,6 +725,25 @@
         var table = $('#bookTable').DataTable({
             responsive: true,
             dom: 'Brtip',
+            columnDefs: [{
+                    targets: 0,
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    targets: [9, 10], // Role and Status column
+                    render: function(data, type, row) {
+                        if (type === 'filter') {
+                            return $(data).text().trim();
+                        }
+                        return data;
+                    }
+                }
+            ],
+
+            order: [
+                [1, 'asc']
+            ],
             buttons: [{
                     extend: 'excelHtml5',
                     exportOptions: {
@@ -641,24 +769,48 @@
             scrollCollapse: true
         });
 
+        // ✅ AUTO UPDATE SERIAL NUMBER
+        table.on('order.dt search.dt draw.dt', function() {
+            table.column(0, {
+                    search: 'applied',
+                    order: 'applied'
+                })
+                .nodes()
+                .each(function(cell, i) {
+                    cell.innerHTML = i + 1;
+                });
+        }).draw();
+
         // STATUS filter
         $('#filterStatus').on('change', function() {
-            var value = this.value.toLowerCase();
+            var value = this.value;
 
-            table.column(10).search(value ? '^' + value + '$' : '', true, false).draw();
+            if (value) {
+                table.column(10).search('^' + value + '$', true, false).draw();
+            } else {
+                table.column(10).search('').draw();
+            }
         });
         // Role filter
         $('#filterRole').on('change', function() {
-            var value = this.value.toLowerCase();
+            var value = this.value;
 
-            table.column(9).search(value ? '^' + value + '$' : '', true, false).draw();
+            if (value) {
+                table.column(9).search('^' + value + '$', true, false).draw();
+            } else {
+                table.column(9).search('').draw();
+            }
         });
 
         // Gender filter
         $('#filterGender').on('change', function() {
-            var value = this.value.toLowerCase();
+            var value = this.value;
 
-            table.column(7).search(value ? '^' + value + '$' : '', true, false).draw();
+            if (value) {
+                table.column(7).search('^' + value + '$', true, false).draw();
+            } else {
+                table.column(7).search('').draw();
+            }
         });
 
         // LOCATION filter
@@ -682,7 +834,6 @@
             $('#filterRole').val('');
             $('#filterFirstName').val('');
             $('#filterLastName').val('');
-            $('#filterEmail').val('');
             $('#filterContactNumber').val('');
 
             table.columns().search('').draw();
@@ -690,78 +841,127 @@
 
         const deleteModal = document.getElementById("deleteModal");
 
-        function openDeleteModal() {
+        function openDeleteModal(id) {
+            document.getElementById("userId").value = id;
             deleteModal.style.display = "flex";
         }
 
         function closeDeleteModal() {
             deleteModal.style.display = "none";
         }
+    </script>
 
-        function confirmDelete() {
-            closeDeleteModal();
-            alert("User record deleted successfully!");
-            // Here you can remove the row or call backend later
+    <script>
+        function toggleStatus(user_id, current_status, btn) {
+
+            fetch("user_status_update.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: "user_id=" + user_id + "&current_status=" + current_status
+                })
+                .then(response => response.json())
+                .then(data => {
+
+                    if (data.status === "success") {
+
+                        Swal.fire({
+                            toast: true,
+                            position: 'top',
+                            icon: 'success',
+                            title: 'Status Updated Successfully!',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
+
+                        // 🔥 Update Button Text Instantly
+                        btn.innerText = data.buttonText;
+
+                        // Update onclick with new status
+                        btn.setAttribute("onclick",
+                            "toggleStatus(" + user_id + ", '" + data.newStatus + "', this)");
+
+                        // ✅ Update Status Column Text
+                        let statusSpan = document.getElementById("status_" + user_id);
+                        statusSpan.innerText = data.newStatus;
+
+                        // ✅ Update Status Badge Class
+                        statusSpan.classList.remove("active", "inactive");
+
+                        if (data.newStatus === "Active") {
+                            statusSpan.classList.add("active");
+                        } else {
+                            statusSpan.classList.add("inactive");
+                        }
+
+                    } else {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top',
+                            icon: 'error',
+                            title: 'Failed to update status!',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
+                    }
+
+                });
         }
+    </script>
 
-        document.addEventListener("click", function(e) {
-            if (e.target.classList.contains("btn-toggle")) {
+    <script>
+        function changeRole(user_id, role, btn) {
 
-                const row = e.target.closest("tr");
-                const status = row.querySelector(".status");
+            fetch("user_role_update.php", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: "user_id=" + user_id + "&role=" + role
+                })
+                .then(response => response.json())
+                .then(data => {
 
-                if (status.classList.contains("active")) {
-                    // Change to Inactive
-                    status.textContent = "Inactive";
-                    status.classList.remove("active");
-                    status.classList.add("inactive");
+                    if (data.status === "success") {
 
-                    e.target.textContent = "Active";
-                } else {
-                    // Change to Active
-                    status.textContent = "Active";
-                    status.classList.remove("inactive");
-                    status.classList.add("active");
+                        Swal.fire({
+                            toast: true,
+                            position: 'top',
+                            icon: 'success',
+                            title: 'Role Updated Successfully!',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
 
-                    e.target.textContent = "Inactive";
-                }
-            }
-        });
+                        // Update role text
+                        let roleSpan = document.getElementById("role_" + user_id);
+                        roleSpan.innerText = data.newRole;
 
-        document.addEventListener("change", function(e) {
+                        // Update role badge class
+                        roleSpan.classList.remove("admin", "user", "librarian");
+                        roleSpan.classList.add(data.newRole.toLowerCase());
 
-            if (e.target.classList.contains("btn-role")) {
+                    } else {
 
-                const selectedRole = e.target.value;
+                        Swal.fire({
+                            toast: true,
+                            position: 'top',
+                            icon: 'error',
+                            title: 'Failed to update role!',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
 
-                // Do nothing if placeholder selected
-                if (selectedRole === "") return;
+                    }
 
-                const row = e.target.closest("tr");
-                const roleSpan = row.querySelector(".roleSpan");
+                });
 
-                if (!roleSpan) return;
-
-                // Remove old role classes
-                roleSpan.classList.remove("user", "librarian", "admin");
-
-                // Apply new role
-                if (selectedRole === "User") {
-                    roleSpan.classList.add("user");
-                    roleSpan.textContent = "User";
-                } else if (selectedRole === "Librarian") {
-                    roleSpan.classList.add("librarian");
-                    roleSpan.textContent = "Librarian";
-                } else if (selectedRole === "Admin") {
-                    roleSpan.classList.add("admin");
-                    roleSpan.textContent = "Admin";
-                }
-
-                // Reset dropdown back to placeholder
-                e.target.value = "";
-            }
-
-        });
+        }
     </script>
 
 </body>

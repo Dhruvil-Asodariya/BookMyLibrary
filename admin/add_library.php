@@ -1,3 +1,11 @@
+<?php
+require "../session_check.php";
+
+if ($_SESSION['role'] != "Admin") {
+    header("Location: ../login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -356,9 +364,24 @@
                         (library_id, library_name, library_owner_name, table_capacity, chair_capacity, open_at, close_at, library_location, status)
                         VALUES($library_id, '$library_name', '$library_owner_name', $table_capacity, $chair_capacity, '$open_at', '$close_at', '$library_location', '$status')";
 
+        // Check if library already exists
+        $check_library = mysqli_query($con, "SELECT library_name FROM library WHERE library_name='$library_name'");
 
-        if (mysqli_query($con, $insert_query)) {
+        if (mysqli_num_rows($check_library) > 0) {
+
             echo "<script>
+                    Swal.fire({
+                        toast:true,
+                        position:'top',
+                        icon:'error',
+                        title:'Library already exists!',
+                        showConfirmButton:false,
+                        timer:2000
+                    });
+                </script>";
+        } else {
+            if (mysqli_query($con, $insert_query)) {
+                echo "<script>
                     document.addEventListener('DOMContentLoaded', function(){
                     Swal.fire({
                         toast: true,
@@ -373,8 +396,8 @@
                     });
                 });
             </script>";
-        } else {
-            echo "<script>
+            } else {
+                echo "<script>
                     document.addEventListener('DOMContentLoaded', function(){
                     Swal.fire({
                         toast: true,
@@ -387,6 +410,7 @@
                     });
                 });
             </script>";
+            }
         }
     }
     ?>

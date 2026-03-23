@@ -1,3 +1,11 @@
+<?php
+require "../session_check.php";
+
+if ($_SESSION['role'] != "Admin") {
+    header("Location: ../login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -388,15 +396,21 @@
 
     <?php include 'navbar.php'; ?>
 
+    <?php
+    $user_id = $_SESSION['id'];
+    $user = mysqli_query($con, "SELECT * FROM user WHERE user_id = $user_id");
+    $data = mysqli_fetch_assoc($user);
+    ?>
+
     <div class="container">
 
         <div class="profile-left">
             <div class="profile-img">
-                <img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" id="profileImage">
+                <img src="../image/<?php echo $data['image'] ? $data['image'] : 'default_profile.png'; ?>" id="profileImage">
             </div>
 
-            <h2>James Gosling</h2>
-            <p>Admin</p>
+            <h2><?php echo $data['first_name'] . " " . $data['last_name']; ?></h2>
+            <p><?php echo $data['role'] ?></p>
 
             <button class="change-btn" onclick="openPopup()">Change Profile</button>
             <button class="remove-btn" id="removeProfileButton" onclick="removeProfile()">Remove Profile</button>
@@ -411,16 +425,22 @@
                 <h3>Upload Profile Photo</h3>
 
                 <!-- Drag & Drop Area -->
-                <div class="drop-area" id="dropArea">
-                    <p>Drag & Drop Image Here</p>
-                    <span>OR</span>
-                    <input type="file" id="fileInput" accept="image/*">
-                    <label for="fileInput" class="browse-btn">Browse File</label>
-                </div>
+                <form id="profileForm" enctype="multipart/form-data">
 
-                <div class="preview-area">
-                    <img id="previewImage">
-                </div>
+                    <div class="drop-area" id="dropArea">
+                        <p>Drag & Drop Image Here</p>
+                        <span>OR</span>
+
+                        <input type="file" id="fileInput" name="image" accept="image/*">
+
+                        <label for="fileInput" class="browse-btn">Browse File</label>
+                    </div>
+
+                    <div class="preview-area">
+                        <img id="previewImage" style="display:none;">
+                    </div>
+
+                </form>
 
                 <button class="save-btn" onclick="saveProfile()">Save Photo</button>
             </div>
@@ -439,28 +459,33 @@
                 <div class="form-grid">
 
                     <div class="form-group">
-                        <label>Name</label>
-                        <p class="p" id="viewName">James Gosling</p>
+                        <label>First Name</label>
+                        <p class="p" id="viewFirstName"><?php echo $data['first_name']; ?></p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <p class="p" id="viewLastName"><?php echo $data['last_name']; ?></p>
                     </div>
 
                     <div class="form-group">
                         <label>Email</label>
-                        <p class="p" id="viewEmail">admin@gmail.com</p>
+                        <p class="p" id="viewEmail"><?php echo $data['email']; ?></p>
                     </div>
 
                     <div class="form-group">
                         <label>Phone</label>
-                        <p class="p" id="viewPhone">9876543210</p>
+                        <p class="p" id="viewPhone"><?php echo $data['contact_no']; ?></p>
                     </div>
 
                     <div class="form-group">
                         <label>Gender</label>
-                        <p class="p" id="viewGender">Male</p>
+                        <p class="p" id="viewGender"><?php echo $data['gender']; ?></p>
                     </div>
 
                     <div class="form-group">
                         <label>Address</label>
-                        <p class="p" id="viewAddress">123 Main Street, City, Country</p>
+                        <p class="p" id="viewAddress"><?php echo $data['address']; ?></p>
                     </div>
 
                 </div>
@@ -476,49 +501,57 @@
                     <p>Update your profile information</p>
                 </div>
 
-                <div class="form-grid">
+                <form method="POST" onsubmit="return validateForm();">
+                    <div class="form-grid">
 
-                    <div class="form-group">
-                        <label>Name</label>
-                        <input type="text" id="editName" placeholder="Enter full name">
-                        <span id="nameError" class="error"></span>
+                        <div class="form-group">
+                            <label>First Name</label>
+                            <input type="text" id="editFirstName" placeholder="Enter first name" name="first_name">
+                            <span id="firstNameError" class="error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Last Name</label>
+                            <input type="text" id="editLastName" placeholder="Enter last name" name="last_name">
+                            <span id="lastNameError" class="error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="editEmail" placeholder="Enter email" disabled>
+                            <span id="emailError" class="error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Phone</label>
+                            <input type="text" id="editPhone" placeholder="Enter phone number" name="contact_no">
+                            <span id="phoneError" class="error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Gender</label>
+                            <select id="editGender" name="gender">
+                                <option value="">Select gender</option>
+                                <option>Male</option>
+                                <option>Female</option>
+                                <option>Other</option>
+                            </select>
+                            <span id="genderError" class="error"></span>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>Address</label>
+                            <textarea id="editAddress" rows="3" placeholder="Enter address" name="address"></textarea>
+                            <span id="addressError" class="error"></span>
+                        </div>
+
                     </div>
 
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" id="editEmail" placeholder="Enter email" disabled>
-                        <span id="emailError" class="error"></span>
+                    <div class="edit-actions">
+                        <button class="cancel-btn" onclick="cancelEdit()">Cancel</button>
+                        <button type="submit" class="save-btn" onclick="saveEdit()" name="save_btn">Save Changes</button>
                     </div>
-
-                    <div class="form-group">
-                        <label>Phone</label>
-                        <input type="text" id="editPhone" placeholder="Enter phone number">
-                        <span id="phoneError" class="error"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Gender</label>
-                        <select id="editGender">
-                            <option value="">Select gender</option>
-                            <option selected>Male</option>
-                            <option>Female</option>
-                            <option>Other</option>
-                        </select>
-                        <span id="genderError" class="error"></span>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label>Address</label>
-                        <textarea id="editAddress" rows="3" placeholder="Enter address">123 Main Street, City, Country</textarea>
-                        <span id="addressError" class="error"></span>
-                    </div>
-
-                </div>
-
-                <div class="edit-actions">
-                    <button class="cancel-btn" onclick="cancelEdit()">Cancel</button>
-                    <button class="save-btn" onclick="saveEdit()">Save Changes</button>
-                </div>
+                </form>
 
             </div>
 
@@ -526,87 +559,305 @@
 
         </div>
     </div>
+
+    <?php
+    if (isset($_POST['save_btn'])) {
+
+        $first_name = $_POST['first_name'];
+        $last_name = $_POST['last_name'];
+        $contact_no = $_POST['contact_no'];
+        $gender = $_POST['gender'];
+        $address = $_POST['address'];
+
+        $update_query = "UPDATE user SET 
+                            first_name='$first_name',
+                            last_name='$last_name',
+                            contact_no='$contact_no',
+                            gender='$gender',
+                            address='$address'
+                        WHERE user_id=$user_id";
+
+        if (mysqli_query($con, $update_query)) {
+            echo "<script>
+                    Swal.fire({
+                        toast:true,
+                        position:'top',
+                        icon:'success',
+                        title:'Profile Updated Successfully',
+                        showConfirmButton:false,
+                        timer:2000,
+                        timerProgressBar:true
+                    }).then(()=>{
+                        window.location.href='profile.php';
+                    });
+                </script>";
+        } else {
+            echo "<script>
+                    Swal.fire({
+                        toast:true,
+                        position:'top',
+                        icon:'error',
+                        title:'Failed to update profile',
+                        showConfirmButton:false,
+                        timer:2000,
+                        timerProgressBar:true
+                    });
+                </script>";
+        }
+    }
+    ?>
     <?php include 'footer.php'; ?>
 
     <script>
         const defaultImage = "../image/default_profile.png";
 
-        /* Check image on page load */
+        const fileInput = document.getElementById("fileInput");
+        const previewImage = document.getElementById("previewImage");
+        const profileImage = document.getElementById("profileImage");
+        const removeBtn = document.getElementById("removeProfileButton");
+        const dropArea = document.getElementById("dropArea");
+
+        let selectedFile = null;
+
+
+        /* Page Load */
         window.onload = function() {
             toggleRemoveButton();
         };
 
+
+        /* Show/Hide Remove Button */
         function toggleRemoveButton() {
-            let currentImg = document.getElementById("profileImage").getAttribute("src");
 
-            if (currentImg === defaultImage) {
-                document.getElementById("removeProfileButton").style.display = "none";
+            let currentImg = profileImage.getAttribute("src");
+
+            if (currentImg.includes("default_profile.png")) {
+                removeBtn.style.display = "none";
             } else {
-                document.getElementById("removeProfileButton").style.display = "inline-block";
+                removeBtn.style.display = "inline-block";
             }
-        }
-        let selectedImage = "";
 
+        }
+
+
+        /* Open Popup */
         function openPopup() {
             document.getElementById("profileModal").style.display = "block";
         }
 
+
+        /* Close Popup */
         function closePopup() {
             document.getElementById("profileModal").style.display = "none";
         }
 
-        // file input preview
-        document.getElementById("fileInput").addEventListener("change", function() {
+
+
+        /* File Input Preview */
+        fileInput.addEventListener("change", function() {
             handleFile(this.files[0]);
         });
 
-        // drag & drop
-        const dropArea = document.getElementById("dropArea");
 
+
+        /* Drag Over */
         dropArea.addEventListener("dragover", (e) => {
             e.preventDefault();
             dropArea.classList.add("dragover");
         });
 
+
+        /* Drag Leave */
         dropArea.addEventListener("dragleave", () => {
             dropArea.classList.remove("dragover");
         });
 
+
+        /* Drop File */
         dropArea.addEventListener("drop", (e) => {
+
             e.preventDefault();
             dropArea.classList.remove("dragover");
+
             const file = e.dataTransfer.files[0];
             handleFile(file);
+
         });
 
+
+
+        /* Handle Image */
         function handleFile(file) {
+
             if (!file) return;
 
-            selectedImage = URL.createObjectURL(file);
-            const preview = document.getElementById("previewImage");
-            preview.src = selectedImage;
-            preview.style.display = "block";
+            selectedFile = file;
+
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+
+                previewImage.src = e.target.result;
+                previewImage.style.display = "block";
+
+            };
+
+            reader.readAsDataURL(file);
+
         }
 
-        // save profile image
+
+
+        /* Save Profile Image */
         function saveProfile() {
-            if (selectedImage === "") {
-                alert("Please select image");
+
+            if (!selectedFile) {
+
+                Swal.fire({
+                    toast: true,
+                    position: "top",
+                    icon: "warning",
+                    title: "Please select an image first",
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true
+                });
+
                 return;
             }
 
-            document.getElementById("profileImage").src = selectedImage;
+            if (!selectedFile.type.startsWith("image/")) {
+                Swal.fire({
+                    toast: true,
+                    position: "top",
+                    icon: "error",
+                    title: "Please upload an image file.",
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true
+                });
+                return;
+            }
 
-            toggleRemoveButton(); // show remove button
-            closePopup();
+            if (selectedFile.size > 2 * 1024 * 1024) {
+                Swal.fire({
+                    toast: true,
+                    position: "top",
+                    icon: "error",
+                    title: "Image must be less than 2MB.",
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true
+                });
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append("image", selectedFile);
+
+            fetch("upload_profile.php", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+
+                    if (data.status === "success") {
+
+                        profileImage.src = "../image/" + data.image + "?" + new Date().getTime();
+
+                        toggleRemoveButton();
+                        closePopup();
+
+                        // Toast Message
+                        Swal.fire({
+                            toast: true,
+                            position: "top",
+                            icon: "success",
+                            title: "Profile photo updated successfully",
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
+
+                    } else {
+
+                        Swal.fire({
+                            toast: true,
+                            position: "top",
+                            icon: "error",
+                            title: "Upload failed",
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
+
+                    }
+
+                });
+
         }
 
-        function removeProfile() {
-            if (confirm("Are you sure you want to remove your profile?")) {
-                document.getElementById("profileImage").src = defaultImage;
 
-                toggleRemoveButton(); // hide remove button
-            }
+
+        /* Remove Profile Image */
+        function removeProfile() {
+
+            Swal.fire({
+                title: "Remove Profile Photo?",
+                text: "Your profile image will be deleted.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Yes, remove it"
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+
+                    fetch("remove_profile.php", {
+                            method: "POST"
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+
+                            if (data.status === "success") {
+
+                                profileImage.src = defaultImage + "?" + new Date().getTime();
+
+                                toggleRemoveButton();
+
+                                // Toast message
+                                Swal.fire({
+                                    toast: true,
+                                    position: "top",
+                                    icon: "success",
+                                    title: "Profile photo removed",
+                                    showConfirmButton: false,
+                                    timer: 2000,
+                                    timerProgressBar: true
+                                });
+
+                            } else {
+
+                                Swal.fire({
+                                    toast: true,
+                                    position: "top",
+                                    icon: "error",
+                                    title: "Failed to remove image",
+                                    showConfirmButton: false,
+                                    timer: 2000,
+                                    timerProgressBar: true
+                                });
+
+                            }
+
+                        });
+
+                }
+
+            });
+
         }
     </script>
 
@@ -618,8 +869,11 @@
             document.getElementById("editProfile").style.display = "block";
 
             // Fill edit fields from view
-            document.getElementById("editName").value =
-                document.getElementById("viewName").innerText;
+            document.getElementById("editFirstName").value =
+                document.getElementById("viewFirstName").innerText;
+
+            document.getElementById("editLastName").value =
+                document.getElementById("viewLastName").innerText;
 
             document.getElementById("editEmail").value =
                 document.getElementById("viewEmail").innerText;
@@ -640,7 +894,8 @@
             document.getElementById("viewProfile").style.display = "block";
         }
 
-        document.getElementById("editName").addEventListener("input", validateName);
+        document.getElementById("editFirstName").addEventListener("input", validateFirstName);
+        document.getElementById("editLastName").addEventListener("input", validateLastName);
         document.getElementById("editEmail").addEventListener("input", validateEmail);
         document.getElementById("editPhone").addEventListener("input", validatePhone);
         document.getElementById("editGender").addEventListener("change", validateGender);
@@ -652,8 +907,11 @@
             if (!validateForm()) return;
 
             // Update view values
-            document.getElementById("viewName").innerText =
-                document.getElementById("editName").value;
+            document.getElementById("viewFirstName").innerText =
+                document.getElementById("editFirstName").value;
+
+            document.getElementById("viewLastName").innerText =
+                document.getElementById("editLastName").value;
 
             document.getElementById("viewEmail").innerText =
                 document.getElementById("editEmail").value;
@@ -672,22 +930,43 @@
 
         /* VALIDATION */
 
-        function validateName() {
-            let name = document.getElementById("editName");
+        function validateFirstName() {
+            let firstName = document.getElementById("editFirstName");
+
             let regex = /^[A-Za-z\s]+$/; // only letters + space
 
-            if (name.value.trim() === "") {
-                showError(name, "nameError", "Name is required");
+            if (firstName.value.trim() === "") {
+                showError(firstName, "firstNameError", "First name is required");
                 return false;
-            } else if (name.value.trim().length < 2) {
-                showError(name, "nameError", "Name must be at least 2 characters");
+            } else if (firstName.value.trim().length < 2) {
+                showError(firstName, "firstNameError", "First name must be at least 2 characters");
                 return false;
-            } else if (!regex.test(name.value.trim())) {
-                showError(name, "nameError", "Only letters allowed");
+            } else if (!regex.test(firstName.value.trim())) {
+                showError(firstName, "firstNameError", "Only letters allowed");
                 return false;
             }
 
-            showSuccess(name, "nameError");
+            showSuccess(firstName, "firstNameError");
+            return true;
+        }
+
+        function validateLastName() {
+            let lastName = document.getElementById("editLastName");
+
+            let regex = /^[A-Za-z\s]+$/; // only letters + space
+
+            if (lastName.value.trim() === "") {
+                showError(lastName, "lastNameError", "Last name is required");
+                return false;
+            } else if (lastName.value.trim().length < 2) {
+                showError(lastName, "lastNameError", "Last name must be at least 2 characters");
+                return false;
+            } else if (!regex.test(lastName.value.trim())) {
+                showError(lastName, "lastNameError", "Only letters allowed");
+                return false;
+            }
+
+            showSuccess(lastName, "lastNameError");
             return true;
         }
 
@@ -762,7 +1041,8 @@
 
         function validateForm() {
             return (
-                validateName() &&
+                validateFirstName() &&
+                validateLastName() &&
                 validateEmail() &&
                 validatePhone() &&
                 validateGender() &&

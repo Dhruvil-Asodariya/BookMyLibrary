@@ -1,3 +1,13 @@
+<?php
+require "../session_check.php";
+
+if ($_SESSION['role'] != "Librarian") {
+    header("Location: ../login.php");
+    exit();
+}
+include '../update_status.php';
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <?php include '../db_config.php'; ?>
@@ -459,6 +469,12 @@
 
 <body>
 
+    <?php
+    $user_id = $_SESSION['id'];
+    $user = mysqli_query($con, "SELECT * FROM user WHERE user_id = $user_id");
+    $data = mysqli_fetch_assoc($user);
+    ?>
+
     <!-- NAVBAR -->
     <nav class="navbar">
         <div class="nav-left">
@@ -499,10 +515,10 @@
 
         <div class="nav-right">
             <div class="profile">
-                <img src="../image/default_profile.png" alt="Profile">
+                <img src="../image/<?php echo $data['image']; ?>" alt="Profile">
                 <!-- Profile Dropdown -->
                 <div class="dropdown">
-                    <a href="javascript:void(0);" class="dropbtn">Asodariya Dhruvil</a>
+                    <a href="javascript:void(0);" class="dropbtn"><?php echo $data['first_name'] . " " . $data['last_name']; ?></a>
                     <div class="dropdown-content">
                         <a href="profile.php">My Profile</a>
                         <a href="../change_password.php">Change Password</a>
@@ -548,11 +564,29 @@
         <!-- <h1>Admin Dashboard</h1> -->
 
         <!-- CARDS -->
+        <?php
+        $user_id = $_SESSION['id'];
+        $library_data = mysqli_fetch_assoc(mysqli_query($con, "SELECT library_id FROM library WHERE user_id = $user_id"));
+        $library_id = $library_data['library_id'];
+
+        $books = mysqli_query($con, "SELECT * FROM book_list WHERE library_id = $library_id");
+        $book_count = mysqli_num_rows($books);
+
+        $issue = mysqli_query($con, "SELECT * FROM issue WHERE (status = 'Issued' OR status = 'Overdue' OR status = 'Yet to Return' OR status = 'Return at library') AND library_id = $library_id ");
+        $issue_count = mysqli_num_rows($issue);
+
+        $total_fine = mysqli_query($con, "SELECT SUM(amount) AS total FROM payment_history WHERE library_id = $library_id AND payment_status = 'Paid'");
+        $fine_data = mysqli_fetch_assoc($total_fine);
+
+        $total_pending_fine = mysqli_query($con, "SELECT SUM(amount) AS total FROM payment_history WHERE library_id = $library_id AND payment_status = 'Unpaid'");
+        $pending_fine_data = mysqli_fetch_assoc($total_pending_fine);
+
+        ?>
         <div class="dashboard">
             <div class="card books" onclick="card_book()">
                 <div class="card-content">
                     <h2>Total Registered Books</h2>
-                    <div class="value" id="totalBooks">1200</div>
+                    <div class="value" id="totalBooks"><?php echo $book_count; ?></div>
                     <div class="sub">All books in system</div>
                 </div>
             </div>
@@ -560,7 +594,7 @@
             <div class="card issued" onclick="card_issued()">
                 <div class="card-content">
                     <h2>Total Issued Books</h2>
-                    <div class="value" id="totalIssued">350</div>
+                    <div class="value" id="totalIssued"><?php echo $issue_count; ?></div>
                     <div class="sub">Currently borrowed</div>
                 </div>
             </div>
@@ -568,7 +602,7 @@
             <div class="card pending" onclick="card_pending()">
                 <div class="card-content">
                     <h2>Total Fine Pending (₹)</h2>
-                    <div class="value" id="finePending">1250</div>
+                    <div class="value" id="finePending"><?php echo $pending_fine_data['total']; ?></div>
                     <div class="sub">Yet to be collected</div>
                 </div>
             </div>
@@ -576,7 +610,7 @@
             <div class="card totalfine" onclick="card_totalfine()">
                 <div class="card-content">
                     <h2>Total Fine Collected (₹)</h2>
-                    <div class="value" id="fineCollected">8600</div>
+                    <div class="value" id="fineCollected"><?php echo $fine_data['total']; ?></div>
                     <div class="sub">Overall revenue</div>
                 </div>
             </div>
@@ -629,16 +663,10 @@
         });
 
         // 🔒 FIXED VALUES
-        const books = 100; // Total Registered Books (fixed)
-        const collected = 3250; // Total Fine Collected (fixed)
-
-        // 🔄 LIVE VALUES
-        let issued = 30;
-        let pending = 1250;
-
-        // Set fixed values once
-        document.getElementById("totalBooks").textContent = books;
-        document.getElementById("fineCollected").textContent = collected;
+        const books = parseInt(document.getElementById("totalBooks").textContent) || 0;
+        const collected = parseInt(document.getElementById("fineCollected").textContent) || 0;
+        const issued = parseInt(document.getElementById("totalIssued").textContent) || 0;
+        const pending = parseInt(document.getElementById("finePending").textContent) || 0;
 
         // Charts
         const booksCtx = document.getElementById('booksChart').getContext('2d');
@@ -720,26 +748,6 @@
             },
             plugins: [ChartDataLabels]
         });
-
-
-        // 🔁 LIVE UPDATE (ONLY FOR DYNAMIC VALUES)
-        function updateAdminDashboard() {
-            issued = Math.floor(Math.random() * 80) + 1;
-            pending = Math.floor(Math.random() * 3000);
-
-            document.getElementById("totalIssued").textContent = issued;
-            document.getElementById("finePending").textContent = pending;
-
-            // Update charts
-            booksChart.data.datasets[0].data = [issued, books - issued];
-            booksChart.update();
-
-            fineChart.data.datasets[0].data = [pending, collected];
-            fineChart.update();
-        }
-
-        // Update every 5 seconds
-        setInterval(updateAdminDashboard, 5000);
 
         function card_book() {
             window.location.href = "book_list.php";

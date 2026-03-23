@@ -1,3 +1,11 @@
+<?php
+require "../session_check.php";
+
+if ($_SESSION['role'] != "Admin") {
+    header("Location: ../login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -270,6 +278,13 @@
     <!-- MAIN CONTENT -->
     <div class="main-content">
 
+        <?php
+        $issue_id = intval($_GET['issued_id']);
+        $issue_book = mysqli_query($con, "SELECT * FROM issue WHERE issue_id = $issue_id");
+        $data = mysqli_fetch_assoc($issue_book);
+
+        ?>
+
         <div class="edit-card">
             <form id="editIssuedBookForm" action="#" method="POST">
                 <div class="page-header">
@@ -283,19 +298,13 @@
 
                         <div class="form-group">
                             <label>Issue Date</label>
-                            <input type="date" id="issueDate" value="2026-01-12">
+                            <input type="date" id="issueDate" value="<?php echo $data['issue_date']; ?>" name="issue_date">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Return Date</label>
-                            <input type="date" id="returnDate" value="2026-02-06">
-                            <div class="error"></div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Fine Amount</label>
-                            <input type="number" id="fineAmount" value="656">
+                            <input type="date" id="returnDate" value="<?php echo $data['return_date']; ?>" name="return_date">
                             <div class="error"></div>
                         </div>
 
@@ -305,13 +314,50 @@
                 <!-- Buttons -->
                 <div class="actions">
                     <button type="reset" class="btn btn-cancel">Cancel</button>
-                    <button type="submit" class="btn btn-save">Save Change</button>
+                    <button type="submit" class="btn btn-save" name="save_btn">Save Change</button>
                 </div>
 
             </form>
         </div>
 
     </div>
+
+    <?php
+    if (isset($_POST['save_btn'])) {
+        $issue_date = $_POST['issue_date'];
+        $return_date = $_POST['return_date'];
+
+        $update_query = "UPDATE issue SET issue_date='$issue_date', return_date='$return_date' WHERE issue_id=$issue_id";
+        if (mysqli_query($con, $update_query)) {
+            echo "<script>
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'success',
+                        title: 'Issued book details updated successfully!',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true,
+                        didClose: () => {
+                            window.location.href = 'issued_book.php';
+                        }
+                    });
+                </script>";
+        } else {
+            echo "<script>
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'error',
+                        title: 'Failed to update issued book details. Please try again.',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    });
+                </script>";
+        }
+    }
+    ?>
 
     <!-- FOOTER -->
     <?php include 'footer.php'; ?>
@@ -320,7 +366,6 @@
         const form = document.getElementById("editIssuedBookForm");
         const issueDate = document.getElementById("issueDate");
         const returnDate = document.getElementById("returnDate");
-        const fineAmount = document.getElementById("fineAmount");
 
         function showError(input, message) {
             const error = input.nextElementSibling;
@@ -362,52 +407,19 @@
             return true;
         }
 
-        function validateFine() {
-            const fineValue = fineAmount.value.trim();
-            const regex = /^[0-9]+$/; // only whole numbers
-
-            if (fineValue === "") {
-                showError(fineAmount, "This field is required");
-                return false;
-            } else if (!regex.test(fineValue)) {
-                showError(fineAmount, "Enter valid number");
-                return false;
-            } else if (Number(fineValue) <= 0) {
-                showError(fineAmount, "Fine must be greater than 0");
-                return false;
-            } else {
-                showSuccess(fineAmount);
-                return true;
-            }
-        }
-
 
 
         issueDate.addEventListener("input", validateDate);
         returnDate.addEventListener("input", validateDate);
-        fineAmount.addEventListener("input", validateFine);
 
         form.addEventListener("submit", function(e) {
-            e.preventDefault();
 
             const isValid =
                 validateDate(issueDate) &
-                validateDate(returnDate) &
-                validateFine(fineAmount);
+                validateDate(returnDate);
 
-            if (isValid) {
-                Swal.fire({
-                    toast: true,
-                    position: 'top',
-                    icon: 'success',
-                    title: 'Issued book details updated successfully!',
-                    showConfirmButton: false,
-                    timer: 2000,
-                    timerProgressBar: true,
-                    didClose: () => {
-                        window.location.href = "issued_book.php";
-                    }
-                });
+            if (!isValid) {
+                e.preventDefault();
             }
         });
     </script>

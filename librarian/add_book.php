@@ -1,3 +1,11 @@
+<?php
+require "../session_check.php";
+
+if ($_SESSION['role'] != "Librarian") {
+    header("Location: ../login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -299,7 +307,7 @@
 
 
         <div class="edit-card">
-            <form id="editBookForm">
+            <form id="editBookForm" method="POST" enctype="multipart/form-data">
                 <div class="page-header">
                     <h2>Add Book</h2>
                     <p>Add book details in your library system</p>
@@ -310,7 +318,7 @@
                     <label class="image-box">
                         <img id="previewImage" src="https://via.placeholder.com/160x220?text=Book+Cover"><br>
                         <span>Click to upload book image</span>
-                        <input type="file" accept="image/*" id="imageInput">
+                        <input type="file" accept="image/*" id="imageInput" name="image">
                         <div class="error"></div>
                     </label>
 
@@ -319,54 +327,59 @@
 
                         <div class="form-group">
                             <label>Title</label>
-                            <input type="text" id="title">
+                            <input type="text" id="title" name="title">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Author</label>
-                            <input type="text" id="author">
+                            <input type="text" id="author" name="author">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Category</label>
-                            <select id="category">
+                            <select id="category" name="category">
                                 <option value="">Select Category</option>
-                                <option>Programming</option>
-                                <option>Science</option>
-                                <option>Database</option>
-                                <option>Mathematics</option>
+                                <?php
+                                $categories = mysqli_query($con, "SELECT * FROM category WHERE status = 'Active'");
+
+                                foreach ($categories as $row) {
+                                    echo "<option value='{$row['category_name']}'>
+                                             {$row['category_name']}
+                                          </option>";
+                                }
+                                ?>
                             </select>
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Year</label>
-                            <input type="number" id="year">
+                            <input type="number" id="year" name="year">
                             <div class="error"></div>
                         </div>
 
-                        <!-- <div class="form-group">
-                            <label>Library</label>
-                            <select id="library">
-                                <option value="">Select Library</option>
-                                <option>Main Library</option>
-                                <option>Science Block</option>
-                                <option>Engineering Wing</option>
-                            </select>
-                            <div class="error"></div>
-                        </div> -->
-
                         <div class="form-group">
                             <label>Total Copies</label>
-                            <input type="number" id="total">
+                            <input type="number" id="total" name="total_copy">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Available Copies</label>
-                            <input type="number" id="available">
+                            <input type="number" id="available" name="available_copy">
+                            <div class="error"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Language</label>
+                            <select id="language" name="language">
+                                <option value="">Select Language</option>
+                                <option value="English">English</option>
+                                <option value="Hindi">Hindi</option>
+                                <option value="Gujarati">Gujarati</option>
+                            </select>
                             <div class="error"></div>
                         </div>
 
@@ -376,13 +389,93 @@
                 <!-- Buttons -->
                 <div class="actions">
                     <button type="reset" class="btn btn-cancel">Cancel</button>
-                    <button type="submit" class="btn btn-save">Add Book</button>
+                    <button type="submit" name="add_book_btn" class="btn btn-save">Add Book</button>
                 </div>
 
             </form>
         </div>
 
     </div>
+
+    <?php
+    if (isset($_POST['add_book_btn'])) {
+
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // 🔁 Generate Unique Random ID
+        do {
+            $book_id = rand(10000000, 99999999);
+
+            $check_query = mysqli_query(
+                $con,
+                "SELECT book_id FROM book_list WHERE book_id = '$book_id'"
+            );
+        } while (mysqli_num_rows($check_query) > 0);
+
+        $library_id = mysqli_fetch_assoc(mysqli_query($con, "SELECT library_id FROM library WHERE user_id='{$_SESSION['id']}'"))['library_id'];
+        $title = $_POST['title'];
+        $author = $_POST['author'];
+        $category = $_POST['category'];
+        $year = $_POST['year'];
+        $language = $_POST['language'];
+        $total_copy = $_POST['total_copy'];
+        $available_copy = $_POST['available_copy'];
+        $rating = 0.0;
+        if ($available_copy == 0) {
+            $status = "Unavailable";
+        } else {
+            $status = "Available";
+        }
+        $image = uniqid() . $_FILES['image']['name'];
+        $image_tmp = $_FILES['image']['tmp_name'];
+        $upload_dir = '../book_images/';
+
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir);
+        }
+
+        $insert_query = "INSERT INTO book_list 
+                        (book_id, library_id, title, author, category, year, language, total_copy, available_copy, rating, status, image)
+                        VALUES($book_id, $library_id, '$title', '$author', '$category', $year, '$language', $total_copy, $available_copy, $rating, '$status', '$image')";
+
+        if (mysqli_query($con, $insert_query)) {
+            move_uploaded_file($image_tmp, $upload_dir . $image);
+            echo "<script>
+                    previewImage.src = '../book_images/$image';
+                    document.addEventListener('DOMContentLoaded', function(){
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'success',
+                        title: 'Book Added Successfully!',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    }).then(() => {
+                        window.location.href = 'book_list.php';
+                    });
+                });
+            </script>";
+        } else {
+            echo "<script>
+                    previewImage.src = '../book_images/$image';
+                    document.addEventListener('DOMContentLoaded', function(){
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'error',
+                        title: 'Failed to add book. Please try again.',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    });
+                });
+            </script>";
+        }
+    }
+    ?>
 
     <!-- FOOTER -->
     <?php include 'footer.php'; ?>
@@ -393,7 +486,7 @@
         const author = document.getElementById("author");
         const category = document.getElementById("category");
         const year = document.getElementById("year");
-        // const library = document.getElementById("library");
+        const language = document.getElementById("language");
         const total = document.getElementById("total");
         const available = document.getElementById("available");
         const imageInput = document.getElementById("imageInput");
@@ -417,7 +510,7 @@
 
         function validateText(input) {
             const value = input.value.trim();
-            const regex = /^[A-Za-z\s]+$/;
+            const regex = /^[A-Za-z\s.]+$/;
 
             if (value === "") {
                 showError(input, "This field is required");
@@ -538,7 +631,7 @@
         title.addEventListener("input", () => validateText(title));
         author.addEventListener("input", () => validateText(author));
         category.addEventListener("change", () => validateSelect(category));
-        // library.addEventListener("change", () => validateSelect(library));
+        language.addEventListener("change", () => validateSelect(language));
         year.addEventListener("input", validateYear);
         total.addEventListener("input", validateCopies);
         available.addEventListener("input", validateCopies);
@@ -558,32 +651,20 @@
 
 
         form.addEventListener("submit", function(e) {
-            e.preventDefault();
 
             const isValid =
-                validateText(title) &
-                validateText(author) &
-                validateSelect(category) &
-                validateYear() &
-                // validateSelect(library) &
-                validateCopies() &
+                validateText(title) &&
+                validateText(author) &&
+                validateSelect(category) &&
+                validateYear() &&
+                validateSelect(language) &&
+                validateCopies() &&
                 validateImage(imageInput.files[0]);
 
-            if (isValid) {
-               Swal.fire({
-                    toast: true,
-                    position: 'top',
-                    icon: 'success',
-                    title: 'Book details added successfully!',
-                    showConfirmButton: false,
-                    timer: 2000,
-                    timerProgressBar: true,
-                    didClose: () => {
-                        window.location.href = "book_list.php";
-                    }
-                });
-                previewImage.src = "https://via.placeholder.com/160x220?text=Book+Cover";
+            if (!isValid) {
+                e.preventDefault();
             }
+
         });
     </script>
 

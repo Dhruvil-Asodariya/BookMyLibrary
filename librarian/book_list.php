@@ -1,3 +1,11 @@
+<?php
+require "../session_check.php";
+
+if ($_SESSION['role'] != "Librarian") {
+    header("Location: ../login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -603,6 +611,7 @@
             <span class="current">Book List</span>
         </nav>
     </div>
+
     <div class="container">
         <div class="card">
             <div class="top-actions">
@@ -621,7 +630,18 @@
                     </div>
                     <div class="filter-box">
                         <label>Category</label>
-                        <input type="text" id="filterCategory" placeholder="Filter by Category">
+                        <select id="filterCategory">
+                            <option value="">All Categories</option>
+                            <?php
+                            $categories = mysqli_query($con, "SELECT * FROM category WHERE status = 'Active'");
+
+                            foreach ($categories as $row) {
+                                echo "<option value='{$row['category_name']}'>
+                                             {$row['category_name']}
+                                          </option>";
+                            }
+                            ?>
+                        </select>
                     </div>
                     <div class="filter-box">
                         <label>Status</label>
@@ -659,7 +679,13 @@
                 </thead>
                 <tbody>
                     <?php
-                    $books = mysqli_query($con, "SELECT * FROM book_list");
+                    if (session_status() === PHP_SESSION_NONE) {
+                        session_start();
+                    }
+                    $user_id = $_SESSION['id'];
+                    $library_id = mysqli_query($con, "SELECT * FROM library WHERE user_id=$user_id");
+                    $library_data = mysqli_fetch_assoc($library_id);
+                    $books = mysqli_query($con, "SELECT * FROM book_list WHERE library_id='{$library_data['library_id']}'");
                     $i = 1;
                     foreach ($books as $row) {
 
@@ -671,6 +697,8 @@
                             $statusClass = "available";
                             $statusText  = "Available";
                         }
+
+                        $library_data = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM library WHERE library_id = '{$row['library_id']}'"));
 
 
                         echo "<tr>
@@ -688,7 +716,7 @@
                         <td><span class='status {$statusClass}'>{$statusText}</span></td>
                         <td>
                             <a href='edit_book.php?book_id={$row['book_id']}'><button class='btn btn-edit'>Edit</button></a>
-                            <button class='btn btn-delete' onclick='openDeleteModal()'>Delete</button>
+                            <button class='btn btn-delete' onclick='openDeleteModal({$row['book_id']})'>Delete</button>
                         </td>
                     </tr>";
 
@@ -701,22 +729,102 @@
     </div>
 
     <div class="modal-overlay" id="deleteModal">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3>Delete Book Record</h3>
-            </div>
+        <form method="post">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <h3>Delete Book Record</h3>
+                </div>
 
-            <div class="modal-body">
-                <p>⚠️ Are you sure you want to delete this book record?</p>
-                <span>This action cannot be undone.</span>
-            </div>
+                <div class="detail" style="display:none;">
+                    <input type="hidden" name="bookId" id="bookId">
+                </div>
 
-            <div class="modal-actions">
-                <button class="btn cancel-btn" onclick="closeDeleteModal()">Cancel</button>
-                <button class="btn delete-btn" onclick="confirmDelete()">Yes, Delete</button>
+                <div class="modal-body">
+                    <p>⚠️ Are you sure you want to delete this book record?</p>
+                    <span>This action cannot be undone.</span>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn cancel-btn" onclick="closeDeleteModal()">Cancel</button>
+                    <button type="submit" class="btn delete-btn" name="delete_btn">Yes, Delete</button>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
+
+    <?php
+    if (isset($_POST['delete_btn'])) {
+        $book_id = intval($_POST['bookId']);
+
+        $select_query = "SELECT image FROM book_list WHERE book_id = $book_id";
+        $select_result = mysqli_query($con, $select_query);
+
+        if ($select_result && mysqli_num_rows($select_result) > 0) {
+            $book_data = mysqli_fetch_assoc($select_result);
+            $image_name = $book_data['image'];
+
+            $image_deleted = true;
+
+            if (!empty($image_name) && $image_name != 'no-image.png') {
+                $image_path = "../book_images/" . $image_name;
+
+                if (file_exists($image_path)) {
+                    $image_deleted = unlink($image_path);
+                }
+            }
+
+            if ($image_deleted) {
+                $delete_query = "DELETE FROM book_list WHERE book_id = $book_id";
+
+                if (mysqli_query($con, $delete_query)) {
+                    echo "<script>
+                        document.addEventListener('DOMContentLoaded', function(){
+                            Swal.fire({
+                                toast: true,
+                                position: 'top',
+                                icon: 'success',
+                                title: 'Book deleted successfully!',
+                                showConfirmButton: false,
+                                timer: 2000,
+                                timerProgressBar: true
+                            }).then(() => {
+                                window.location.href = 'book_list.php';
+                            });
+                        });
+                    </script>";
+                } else {
+                    echo "<script>
+                        document.addEventListener('DOMContentLoaded', function(){
+                            Swal.fire({
+                                toast: true,
+                                position: 'top',
+                                icon: 'error',
+                                title: 'Failed to delete book record.',
+                                showConfirmButton: false,
+                                timer: 2000,
+                                timerProgressBar: true
+                            });
+                        });
+                    </script>";
+                }
+            } else {
+                echo "<script>
+                    document.addEventListener('DOMContentLoaded', function(){
+                        Swal.fire({
+                            toast: true,
+                            position: 'top',
+                            icon: 'error',
+                            title: 'Image could not be deleted.',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
+                    });
+                </script>";
+            }
+        }
+    }
+    ?>
     <?php include 'footer.php'; ?>
 
     <!-- Scripts -->
@@ -735,6 +843,15 @@
         var table = $('#bookTable').DataTable({
             responsive: true,
             dom: 'Brtip',
+            columnDefs: [{
+                targets: 0, // Sr No column
+                orderable: false,
+                searchable: false
+            }],
+
+            order: [
+                [1, 'asc']
+            ],
             buttons: [{
                     extend: 'excelHtml5',
                     exportOptions: {
@@ -760,26 +877,40 @@
             scrollCollapse: true
         });
 
+        // ✅ AUTO UPDATE SERIAL NUMBER
+        table.on('order.dt search.dt draw.dt', function() {
+            table.column(0, {
+                    search: 'applied',
+                    order: 'applied'
+                })
+                .nodes()
+                .each(function(cell, i) {
+                    cell.innerHTML = i + 1;
+                });
+        }).draw();
+
         // STATUS filter
         $('#filterStatus').on('change', function() {
             var value = this.value.toLowerCase();
 
-            table.column(10).search(value ? '^' + value + '$' : '', true, false).draw();
+            table.column(11).search(value ? '^' + value + '$' : '', true, false).draw();
         });
 
         // LOCATION filter
         $('#filterTitle').on('keyup', function() {
-            table.column(4).search(this.value).draw();
+            table.column(3).search(this.value).draw();
         });
 
         // OWNER filter
-        $('#filterAuthor').on('keyup', function() {
-            table.column(5).search(this.value).draw();
+        $('#filterCategory').on('change', function() {
+            var value = this.value.toLowerCase();
+
+            table.column(5).search(value ? '^' + value + '$' : '', true, false).draw();
         });
 
         // CATEGORY filter
-        $('#filterCategory').on('keyup', function() {
-            table.column(6).search(this.value).draw();
+        $('#filterAuthor').on('keyup', function() {
+            table.column(4).search(this.value).draw();
         });
 
         // RESET filters
@@ -794,43 +925,14 @@
 
         const deleteModal = document.getElementById("deleteModal");
 
-        function openDeleteModal() {
+        function openDeleteModal(id) {
+            document.getElementById("bookId").value = id;
             deleteModal.style.display = "flex";
         }
 
         function closeDeleteModal() {
             deleteModal.style.display = "none";
         }
-
-        function confirmDelete() {
-            closeDeleteModal();
-            alert("Book record deleted successfully!");
-            // Here you can remove the row or call backend later
-        }
-
-        document.addEventListener("click", function(e) {
-            if (e.target.classList.contains("btn-toggle")) {
-
-                const row = e.target.closest("tr");
-                const status = row.querySelector(".status");
-
-                if (status.classList.contains("available")) {
-                    // Change to Unavailable
-                    status.textContent = "Unavailable";
-                    status.classList.remove("available");
-                    status.classList.add("unavailable");
-
-                    e.target.textContent = "Available";
-                } else {
-                    // Change to Available
-                    status.textContent = "Available";
-                    status.classList.remove("unavailable");
-                    status.classList.add("available");
-
-                    e.target.textContent = "Unavailable";
-                }
-            }
-        });
     </script>
 
 </body>

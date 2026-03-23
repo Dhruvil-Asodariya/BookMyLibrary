@@ -1,3 +1,11 @@
+<?php
+require "../session_check.php";
+
+if ($_SESSION['role'] != "User") {
+    header("Location: ../login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -661,33 +669,31 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>24842354</td>
-                        <td><span class="model-link" onclick="openBookModal()">24842354</span></td>
-                        <td>200</td>
-                        <td><span class="status paid">Paid</span></td>
-                        <td>UPI</td>
-                        <td>15-03-2026</td>
-                        <!-- <td>
-                            <a href="edit_fine.php?fine_id=24842354"><button class="btn btn-edit">Edit</button></a>
-                            <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br>
-                        </td> -->
-                    </tr>
+                    <?php
+                    $user_id = $_SESSION['id'];
+                    $fine = mysqli_query($con, "SELECT * FROM payment_history WHERE user_id = $user_id AND payment_status = 'Paid' ORDER BY payment_date DESC");
+                    $i = 1;
+                    foreach ($fine as $row) {
 
-                    <tr>
-                        <td>1</td>
-                        <td>24842354</td>
-                        <td><span class="model-link" onclick="openBookModal()">24842354</span></td>
-                        <td>200</td>
-                        <td><span class="status paid">Paid</span></td>
-                        <td>UPI</td>
-                        <td>19-03-2026</td>
-                        <!-- <td>
-                            <a href="edit_fine.php?fine_id=24842354"><button class="btn btn-edit">Edit</button></a>
-                            <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br>
-                        </td> -->
-                    </tr>
+                        $book_id = mysqli_fetch_assoc(mysqli_query($con, "SELECT book_id FROM issue WHERE issue_id = '{$row['issue_id']}'"))['book_id'];
+
+                        echo "<tr>
+                                <td>{$i}</td>
+                                <td>{$row['payment_id']}</td>
+                                <td><span class='model-link' onclick='openBookModal()'>{$book_id}</span></td>
+                                <td>{$row['amount']}</td>
+                                <td><span class='status paid'>Paid</span></td>
+                                <td>{$row['payment_method']}</td>
+                                <td>{$row['payment_date']}</td>
+                                <!-- <td>
+                                    <a href='edit_fine.php?fine_id=24842354'><button class='btn btn-edit'>Edit</button></a>
+                                    <button class='btn btn-delete' onclick='openDeleteModal()'>Delete</button><br>
+                                </td> -->
+                            </tr>";
+
+                        $i++;
+                    }
+                    ?>
 
                 </tbody>
             </table>
@@ -806,13 +812,12 @@
         $('#filterPaymentMethod').on('change', function() {
             var value = this.value.toLowerCase();
 
-            table.column(6).search(value ? '^' + value + '$' : '', true, false).draw();
+            table.column(5).search(value ? '^' + value + '$' : '', true, false).draw();
         });
 
         // Issue filter
         $('#filterPaymentDate').on('change', function() {
-            let val = formatDateForTable(this.value);
-            table.column(7).search(val).draw();
+            table.column(6).search(this.value).draw();
         });
 
         // RESET filters

@@ -1,3 +1,11 @@
+<?php
+require "../session_check.php";
+
+if ($_SESSION['role'] != "Librarian") {
+    header("Location: ../login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -575,6 +583,167 @@
             }
         }
 
+        /* Backdrop */
+        .l-modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Card */
+        .l-modal-card {
+            background: #ffffff;
+            width: 700px;
+            max-width: 95%;
+            border-radius: 14px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            animation: fadeSlide 0.25s ease;
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Header */
+        .l-modal-header-p {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .l-modal-header-p h3 {
+            font-size: 18px;
+            color: #0f172a;
+        }
+
+        .l-header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        /* Pills container */
+        .l-pill-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Base pill */
+        .l-pill {
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        /* Status pills */
+        .l-pill-active {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .l-pill-inactive {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Close */
+        .l-close-icon {
+            font-size: 22px;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .l-close-icon:hover {
+            color: #ef4444;
+        }
+
+        /* Body */
+        .l-modal-body-p {
+            display: grid;
+            grid-template-columns: 580px 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        /* Image */
+        .l-book-image img {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+
+        /* Details */
+        .l-book-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .l-detail span {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        .l-detail p {
+            margin-top: 4px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        /* Footer */
+        .l-modal-footer {
+            padding: 14px 20px;
+            border-top: 1px solid #e5e7eb;
+            text-align: right;
+        }
+
+        /* Buttons */
+        .l-btn-secondary {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #cbd5f5;
+            background: #f8fafc;
+            color: #1e293b;
+            cursor: pointer;
+        }
+
+        .l-btn-secondary:hover {
+            background: #e0e7ff;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .l-modal-body {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .l-book-details {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .advanced-filters {
             display: flex;
             flex-wrap: wrap;
@@ -650,44 +819,66 @@
                         <th>Fine ID</th>
                         <th>Book ID</th>
                         <th>User ID</th>
-                        <th>Fine Per Day</th>
-                        <th>Fine Days</th>
                         <th>Fine Amount</th>
                         <th>Status</th>
                         <!-- <th>Actions</th> -->
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>24842354</td>
-                        <td class="model-link" onclick="openBookModal()">24842354</td>
-                        <td class="model-link" onclick="openUserModal()">24842353</td>
-                        <td>10</td>
-                        <td>20</td>
-                        <td>200</td>
-                        <td><span class="status unpaid">Unpaid</span></td>
-                        <!-- <td>
-                            <a href="edit_fine.php?fine_id=24842354"><button class="btn btn-edit">Edit</button></a>
-                            <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br>
-                        </td> -->
-                    </tr>
+                    <?php
+                    $user_id = $_SESSION['id'];
+                    $library_id = mysqli_fetch_assoc(mysqli_query($con, "SELECT library_id FROM library WHERE user_id = $user_id"));
+                    $pending_fine = mysqli_query($con, "SELECT * FROM payment_history WHERE library_id = {$library_id['library_id']} AND payment_status = 'Unpaid'");
+                    $i = 1;
+                    foreach ($pending_fine as $row) {
 
-                    <tr>
-                        <td>1</td>
-                        <td>24842354</td>
-                        <td class="model-link" onclick="openBookModal()">24842354</td>
-                        <td class="model-link" onclick="openUserModal()">24842353</td>
-                        <td>10</td>
-                        <td>20</td>
-                        <td>200</td>
-                        <td><span class="status unpaid">Unpaid</span></td>
-                        <!-- <td>
-                            <a href="edit_fine.php?fine_id=24842354"><button class="btn btn-edit">Edit</button></a>
-                            <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br>
-                        </td> -->
-                    </tr>
+                        $book_id = mysqli_fetch_assoc(mysqli_query($con, "SELECT book_id FROM issue WHERE issue_id = '{$row['issue_id']}'"));
+                        $book_data = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM book_list WHERE book_id = '{$book_id['book_id']}'"));
+                        $library_data = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM library WHERE library_id = '{$row['library_id']}'"));
+                        $user_data = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM user WHERE user_id = '{$row['user_id']}'"));
 
+                        echo "<tr>
+                                <td>{$i}</td>
+                                <td>{$row['payment_id']}</td>
+                                <td>
+                                    <span class='model-link'
+                                    onclick=\"openBookModal(
+                                    '{$book_data['book_id']}',
+                                    '../book_images/{$book_data['image']}',
+                                    '" . htmlspecialchars($book_data['title'], ENT_QUOTES) . "',
+                                    '" . htmlspecialchars($book_data['author'], ENT_QUOTES) . "',
+                                    '" . htmlspecialchars($book_data['category'], ENT_QUOTES) . "',
+                                    '{$book_data['year']}',
+                                    '" . htmlspecialchars($library_data['library_name'], ENT_QUOTES) . "'
+                                    )\">
+                                    {$book_id['book_id']}
+                                    </span>
+                                    </td>
+
+                                    <td>
+                                        <span class='model-link'
+                                        onclick=\"openUserModal(
+                                        '{$user_data['user_id']}',
+                                        '../image/{$user_data['image']}',
+                                        '" . htmlspecialchars($user_data['first_name'], ENT_QUOTES) . "',
+                                        '" . htmlspecialchars($user_data['last_name'], ENT_QUOTES) . "',
+                                        '" . htmlspecialchars($user_data['email'], ENT_QUOTES) . "',
+                                        '" . htmlspecialchars($user_data['contact_no'], ENT_QUOTES) . "',
+                                        '" . htmlspecialchars($user_data['address'], ENT_QUOTES) . "',
+                                        '" . htmlspecialchars($user_data['role'], ENT_QUOTES) . "',
+                                        '" . htmlspecialchars($user_data['status'], ENT_QUOTES) . "'
+                                        )\">
+                                        {$row['user_id']}
+                                        </span>
+                                    </td>
+                                <td>₹ {$row['amount']}</td>
+                                <td><span class='status unpaid'>Unpaid</span></td>
+                                
+                            </tr>";
+
+                        $i++;
+                    }
+                    ?>
                 </tbody>
             </table>
         </div>
@@ -703,33 +894,33 @@
 
             <div class="modal-body-p">
                 <div class="book-image">
-                    <img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" alt="Book Image">
+                    <img id="modalBookImage" src="" alt="Book Image">
                 </div>
 
                 <div class="book-details">
                     <div class="detail">
                         <span>Book ID</span>
-                        <p>24842354</p>
+                        <p id="modalBookId"></p>
                     </div>
                     <div class="detail">
                         <span>Title</span>
-                        <p>Introduction to Java</p>
+                        <p id="modalBookTitle"></p>
                     </div>
                     <div class="detail">
                         <span>Author</span>
-                        <p>James Gosling</p>
+                        <p id="modalBookAuthor"></p>
                     </div>
                     <div class="detail">
                         <span>Category</span>
-                        <p>Programming</p>
+                        <p id="modalBookCategory"></p>
                     </div>
                     <div class="detail">
                         <span>Publish Year</span>
-                        <p>2020</p>
+                        <p id="modalBookYear"></p>
                     </div>
                     <div class="detail">
                         <span>Library Name</span>
-                        <p>Main Library</p>
+                        <p id="modalBookLibrary"></p>
                     </div>
                 </div>
             </div>
@@ -749,10 +940,8 @@
                     <h3>User Details</h3>
 
                     <div class="pill-group">
-                        <span class="pill pill-role-librarian">Librarian</span>
-                        <!-- <span class="pill pill-role-user">User</span> -->
-                        <!-- <span class="pill pill-role-admin">Admin</span> -->
-                        <span class="pill pill-active">Active</span>
+                        <span id="modalUserRole" class="pill"></span>
+                        <span id="modalUserStatus" class="pill"></span>
                         <!-- <span class="pill pill-inactive">Inactive</span> -->
                     </div>
                 </div>
@@ -762,33 +951,33 @@
 
             <div class="modal-body-p">
                 <div class="book-image">
-                    <img src="../image/default_profile.png" alt="Book Image">
+                    <img id="modalUserImage" src="" alt="User Image">
                 </div>
 
                 <div class="book-details">
                     <div class="detail">
                         <span>User ID</span>
-                        <p>24842354</p>
+                        <p id="modalUserId"></p>
                     </div>
                     <div class="detail">
                         <span>First Name</span>
-                        <p>John</p>
+                        <p id="modalUserFirstName"></p>
                     </div>
                     <div class="detail">
                         <span>Last Name</span>
-                        <p>Doe</p>
+                        <p id="modalUserLastName"></p>
                     </div>
                     <div class="detail">
                         <span>Email ID</span>
-                        <p>john.doe@example.com </p>
+                        <p id="modalUserEmail"></p>
                     </div>
                     <div class="detail">
                         <span>Contact Number</span>
-                        <p>9876543210</p>
+                        <p id="modalUserContact"></p>
                     </div>
                     <div class="detail">
                         <span>Address</span>
-                        <p>123 Main St, Cityville</p>
+                        <p id="modalUserAddress"></p>
                     </div>
                 </div>
             </div>
@@ -835,22 +1024,28 @@
         var table = $('#bookTable').DataTable({
             responsive: true,
             dom: 'Brtip',
+
+            columnDefs: [{
+                targets: 0, // Sr No column
+                orderable: false,
+                searchable: false
+            }],
             buttons: [{
                     extend: 'excelHtml5',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7] // column indexes you want
+                        columns: [0, 1, 2, 3, 4, 5, 6] // column indexes you want
                     }
                 },
                 {
                     extend: 'pdfHtml5',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                        columns: [0, 1, 2, 3, 4, 5, 6]
                     }
                 },
                 {
                     extend: 'print',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                        columns: [0, 1, 2, 3, 4, 5, 6]
                     }
                 }
             ],
@@ -860,7 +1055,19 @@
             scrollCollapse: true
         });
 
-         // LOCATION filter
+        // ✅ AUTO UPDATE SERIAL NUMBER
+        table.on('order.dt search.dt draw.dt', function() {
+            table.column(0, {
+                    search: 'applied',
+                    order: 'applied'
+                })
+                .nodes()
+                .each(function(cell, i) {
+                    cell.innerHTML = i + 1;
+                });
+        }).draw();
+
+        // LOCATION filter
         $('#filterBookID').on('keyup', function() {
             table.column(2).search(this.value).draw();
         });
@@ -894,7 +1101,15 @@
             // Here you can remove the row or call backend later
         }
 
-        function openBookModal() {
+        function openBookModal(bookId, image, title, author, category, year, library) {
+            document.getElementById("modalBookId").innerText = bookId;
+            document.getElementById("modalBookImage").src = image;
+            document.getElementById("modalBookTitle").innerText = title;
+            document.getElementById("modalBookAuthor").innerText = author;
+            document.getElementById("modalBookCategory").innerText = category;
+            document.getElementById("modalBookYear").innerText = year;
+            document.getElementById("modalBookLibrary").innerText = library;
+
             document.getElementById("bookModal").style.display = "flex";
         }
 
@@ -902,7 +1117,40 @@
             document.getElementById("bookModal").style.display = "none";
         }
 
-        function openUserModal() {
+        function openUserModal(id, image, first, last, email, contact, address, role, status) {
+
+            document.getElementById("modalUserId").innerText = id;
+            document.getElementById("modalUserFirstName").innerText = first;
+            document.getElementById("modalUserLastName").innerText = last;
+            document.getElementById("modalUserEmail").innerText = email;
+            document.getElementById("modalUserContact").innerText = contact;
+            document.getElementById("modalUserAddress").innerText = address;
+            document.getElementById("modalUserImage").src = image;
+
+            /* ROLE */
+            let roleElement = document.getElementById("modalUserRole");
+            roleElement.innerText = role;
+            roleElement.className = "pill";
+
+            if (role === "Librarian") {
+                roleElement.classList.add("pill-role-librarian");
+            } else if (role === "User") {
+                roleElement.classList.add("pill-role-user");
+            } else if (role === "Admin") {
+                roleElement.classList.add("pill-role-admin");
+            }
+
+            /* STATUS */
+            let statusElement = document.getElementById("modalUserStatus");
+            statusElement.innerText = status;
+            statusElement.className = "pill";
+
+            if (status === "Active") {
+                statusElement.classList.add("pill-active");
+            } else if (status === "Inactive") {
+                statusElement.classList.add("pill-inactive");
+            }
+
             document.getElementById("userModal").style.display = "flex";
         }
 

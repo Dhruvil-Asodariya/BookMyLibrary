@@ -1,3 +1,12 @@
+<?php
+require "../session_check.php";
+
+if ($_SESSION['role'] != "User") {
+    header("Location: ../login.php");
+    exit();
+}
+include '../update_status.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <?php include '../db_config.php'; ?>
@@ -438,6 +447,12 @@
 
 <body>
 
+<?php
+    $user_id = $_SESSION['id'];
+    $user = mysqli_query($con, "SELECT * FROM user WHERE user_id = $user_id");
+    $data = mysqli_fetch_assoc($user);
+    ?>
+
     <!-- NAVBAR -->
     <nav class="navbar">
         <div class="nav-left">
@@ -485,10 +500,10 @@
 
         <div class="nav-right">
             <div class="profile">
-                <img src="../image/default_profile.png" alt="Profile">
+                <img src="../image/<?php echo $data['image']; ?>" alt="Profile">
                 <!-- Profile Dropdown -->
                 <div class="dropdown">
-                    <a href="javascript:void(0);" class="dropbtn">Asodariya Dhruvil</a>
+                    <a href="javascript:void(0);" class="dropbtn"><?php echo $data['first_name'] . " " . $data['last_name']; ?></a>
                     <div class="dropdown-content">
                         <a href="profile.php">My Profile</a>
                         <a href="../change_password.php">Change Password</a>
@@ -535,8 +550,27 @@
 
         <!-- CARDS -->
         <?php
-        $books = mysqli_query($con, "SELECT * FROM book_list WHERE status='Available'");
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        $user_id = $_SESSION['id'];
+
+        $books = mysqli_query($con, "SELECT * FROM book_list");
         $book_count = mysqli_num_rows($books);
+
+        $issued_books = mysqli_query($con, "SELECT * FROM issue WHERE user_id = $user_id AND status != 'Returned'");
+        $issued_count = mysqli_num_rows($issued_books);
+
+        $return_books = mysqli_query($con, "SELECT * FROM issue WHERE user_id = $user_id AND status = 'Returned'");
+        $returned_count = mysqli_num_rows($return_books);
+
+        $total_fine = mysqli_query($con, "SELECT SUM(amount) AS total FROM payment_history WHERE user_id = $user_id AND payment_status = 'Paid'");
+        $fine_data = mysqli_fetch_assoc($total_fine);
+
+        $total_pending_fine = mysqli_query($con, "SELECT SUM(amount) AS total FROM payment_history WHERE user_id = $user_id AND payment_status = 'Unpaid'");
+        $pending_fine_data = mysqli_fetch_assoc($total_pending_fine);
+
         ?>
         <div class="dashboard">
             <div class="card books" onclick="card_book()">
@@ -550,7 +584,7 @@
             <div class="card issued" onclick="card_issued()">
                 <div class="card-content">
                     <h2>Total Issued Books</h2>
-                    <div class="value" id="totalIssued">480</div>
+                    <div class="value" id="totalIssued"><?php echo "$issued_count" ?></div>
                     <div class="sub">Currently borrowed</div>
                 </div>
             </div>
@@ -558,7 +592,7 @@
             <div class="card return" onclick="card_returned()">
                 <div class="card-content">
                     <h2>Total Return Books</h2>
-                    <div class="value" id="totalReturned">25</div>
+                    <div class="value" id="totalReturned"><?php echo "$returned_count" ?></div>
                     <div class="sub">Books return to system</div>
                 </div>
             </div>
@@ -566,7 +600,7 @@
             <div class="card pending" onclick="card_pending()">
                 <div class="card-content">
                     <h2>Total Fine Pending (₹)</h2>
-                    <div class="value" id="finePending">1250</div>
+                    <div class="value" id="finePending"><?php echo isset($pending_fine_data['total']) ? $pending_fine_data['total'] : 0 ?></div>
                     <div class="sub">Yet to be collected</div>
                 </div>
             </div>
@@ -574,7 +608,7 @@
             <div class="card totalfine" onclick="card_totalfine()">
                 <div class="card-content">
                     <h2>Total Fine To Be Paid (₹)</h2>
-                    <div class="value" id="fineCollected">8600</div>
+                    <div class="value" id="fineCollected"><?php echo isset($fine_data['total']) ? $fine_data['total'] : 0 ?></div>
                     <div class="sub">Overall revenue</div>
                 </div>
             </div>
@@ -622,81 +656,61 @@
         });
 
         // 🔒 FIXED VALUES
-        const collected = 3250;
-        const returned = 25;
+        const paid = parseInt(document.getElementById("fineCollected").textContent) || 0;
+        const pending = parseInt(document.getElementById("finePending").textContent) || 0;
 
-        // 🔄 LIVE VALUES
-        let issued = 30;
-        let pending = 1250;
+        const fineCtx = document.getElementById("fineChart").getContext("2d");
 
-        // Set fixed values once
-        document.getElementById("fineCollected").textContent = collected;
-        document.getElementById("totalReturned").textContent = returned;
-
-        // Only Fine Chart remains
-        const fineCtx = document.getElementById('fineChart').getContext('2d');
+        Chart.register(ChartDataLabels);
 
         const fineChart = new Chart(fineCtx, {
-            type: 'bar',
+            type: "bar",
             data: {
-                labels: ['Pending', 'Collected'],
+                labels: ["Pending", "Paid"],
                 datasets: [{
-                    label: 'Fine Amount (₹)',
-                    data: [pending, collected],
-                    backgroundColor: ['#f97316', '#ef4444'],
+                    label: "Fine Amount (₹)",
+                    data: [pending, paid],
+                    backgroundColor: ["#ef4444", "#44ef6f"],
                     borderWidth: 1
                 }]
             },
             options: {
+                responsive: true,
                 plugins: {
                     legend: {
                         labels: {
-                            color: '#fff'
+                            color: "#fff"
                         }
                     },
                     datalabels: {
-                        color: '#fff',
+                        color: "#fff",
                         font: {
-                            weight: 'bold',
+                            weight: "bold",
                             size: 14
                         },
-                        anchor: 'end',
-                        align: 'end',
-                        formatter: (value) => value
+                        anchor: "end",
+                        align: "top",
+                        offset: 4,
+                        formatter: function(value) {
+                            return value;
+                        }
                     }
                 },
                 scales: {
                     x: {
                         ticks: {
-                            color: '#fff'
+                            color: "#fff"
                         }
                     },
                     y: {
+                        beginAtZero: true,
                         ticks: {
-                            color: '#fff'
+                            color: "#fff"
                         }
                     }
                 }
-            },
-            plugins: [ChartDataLabels]
+            }
         });
-
-        // 🔁 LIVE UPDATE
-        function updateAdminDashboard() {
-            issued = Math.floor(Math.random() * 80) + 1;
-            pending = Math.floor(Math.random() * 3000);
-
-            document.getElementById("totalIssued").textContent = issued;
-            document.getElementById("finePending").textContent = pending;
-
-            // Update fine chart only
-            fineChart.data.datasets[0].data = [pending, collected];
-            fineChart.update();
-        }
-
-        // Run once + update every 5 seconds
-        updateAdminDashboard();
-        setInterval(updateAdminDashboard, 5000);
 
         function card_book() {
             window.location.href = "book.php";

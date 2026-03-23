@@ -1,3 +1,11 @@
+<?php
+require "../session_check.php";
+
+if ($_SESSION['role'] != "User") {
+    header("Location: ../login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -764,10 +772,6 @@
                         <label>Book ID</label>
                         <input type="text" id="filterBookID" placeholder="Filter by Book ID" maxlength="8">
                     </div>
-                    <div class="filter-box">
-                        <label>User ID</label>
-                        <input type="text" id="filterUserID" placeholder="Filter by User ID" maxlength="8">
-                    </div>
 
                     <div class="filter-box btn-area">
                         <button class="btn btn-add" onclick="resetFilters()">Reset</button>
@@ -783,58 +787,43 @@
                         <th>Fine ID</th>
                         <th>Book ID</th>
                         <!-- <th>User ID</th> -->
-                        <th>Fine Per Day</th>
-                        <th>Fine Days</th>
                         <th>Fine Amount</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>24842354</td>
-                        <td class="model-link" onclick="openBookModal()">24842354</td>
-                        <!-- <td class="model-link" onclick="openUserModal()">24842353</td> -->
-                        <td>10</td>
-                        <td>20</td>
-                        <td>200</td>
-                        <td><span class="status unpaid">Unpaid</span></td>
-                        <td>
-                            <!-- <a href="edit_fine.php?fine_id=24842354"><button class="btn btn-edit">Edit</button></a>
-                            <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br> -->
-                            <button class="btn btn-pay"
-                                data-amount="1"
-                                data-book="24842354">
-                                Pay
-                            </button>
-                        </td>
-                        <button class="btn btn-pay"
-                            data-amount="1"
-                            data-book="24842354">
-                            Pay
-                        </button>
-                    </tr>
+                    <?php
+                    $user_id = $_SESSION['id'];
+                    $pending_fine = mysqli_query($con, "SELECT * FROM payment_history WHERE user_id = $user_id AND payment_status = 'Unpaid'");
+                    $i = 1;
+                    foreach ($pending_fine as $row) {
 
-                    <tr>
-                        <td>1</td>
-                        <td>24842354</td>
-                        <td class="model-link" onclick="openBookModal()">24842354</td>
-                        <!-- <td class="model-link" onclick="openUserModal()">24842353</td> -->
-                        <td>10</td>
-                        <td>20</td>
-                        <td>200</td>
-                        <td><span class="status unpaid">Unpaid</span></td>
-                        <td>
-                            <!-- <a href="edit_fine.php?fine_id=24842354"><button class="btn btn-edit">Edit</button></a>
-                            <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br> -->
-                            <button class="btn btn-pay"
-                                data-amount="1"
-                                data-book="24842354">
-                                Pay
-                            </button>
-                        </td>
-                    </tr>
+                        $book_id = mysqli_fetch_assoc(mysqli_query($con, "SELECT book_id FROM issue WHERE issue_id = '{$row['issue_id']}'"))['book_id'];
+
+                        echo "<tr>
+                                <td>{$i}</td>
+                                <td>{$row['payment_id']}</td>
+                                <td class='model-link' onclick='openBookModal()'>{$book_id}</td>
+                                <!-- <td class='model-link' onclick='openUserModal()'>24842353</td> -->
+                                <td>₹ {$row['amount']}</td>
+                                <td><span class='status unpaid'>Unpaid</span></td>
+                                <td>
+                                    <!-- <a href='edit_fine.php?fine_id=24842354'><button class='btn btn-edit'>Edit</button></a>
+                                    <button class='btn btn-delete' onclick='openDeleteModal()'>Delete</button><br> -->
+                                    <button class='btn btn-pay'
+                                        data-issue='{$row['issue_id']}'
+                                        data-book='{$book_id}'
+                                        data-library='{$row['library_id']}'
+                                        data-amount='{$row['amount']}'>
+                                        Pay ₹{$row['amount']}
+                                    </button>
+                                </td>
+                            </tr>";
+
+                        $i++;
+                    }
+                    ?>
 
                 </tbody>
             </table>
@@ -994,14 +983,153 @@
 
             </div>
 
-            <div class="upi-footer">
-                <button class="upi-cancel" onclick="closeUPIModal()">Cancel</button>
-                <button class="upi-paid" onclick="demoSuccess()">I have paid</button>
-            </div>
+            <form method="post">
+                <input type="hidden" name="issue_id" id="issueId">
+                <input type="hidden" name="library_id" id="libraryId">
+                <input type="hidden" name="amount" id="amount">
+                <div class="upi-footer">
+                    <button type="button" class="upi-cancel" onclick="closeUPIModal()">Cancel</button>
+                    <button class="upi-paid" name="paid_btn">I have paid</button>
+                </div>
+            </form>
 
         </div>
 
     </div>
+
+    <?php
+
+    if (isset($_POST['paid_btn'])) {
+
+        $issue_id = (int) $_POST['issue_id'];
+
+        // Get issue + user + book details
+        $details_query = mysqli_query($con, "
+        SELECT 
+            i.issue_id,
+            i.return_date,
+            i.user_id,
+            u.first_name,
+            u.last_name,
+            u.email,
+            b.title AS book_title
+        FROM issue i
+        INNER JOIN user u ON i.user_id = u.user_id
+        INNER JOIN book_list b ON i.book_id = b.book_id
+        WHERE i.issue_id = '$issue_id'
+        LIMIT 1
+    ");
+
+        $details = mysqli_fetch_assoc($details_query);
+
+        if (!$details) {
+            echo "<script>
+            document.addEventListener('DOMContentLoaded', function(){
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'error',
+                    title: 'Issue details not found.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true
+                });
+            });
+        </script>";
+            exit;
+        }
+
+        $payment_method = "UPI";
+        $payment_status = "Paid";
+        $payment_date   = date("Y-m-d");
+
+        $payment_update = mysqli_query(
+            $con,
+            "UPDATE payment_history 
+         SET payment_method = '$payment_method',
+             payment_status = '$payment_status',
+             payment_date = '$payment_date'
+         WHERE issue_id = '$issue_id'"
+        );
+
+        if ($payment_update) {
+
+            $issue_update = mysqli_query($con, "
+            UPDATE issue 
+            SET fine_amount = 0,
+                status = 'Return at library'
+            WHERE issue_id = '$issue_id'
+        ");
+
+            if ($issue_update) {
+
+                $formattedReturnDate = date("d M Y", strtotime($details['return_date']));
+
+                $mailSent = sendLibraryMail(
+                    $details['email'],
+                    $details['first_name'] . ' ' . $details['last_name'],
+                    $details['book_title'],
+                    'Return at library',
+                    $formattedReturnDate
+                );
+
+                // Update mailed status only if mail sent successfully
+                if ($mailSent) {
+                    mysqli_query($con, "
+                    UPDATE issue
+                    SET last_mailed_status = 'Return at library'
+                    WHERE issue_id = '$issue_id'
+                ");
+                }
+
+                echo "<script>
+                document.addEventListener('DOMContentLoaded', function(){
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'success',
+                        title: 'Payment Successfully!',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    }).then(() => {
+                        window.location.href = 'fine_list.php';
+                    });
+                });
+            </script>";
+            } else {
+                echo "<script>
+                document.addEventListener('DOMContentLoaded', function(){
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'error',
+                        title: 'Payment updated but issue status failed.',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    });
+                });
+            </script>";
+            }
+        } else {
+            echo "<script>
+            document.addEventListener('DOMContentLoaded', function(){
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'error',
+                    title: 'Payment failed. Please try again.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true
+                });
+            });
+        </script>";
+        }
+    }
+
+    ?>
 
     <?php include 'footer.php'; ?>
 
@@ -1024,19 +1152,19 @@
             buttons: [{
                     extend: 'excelHtml5',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6] // column indexes you want
+                        columns: [0, 1, 2, 3, 4] // column indexes you want
                     }
                 },
                 {
                     extend: 'pdfHtml5',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6]
+                        columns: [0, 1, 2, 3, 4]
                     }
                 },
                 {
                     extend: 'print',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6]
+                        columns: [0, 1, 2, 3, 4]
                     }
                 }
             ],
@@ -1051,15 +1179,9 @@
             table.column(2).search(this.value).draw();
         });
 
-        // OWNER filter
-        $('#filterUserID').on('keyup', function() {
-            table.column(3).search(this.value).draw();
-        });
-
         // RESET filters
         function resetFilters() {
             $('#filterBookID').val('');
-            $('#filterUserID').val('');
 
             table.columns().search('').draw();
         }
@@ -1101,18 +1223,22 @@
         document.querySelectorAll(".btn-pay").forEach(btn => {
             btn.addEventListener("click", function() {
 
-                const amount = this.dataset.amount || 100;
-                const bookId = this.dataset.book || "TEST";
+                const amount = parseInt(this.dataset.amount);
+                const issueId = parseInt(this.dataset.issue);
+                const bookId = parseInt(this.dataset.book);
+                const libraryId = parseInt(this.dataset.library); // now we define bookId properly
 
-                const upiLink =
-                    `upi://pay?pa=test@upi&pn=BookMyLibrary&am=${amount}&cu=INR&tn=Book:${bookId}`;
+                const upiLink = `upi://pay?pa=test@upi&pn=BookMyLibrary&am=${amount}&cu=INR&tn=Book My Library`;
 
-                const qrURL =
-                    "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" +
-                    encodeURIComponent(upiLink);
+                const qrURL = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" + encodeURIComponent(upiLink);
 
                 document.getElementById("upiQR").src = qrURL;
                 document.getElementById("upiAmount").textContent = amount;
+
+                // Set hidden form inputs
+                document.getElementById("issueId").value = issueId;
+                document.getElementById("libraryId").value = libraryId;
+                document.getElementById("amount").value = amount;
 
                 document.getElementById("upiModal").style.display = "flex";
             });
@@ -1120,19 +1246,6 @@
 
         function closeUPIModal() {
             document.getElementById("upiModal").style.display = "none";
-        }
-
-        function demoSuccess() {
-            Swal.fire({
-                toast: true,
-                position: 'top',
-                icon: 'success',
-                title: 'Payment successful!',
-                showConfirmButton: false,
-                timer: 2000,
-                timerProgressBar: true
-            });
-            closeUPIModal();
         }
     </script>
 

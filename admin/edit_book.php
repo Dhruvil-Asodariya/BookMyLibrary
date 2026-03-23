@@ -1,3 +1,11 @@
+<?php
+require "../session_check.php";
+
+if ($_SESSION['role'] != "Admin") {
+    header("Location: ../login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -311,12 +319,12 @@
                             <label>Category</label>
                             <select id="category" name="category">
                                 <option value="">Select Category</option>
-                                <option <?php if ($data['category'] == 'Programming') echo 'selected'; ?>>Programming</option>
-                                <option <?php if ($data['category'] == 'Science') echo 'selected'; ?>>Science</option>
-                                <option <?php if ($data['category'] == 'Database') echo 'selected'; ?>>Database</option>
-                                <option <?php if ($data['category'] == 'Mathematics') echo 'selected'; ?>>Mathematics</option>
-                                <option <?php if ($data['category'] == 'History') echo 'selected'; ?>>History</option>
-                                <option <?php if ($data['category'] == 'Fiction') echo 'selected'; ?>>Fiction</option>
+                                <option value="Programming" <?php if ($data['category'] == 'Programming') echo 'selected'; ?>>Programming</option>
+                                <option value="Science" <?php if ($data['category'] == 'Science') echo 'selected'; ?>>Science</option>
+                                <option value="Database" <?php if ($data['category'] == 'Database') echo 'selected'; ?>>Database</option>
+                                <option value="Mathematics" <?php if ($data['category'] == 'Mathematics') echo 'selected'; ?>>Mathematics</option>
+                                <option value="History" <?php if ($data['category'] == 'History') echo 'selected'; ?>>History</option>
+                                <option value="Fiction" <?php if ($data['category'] == 'Fiction') echo 'selected'; ?>>Fiction</option>
                             </select>
                             <div class="error"></div>
                         </div>
@@ -365,9 +373,9 @@
                             <label>Language</label>
                             <select id="language" name="language">
                                 <option value="">Select Language</option>
-                                <option <?php if ($data['language'] == 'English') echo 'selected'; ?>>English</option>
-                                <option <?php if ($data['language'] == 'Hindi') echo 'selected'; ?>>Hindi</option>
-                                <option <?php if ($data['language'] == 'Gujarati') echo 'selected'; ?>>Gujarati</option>
+                                <option value="English" <?php if ($data['language'] == 'English') echo 'selected'; ?>>English</option>
+                                <option value="Hindi" <?php if ($data['language'] == 'Hindi') echo 'selected'; ?>>Hindi</option>
+                                <option value="Gujarati" <?php if ($data['language'] == 'Gujarati') echo 'selected'; ?>>Gujarati</option>
                             </select>
                             <div class="error"></div>
                         </div>

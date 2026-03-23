@@ -1,3 +1,312 @@
+<?php
+require "../session_check.php";
+require "../db_config.php";
+
+if ($_SESSION['role'] != "Librarian") {
+    header("Location: ../login.php");
+    exit();
+}
+
+/*
+|--------------------------------------------------------------------------
+| IMPORTANT
+|--------------------------------------------------------------------------
+| You need library_id for current librarian.
+| Best way: save it in session at login.
+| Example:
+|   $_SESSION['library_id'] = 1;
+|
+| If not already in session, fetch it from your library table using user_id.
+*/
+$user_id = $_SESSION['id'];
+
+if (isset($_SESSION['library_id'])) {
+    $library_id = intval($_SESSION['library_id']);
+} else {
+    $libQuery = mysqli_query($con, "SELECT library_id FROM library WHERE user_id = '$user_id' LIMIT 1");
+    $libData = mysqli_fetch_assoc($libQuery);
+    $library_id = $libData ? intval($libData['library_id']) : 0;
+}
+
+if ($library_id <= 0) {
+    die("Library not found for this librarian.");
+}
+
+/* ---------------------------------------------
+   Helper: JSON response
+--------------------------------------------- */
+function jsonResponse($status, $message)
+{
+    header('Content-Type: application/json');
+    echo json_encode([
+        "status" => $status,
+        "message" => $message
+    ]);
+    exit;
+}
+
+/* ---------------------------------------------
+   Helper: chair position
+--------------------------------------------- */
+function getChairPosition($index, $total)
+{
+    $chairsPerSide = ceil($total / 4);
+
+    if ($index <= $chairsPerSide) {
+        $sideIndex = $index;
+        return [
+            "side" => "top",
+            "ratio" => $sideIndex / ($chairsPerSide + 1)
+        ];
+    }
+
+    if ($index <= $chairsPerSide * 2) {
+        $sideIndex = $index - $chairsPerSide;
+        return [
+            "side" => "right",
+            "ratio" => $sideIndex / ($chairsPerSide + 1)
+        ];
+    }
+
+    if ($index <= $chairsPerSide * 3) {
+        $sideIndex = $index - ($chairsPerSide * 2);
+        return [
+            "side" => "bottom",
+            "ratio" => $sideIndex / ($chairsPerSide + 1)
+        ];
+    }
+
+    $sideIndex = $index - ($chairsPerSide * 3);
+    return [
+        "side" => "left",
+        "ratio" => $sideIndex / ($chairsPerSide + 1)
+    ];
+}
+
+/* ---------------------------------------------
+   POST actions: add / update / delete
+--------------------------------------------- */
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+
+    $action = $_POST['action'];
+
+    /* ADD TABLE */
+    if ($action === 'add_table') {
+        $table_name = trim($_POST['table_name'] ?? '');
+        $chair_count = intval($_POST['chair_count'] ?? 0);
+
+        if ($table_name === '') {
+            jsonResponse("error", "Table name is required.");
+        }
+
+        if ($chair_count < 1 || $chair_count > 12) {
+            jsonResponse("error", "Chair count must be between 1 and 12.");
+        }
+
+        $table_name_safe = mysqli_real_escape_string($con, $table_name);
+
+        $check = mysqli_query($con, "SELECT table_id FROM library_tables WHERE library_id = '$library_id' AND table_name = '$table_name_safe' LIMIT 1");
+        if (mysqli_num_rows($check) > 0) {
+            jsonResponse("error", "Table name already exists in this library.");
+        }
+
+        mysqli_begin_transaction($con);
+
+        try {
+            $insertTable = mysqli_query($con, "
+                INSERT INTO library_tables (library_id, table_name, chair_count)
+                VALUES ('$library_id', '$table_name_safe', '$chair_count')
+            ");
+
+            if (!$insertTable) {
+                throw new Exception(mysqli_error($con));
+            }
+
+            $table_id = mysqli_insert_id($con);
+
+            for ($i = 1; $i <= $chair_count; $i++) {
+                $insertChair = mysqli_query($con, "
+                    INSERT INTO library_chairs (table_id, library_id, chair_no, status)
+                    VALUES ('$table_id', '$library_id', '$i', 'available')
+                ");
+
+                if (!$insertChair) {
+                    throw new Exception(mysqli_error($con));
+                }
+            }
+
+            mysqli_commit($con);
+            jsonResponse("success", "Table added successfully.");
+        } catch (Exception $e) {
+            mysqli_rollback($con);
+            jsonResponse("error", "Add failed: " . $e->getMessage());
+        }
+    }
+
+    /* UPDATE TABLE */
+    if ($action === 'update_table') {
+        $table_id = intval($_POST['table_id'] ?? 0);
+        $table_name = trim($_POST['table_name'] ?? '');
+        $chair_count = intval($_POST['chair_count'] ?? 0);
+
+        if ($table_id <= 0) {
+            jsonResponse("error", "Invalid table.");
+        }
+
+        if ($table_name === '') {
+            jsonResponse("error", "Table name is required.");
+        }
+
+        if ($chair_count < 1 || $chair_count > 12) {
+            jsonResponse("error", "Chair count must be between 1 and 12.");
+        }
+
+        $table_name_safe = mysqli_real_escape_string($con, $table_name);
+
+        $checkCurrent = mysqli_query($con, "
+            SELECT * FROM library_tables
+            WHERE table_id = '$table_id' AND library_id = '$library_id'
+            LIMIT 1
+        ");
+        if (mysqli_num_rows($checkCurrent) == 0) {
+            jsonResponse("error", "Table not found.");
+        }
+
+        $currentData = mysqli_fetch_assoc($checkCurrent);
+        $old_chair_count = intval($currentData['chair_count']);
+
+        $checkDuplicate = mysqli_query($con, "
+            SELECT table_id FROM library_tables
+            WHERE library_id = '$library_id'
+              AND table_name = '$table_name_safe'
+              AND table_id != '$table_id'
+            LIMIT 1
+        ");
+        if (mysqli_num_rows($checkDuplicate) > 0) {
+            jsonResponse("error", "Another table already has this name.");
+        }
+
+        /* Prevent reducing below booked chair count */
+        $bookedCountQuery = mysqli_query($con, "
+            SELECT COUNT(*) AS booked_count
+            FROM library_chairs
+            WHERE table_id = '$table_id'
+              AND library_id = '$library_id'
+              AND status = 'booked'
+        ");
+        $bookedCountData = mysqli_fetch_assoc($bookedCountQuery);
+        $booked_count = intval($bookedCountData['booked_count']);
+
+        if ($chair_count < $booked_count) {
+            jsonResponse("error", "Cannot reduce chairs below booked chair count ($booked_count).");
+        }
+
+        mysqli_begin_transaction($con);
+
+        try {
+            $updateTable = mysqli_query($con, "
+                UPDATE library_tables
+                SET table_name = '$table_name_safe',
+                    chair_count = '$chair_count'
+                WHERE table_id = '$table_id' AND library_id = '$library_id'
+            ");
+
+            if (!$updateTable) {
+                throw new Exception(mysqli_error($con));
+            }
+
+            if ($chair_count > $old_chair_count) {
+                for ($i = $old_chair_count + 1; $i <= $chair_count; $i++) {
+                    $insertChair = mysqli_query($con, "
+                        INSERT INTO library_chairs (table_id, library_id, chair_no, status)
+                        VALUES ('$table_id', '$library_id', '$i', 'available')
+                    ");
+
+                    if (!$insertChair) {
+                        throw new Exception(mysqli_error($con));
+                    }
+                }
+            } elseif ($chair_count < $old_chair_count) {
+                $deleteExtra = mysqli_query($con, "
+                    DELETE FROM library_chairs
+                    WHERE table_id = '$table_id'
+                      AND library_id = '$library_id'
+                      AND chair_no > '$chair_count'
+                      AND status = 'available'
+                ");
+
+                if (!$deleteExtra) {
+                    throw new Exception(mysqli_error($con));
+                }
+            }
+
+            mysqli_commit($con);
+            jsonResponse("success", "Table updated successfully.");
+        } catch (Exception $e) {
+            mysqli_rollback($con);
+            jsonResponse("error", "Update failed: " . $e->getMessage());
+        }
+    }
+
+    /* DELETE TABLE */
+    if ($action === 'delete_table') {
+        $table_id = intval($_POST['table_id'] ?? 0);
+
+        if ($table_id <= 0) {
+            jsonResponse("error", "Invalid table.");
+        }
+
+        $check = mysqli_query($con, "
+            SELECT table_id FROM library_tables
+            WHERE table_id = '$table_id' AND library_id = '$library_id'
+            LIMIT 1
+        ");
+
+        if (mysqli_num_rows($check) == 0) {
+            jsonResponse("error", "Table not found.");
+        }
+
+        $delete = mysqli_query($con, "
+            DELETE FROM library_tables
+            WHERE table_id = '$table_id' AND library_id = '$library_id'
+        ");
+
+        if ($delete) {
+            jsonResponse("success", "Table deleted successfully.");
+        } else {
+            jsonResponse("error", "Delete failed: " . mysqli_error($con));
+        }
+    }
+}
+
+/* ---------------------------------------------
+   Load tables + chairs for display
+--------------------------------------------- */
+$tables = [];
+$tableQuery = mysqli_query($con, "
+    SELECT * FROM library_tables
+    WHERE library_id = '$library_id'
+    ORDER BY table_id ASC
+");
+
+while ($tableRow = mysqli_fetch_assoc($tableQuery)) {
+    $table_id = $tableRow['table_id'];
+
+    $chairs = [];
+    $chairQuery = mysqli_query($con, "
+        SELECT * FROM library_chairs
+        WHERE table_id = '$table_id' AND library_id = '$library_id'
+        ORDER BY chair_no ASC
+    ");
+
+    while ($chairRow = mysqli_fetch_assoc($chairQuery)) {
+        $chairs[] = $chairRow;
+    }
+
+    $tableRow['chairs'] = $chairs;
+    $tables[] = $tableRow;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,6 +315,7 @@
     <title>View Table & Chair | Library System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="../image/title_image.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
         * {
@@ -26,7 +336,6 @@
             font-size: clamp(18px, 4vw, 26px);
         }
 
-        /* ---------- LEGEND ---------- */
         .legend {
             display: flex;
             justify-content: center;
@@ -65,30 +374,24 @@
             border-color: #64748b;
         }
 
-        /* Main Hall */
         .hall {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 40px;
-            /* space between tables */
-            max-width: 1100px;
+            max-width: 1200px;
             margin: auto;
             padding: 20px;
-            /* outer spacing */
         }
 
-        /* Table Unit */
         .table-unit {
             position: relative;
             width: 100%;
             max-width: 266px;
             aspect-ratio: 1/1;
-            margin: 10px;
-            /* extra space */
+            margin: 10px auto;
             padding: 10px;
         }
 
-        /* Table */
         .table {
             position: absolute;
             inset: 50% auto auto 50%;
@@ -113,7 +416,6 @@
             color: #cbd5f5;
         }
 
-        /* Chair */
         .chair {
             position: absolute;
             border: 2px solid #38bdf8;
@@ -125,24 +427,17 @@
             cursor: pointer;
         }
 
-        .chair small {
-            font-size: clamp(8px, 1.8vw, 10px);
-            color: #bbf7d0;
-        }
-
         .chair:hover {
             background: #2e9dcd;
             color: #032635;
         }
 
-        /* Selected */
         .chair.selected {
             background: #38bdf8;
             color: #032635;
             border-color: #38bdf8;
         }
 
-        /* Booked */
         .chair.booked {
             background: #344767;
             border-color: #64748b;
@@ -150,36 +445,6 @@
             cursor: not-allowed;
         }
 
-        .chair.booked small {
-            color: #94a3b8;
-        }
-
-        /* Chair Positions */
-        .top {
-            top: -8%;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .left {
-            left: -8%;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        .right {
-            right: -8%;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        .bottom {
-            bottom: -8%;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        /* Action Button */
         .actions {
             text-align: center;
             margin-top: 30px;
@@ -201,16 +466,13 @@
             opacity: 0.9;
         }
 
-        /* Breadcrumb Container */
         .breadcrumb-wrapper {
             padding: 10px 14px;
             border-radius: 8px;
             margin-bottom: 15px;
             margin-top: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
         }
 
-        /* Breadcrumb Layout */
         .breadcrumb {
             font-size: 14px;
             font-weight: 500;
@@ -221,35 +483,25 @@
             gap: 6px;
         }
 
-        /* Dashboard */
         .breadcrumb .dashboard {
             color: #ef4444;
             font-weight: 600;
         }
 
-        /* Separator */
         .breadcrumb .separator {
             color: #9ca3af;
         }
 
-        /* Links */
         .breadcrumb a {
             text-decoration: none;
             color: #ef4444;
-            transition: 0.2s ease;
         }
 
-        .breadcrumb a:hover {
-            text-decoration: none;
-        }
-
-        /* Current Page */
         .breadcrumb .current {
-            color: #ffffffff;
+            color: #fff;
             font-weight: 600;
         }
 
-        /* Mobile Adjustments */
         @media (max-width: 600px) {
             .hall {
                 gap: 25px;
@@ -257,7 +509,7 @@
             }
 
             .table-unit {
-                max-width: 140px;
+                max-width: 180px;
             }
 
             .btn {
@@ -269,7 +521,6 @@
             }
         }
 
-        /* popup */
         .popup-overlay {
             position: fixed;
             top: 0;
@@ -280,19 +531,20 @@
             display: none;
             justify-content: center;
             align-items: center;
+            z-index: 999;
         }
 
         .popup-box {
             background: #fff;
             padding: 25px;
             border-radius: 10px;
-            width: 300px;
+            width: 320px;
             text-align: center;
         }
 
         .popup-box input {
-            padding: 6px;
-            width: 80px;
+            padding: 8px;
+            width: 90%;
         }
 
         .popup-lable {
@@ -301,21 +553,19 @@
         }
 
         .popup-box button {
-            padding: 6px 14px;
+            padding: 8px 14px;
             margin: 5px;
             border: none;
             background: #0ea5e9;
             color: #fff;
             border-radius: 6px;
+            cursor: pointer;
         }
-
-
 
         .cancel {
             background: #ef4444 !important;
         }
 
-        /* edit icon */
         .edit-icon {
             position: absolute;
             top: 8px;
@@ -326,24 +576,24 @@
             border-radius: 50%;
             cursor: pointer;
             font-size: 12px;
+            z-index: 2;
         }
 
-        .edit-icon:hover {
-            background: #0284c7;
-        }
-
-        /* DELETE icon */
         .delete-icon {
             position: absolute;
             top: 8px;
             right: -25px;
-            /* second icon */
             background: #ef4444;
             color: #fff;
             padding: 6px;
             border-radius: 50%;
             cursor: pointer;
             font-size: 12px;
+            z-index: 2;
+        }
+
+        .edit-icon:hover {
+            background: #0284c7;
         }
 
         .delete-icon:hover {
@@ -364,7 +614,6 @@
         </nav>
     </div>
 
-    <!-- STATUS LEGEND -->
     <div class="legend">
         <div class="legend-item">
             <div class="legend-box legend-available"></div> Available
@@ -377,223 +626,80 @@
         </div>
     </div>
 
-    <?php
-    $role = "admin"; // Example role, replace with actual role from session or database
-    if ($role == "librarian") {
-        echo '<div class="actions">
-        <button class="btn" onclick="openAddTablePopup()">+ Add New Table</button>
-    </div>';
-    }
-
-    ?>
     <div class="actions">
         <button class="btn" onclick="openAddTablePopup()">+ Add New Table</button>
     </div>
 
-
-    <!-- <h2>Table & Chair Booking</h2> -->
-
     <div class="hall">
+        <?php foreach ($tables as $tableRow): ?>
+            <div class="table-unit" data-table-id="<?php echo $tableRow['table_id']; ?>" data-table-name="<?php echo htmlspecialchars($tableRow['table_name']); ?>" data-chair-count="<?php echo $tableRow['chair_count']; ?>">
 
-        <!-- TABLE 1 -->
-        <div class="table-unit">
-            <!-- EDIT ICON -->
-            <div class="edit-icon" onclick="openEditPopup(this)">
-                <i class="fa fa-pen"></i>
+                <div class="edit-icon" onclick="openEditPopup(this)">
+                    <i class="fa fa-pen"></i>
+                </div>
+
+                <div class="delete-icon" onclick="deleteTable(this)">
+                    <i class="fa fa-trash"></i>
+                </div>
+
+                <?php
+                foreach ($tableRow['chairs'] as $chair) {
+                    $pos = getChairPosition($chair['chair_no'], $tableRow['chair_count']);
+                    $statusClass = ($chair['status'] === 'booked') ? 'booked' : '';
+                    $style = '';
+
+                    if ($pos['side'] === 'top') {
+                        $style = "top:-10%; left:" . ($pos['ratio'] * 100) . "%; transform:translateX(-50%);";
+                    } elseif ($pos['side'] === 'right') {
+                        $style = "right:-10%; top:" . ($pos['ratio'] * 100) . "%; transform:translateY(-50%);";
+                    } elseif ($pos['side'] === 'bottom') {
+                        $style = "bottom:-10%; left:" . ($pos['ratio'] * 100) . "%; transform:translateX(-50%);";
+                    } elseif ($pos['side'] === 'left') {
+                        $style = "left:-10%; top:" . ($pos['ratio'] * 100) . "%; transform:translateY(-50%);";
+                    }
+                ?>
+                    <div class="chair <?php echo $statusClass; ?>" style="<?php echo $style; ?>">
+                        C<?php echo $chair['chair_no']; ?>
+                    </div>
+                <?php } ?>
+
+                <div class="table">
+                    <?php echo htmlspecialchars($tableRow['table_name']); ?><br>
+                    <span><?php echo $tableRow['chair_count']; ?> Chairs</span>
+                </div>
             </div>
-
-            <!-- DELETE ICON -->
-            <div class="delete-icon" onclick="deleteTable(this)">
-                <i class="fa fa-trash"></i>
-            </div>
-
-            <!-- TOP -->
-            <div class="chair top">C2</div>
-            <div class="chair top" style="left:30%">C1</div>
-            <div class="chair top" style="left:70%">C3</div>
-
-            <!-- RIGHT -->
-            <div class="chair right">C5</div>
-            <div class="chair right" style="top:30%">C4</div>
-            <div class="chair right" style="top:70%">C6</div>
-
-            <!-- BOTTOM -->
-            <div class="chair bottom">C8</div>
-            <div class="chair bottom" style="left:30%">C7</div>
-            <div class="chair bottom" style="left:70%">C9</div>
-
-            <!-- LEFT -->
-            <div class="chair left">C11</div>
-            <div class="chair left" style="top:30%">C10</div>
-            <div class="chair left" style="top:70%">C12</div>
-
-            <div class="table">TABLE 1<br><span>12 Chairs</span></div>
-        </div>
-
-        <!-- TABLE 2 -->
-        <div class="table-unit">
-            <!-- EDIT ICON -->
-            <div class="edit-icon" onclick="openEditPopup(this)">
-                <i class="fa fa-pen"></i>
-            </div>
-
-            <!-- DELETE ICON -->
-            <div class="delete-icon" onclick="deleteTable(this)">
-                <i class="fa fa-trash"></i>
-            </div>
-
-            <div class="chair top" data-price="120">C1<br></div>
-            <div class="chair left booked" data-price="120">C2<br></div>
-            <div class="chair right" data-price="120">C3<br></div>
-            <div class="table">TABLE 2<br><span>3 Chairs</span></div>
-        </div>
-
-        <!-- TABLE 3 -->
-        <div class="table-unit">
-            <!-- EDIT ICON -->
-            <div class="edit-icon" onclick="openEditPopup(this)">
-                <i class="fa fa-pen"></i>
-            </div>
-
-            <!-- DELETE ICON -->
-            <div class="delete-icon" onclick="deleteTable(this)">
-                <i class="fa fa-trash"></i>
-            </div>
-
-            <div class="chair top" data-price="180">C1<br></div>
-            <div class="chair left" data-price="180">C2<br></div>
-            <div class="chair right" data-price="180">C3<br></div>
-            <div class="chair bottom booked" data-price="180">C4<br></div>
-            <div class="table">TABLE 3<br><span>4 Chairs</span></div>
-        </div>
-
-        <!-- TABLE 4 -->
-        <div class="table-unit">
-            <!-- EDIT ICON -->
-            <div class="edit-icon" onclick="openEditPopup(this)">
-                <i class="fa fa-pen"></i>
-            </div>
-
-            <!-- DELETE ICON -->
-            <div class="delete-icon" onclick="deleteTable(this)">
-                <i class="fa fa-trash"></i>
-            </div>
-
-            <div class="chair top" data-price="100">C1<br></div>
-            <div class="chair left" data-price="100">C2<br></div>
-            <div class="chair right" data-price="100">C3<br></div>
-            <div class="table">TABLE 4<br><span>3 Chairs</span></div>
-        </div>
-
-        <!-- TABLE 5 -->
-        <div class="table-unit">
-            <!-- EDIT ICON -->
-            <div class="edit-icon" onclick="openEditPopup(this)">
-                <i class="fa fa-pen"></i>
-            </div>
-
-            <!-- DELETE ICON -->
-            <div class="delete-icon" onclick="deleteTable(this)">
-                <i class="fa fa-trash"></i>
-            </div>
-
-            <div class="chair top" data-price="150">C1<br></div>
-            <div class="chair left" data-price="150">C2<br></div>
-            <div class="chair right" data-price="150">C3<br></div>
-            <div class="chair bottom" data-price="150">C4<br></div>
-            <div class="table">TABLE 5<br><span>4 Chairs</span></div>
-        </div>
-
-        <!-- TABLE 6 -->
-        <div class="table-unit">
-            <!-- EDIT ICON -->
-            <div class="edit-icon" onclick="openEditPopup(this)">
-                <i class="fa fa-pen"></i>
-            </div>
-
-            <!-- DELETE ICON -->
-            <div class="delete-icon" onclick="deleteTable(this)">
-                <i class="fa fa-trash"></i>
-            </div>
-
-            <div class="chair top" data-price="120">C1<br></div>
-            <div class="chair left booked" data-price="120">C2<br></div>
-            <div class="chair right" data-price="120">C3<br></div>
-            <div class="table">TABLE 6<br><span>3 Chairs</span></div>
-        </div>
-
-        <!-- TABLE 7 -->
-        <div class="table-unit">
-            <!-- EDIT ICON -->
-            <div class="edit-icon" onclick="openEditPopup(this)">
-                <i class="fa fa-pen"></i>
-            </div>
-
-            <!-- DELETE ICON -->
-            <div class="delete-icon" onclick="deleteTable(this)">
-                <i class="fa fa-trash"></i>
-            </div>
-
-            <div class="chair top" data-price="180">C1<br></div>
-            <div class="chair left" data-price="180">C2<br></div>
-            <div class="chair right" data-price="180">C3<br></div>
-            <div class="chair bottom booked" data-price="180">C4<br></div>
-            <div class="table">TABLE 7<br><span>4 Chairs</span></div>
-        </div>
-
-        <!-- TABLE 8 -->
-        <div class="table-unit">
-            <!-- EDIT ICON -->
-            <div class="edit-icon" onclick="openEditPopup(this)">
-                <i class="fa fa-pen"></i>
-            </div>
-
-            <!-- DELETE ICON -->
-            <div class="delete-icon" onclick="deleteTable(this)">
-                <i class="fa fa-trash"></i>
-            </div>
-
-            <div class="chair top" data-price="100">C1<br></div>
-            <div class="chair left" data-price="100">C2<br></div>
-            <div class="chair right" data-price="100">C3<br></div>
-            <div class="table">TABLE 8<br><span>3 Chairs</span></div>
-        </div>
-
+        <?php endforeach; ?>
     </div>
 
     <div class="popup-overlay" id="editPopup">
         <div class="popup-box">
-            <h3>Edit Table</h3>
+            <h3 style="color:#000;">Edit Table</h3>
 
-            <label class="popup-lable">Table Name:</label>
+            <input type="hidden" id="editTableId">
+
+            <label class="popup-lable">Table Name:</label><br>
             <input type="text" id="tableNameInput">
-
             <br><br>
 
-            <label class="popup-lable">Number of Chairs:</label>
+            <label class="popup-lable">Number of Chairs:</label><br>
             <input type="number" id="chairInput" min="1" max="12">
-
             <br><br>
 
-            <button onclick="updateChairs()">Update</button>
+            <button onclick="updateTable()">Update</button>
             <button onclick="closePopup()" class="cancel">Cancel</button>
         </div>
     </div>
 
-
-
     <div class="popup-overlay" id="addTablePopup">
         <div class="popup-box">
-            <h3>Add New Table</h3>
+            <h3 style="color:#000;">Add New Table</h3>
 
-            <label class="popup-lable">Table Name:</label>
-            <input type="text" id="newTableName" placeholder="TABLE 9">
-
+            <label class="popup-lable">Table Name:</label><br>
+            <input type="text" id="newTableName" placeholder="TABLE 1">
             <br><br>
 
-            <label class="popup-lable">Number of Chairs:</label>
+            <label class="popup-lable">Number of Chairs:</label><br>
             <input type="number" id="newChairCount" min="1" max="12">
-
             <br><br>
 
             <button onclick="createNewTable()">Create</button>
@@ -601,303 +707,145 @@
         </div>
     </div>
 
-    <!-- <div class="actions">
-        <button class="btn" onclick="confirmBooking()">Confirm Booking</button>
-    </div> -->
     <?php include 'footer.php'; ?>
-</body>
 
-<script>
-    // Toggle Chair Selection
-    document.querySelectorAll(".chair").forEach(chair => {
-        chair.addEventListener("click", function() {
-            if (this.classList.contains("booked")) return;
-            this.classList.toggle("selected");
-        });
-    });
-
-    function confirmBooking() {
-        const selected = document.querySelectorAll(".chair.selected");
-
-        if (selected.length === 0) {
-            alert("❌ Please select at least one chair.");
-            return;
-        }
-
-        let total = 0;
-        let details = [];
-
-        selected.forEach(chair => {
-            const price = parseInt(chair.dataset.price);
-            const table = chair.closest(".table-unit").querySelector(".table").innerText.split("\n")[0];
-            const seat = chair.childNodes[0].nodeValue.trim();
-
-            details.push(`${table} - ${seat}`);
-
-            chair.classList.remove("selected");
-            chair.classList.add("booked");
-        });
-
-        alert("✅ Booking Confirmed:\n\n" + details.join("\n"));
-    }
-</script>
-<script>
-    let selectedTable = null;
-
-    /* OPEN POPUP */
-    function openEditPopup(icon) {
-        selectedTable = icon.closest('.table-unit');
-
-        const chairCount = selectedTable.querySelectorAll('.chair').length;
-        document.getElementById('chairInput').value = chairCount;
-
-        // get table name
-        const tableName = selectedTable.querySelector('.table').childNodes[0].nodeValue.trim();
-        document.getElementById('tableNameInput').value = tableName;
-
-        document.getElementById('editPopup').style.display = "flex";
-    }
-
-
-    /* CLOSE POPUP */
-    function closePopup() {
-        document.getElementById('editPopup').style.display = "none";
-    }
-
-    /* UPDATE CHAIRS */
-    function updateChairs() {
-
-        const count = parseInt(document.getElementById('chairInput').value);
-        const tableName = document.getElementById('tableNameInput').value;
-
-        if (!selectedTable) return;
-
-        /* REMOVE OLD CHAIRS */
-        selectedTable.querySelectorAll('.chair').forEach(c => c.remove());
-
-        /* TABLE SIZE INCREASE */
-        let baseSize = 170;
-        if (count > 4) baseSize = 170 + (count - 4) * 12;
-        selectedTable.style.maxWidth = baseSize + "px";
-
-        /* SCALE INNER TABLE */
-        const tableBox = selectedTable.querySelector('.table');
-        tableBox.style.width = "60%";
-        tableBox.style.height = "60%";
-
-        /* DISTRIBUTE CHAIRS */
-        const chairsPerSide = Math.ceil(count / 4);
-        let chairNo = 1;
-
-        for (let i = 0; i < chairsPerSide && chairNo <= count; i++)
-            addChair("top", chairNo++, (i + 1) / (chairsPerSide + 1));
-
-        for (let i = 0; i < chairsPerSide && chairNo <= count; i++)
-            addChair("right", chairNo++, (i + 1) / (chairsPerSide + 1));
-
-        for (let i = 0; i < chairsPerSide && chairNo <= count; i++)
-            addChair("bottom", chairNo++, (i + 1) / (chairsPerSide + 1));
-
-        for (let i = 0; i < chairsPerSide && chairNo <= count; i++)
-            addChair("left", chairNo++, (i + 1) / (chairsPerSide + 1));
-
-        /* UPDATE TABLE NAME + CHAIR TEXT */
-        tableBox.innerHTML = tableName + "<br><span>" + count + " Chairs</span>";
-
-        closePopup();
-    }
-
-
-    /* CREATE & POSITION CHAIR */
-    function addChair(position, number, ratio) {
-
-        const chair = document.createElement('div');
-        chair.className = "chair";
-        chair.dataset.price = "150";
-        chair.innerHTML = "C" + number;
-
-        // enable selection click
-        chair.onclick = function() {
-            if (this.classList.contains("booked")) return;
-            this.classList.toggle("selected");
-        }
-
-        if (position === "top") {
-            chair.style.top = "-10%";
-            chair.style.left = (ratio * 100) + "%";
-            chair.style.transform = "translateX(-50%)";
-        }
-
-        if (position === "bottom") {
-            chair.style.bottom = "-10%";
-            chair.style.left = (ratio * 100) + "%";
-            chair.style.transform = "translateX(-50%)";
-        }
-
-        if (position === "left") {
-            chair.style.left = "-10%";
-            chair.style.top = (ratio * 100) + "%";
-            chair.style.transform = "translateY(-50%)";
-        }
-
-        if (position === "right") {
-            chair.style.right = "-10%";
-            chair.style.top = (ratio * 100) + "%";
-            chair.style.transform = "translateY(-50%)";
-        }
-
-        selectedTable.appendChild(chair);
-    }
-
-    function deleteTable(element) {
-        if (confirm("Are you sure you want to delete this table?")) {
-            const tableUnit = element.closest(".table-unit");
-            tableUnit.remove();
-        }
-    }
-
-    function deleteTable(element) {
-        Swal.fire({
-            title: "Delete table?",
-            text: "This action cannot be undone",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#ef4444",
-            cancelButtonColor: "#6b7280",
-            confirmButtonText: "Yes, delete it"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                element.closest(".table-unit").remove();
-
-                Swal.fire({
-                    toast: true,
-                    position: "top",
-                    icon: "success",
-                    title: "Table deleted",
-                    showConfirmButton: false,
-                    timer: 2000
-                });
-            }
-        });
-    }
-</script>
-
-<script>
-    let tableCounter = document.querySelectorAll(".table-unit").length + 1;
-
-    /* OPEN ADD TABLE POPUP */
-    function openAddTablePopup() {
-        document.getElementById("addTablePopup").style.display = "flex";
-    }
-
-    /* CLOSE ADD TABLE POPUP */
-    function closeAddPopup() {
-        document.getElementById("addTablePopup").style.display = "none";
-    }
-
-    /* CREATE NEW TABLE */
-    function createNewTable() {
-
-        const name = document.getElementById("newTableName").value || "TABLE " + tableCounter;
-        const chairCount = parseInt(document.getElementById("newChairCount").value);
-
-        if (!chairCount || chairCount < 1) {
-            alert("Enter valid chair count");
-            return;
-        }
-
-        const hall = document.querySelector(".hall");
-
-        /* CREATE TABLE UNIT */
-        const tableUnit = document.createElement("div");
-        tableUnit.className = "table-unit";
-
-        /* EDIT ICON */
-        const editIcon = document.createElement("div");
-        editIcon.className = "edit-icon";
-        editIcon.innerHTML = '<i class="fa fa-pen"></i>';
-        editIcon.onclick = function() {
-            openEditPopup(this);
-        };
-
-        /* DELETE ICON */
-            const deleteIcon = document.createElement("div");
-        deleteIcon.className = "delete-icon";
-        deleteIcon.innerHTML = '<i class="fa fa-trash"></i>';
-        deleteIcon.onclick = function() {
-            deleteTable(this);
-        };
-
-        tableUnit.appendChild(editIcon);
-        tableUnit.appendChild(deleteIcon);
-
-        /* TABLE BOX */
-        const tableBox = document.createElement("div");
-        tableBox.className = "table";
-        tableBox.innerHTML = `${name}<br><span>${chairCount} Chairs</span>`;
-        tableUnit.appendChild(tableBox);
-
-        /* ADD CHAIRS */
-        const chairsPerSide = Math.ceil(chairCount / 4);
-        let chairNo = 1;
-
-        function addChair(position, ratio) {
-
-            const chair = document.createElement("div");
-            chair.className = "chair";
-            chair.dataset.price = "150";
-            chair.innerHTML = "C" + chairNo++;
-
-            chair.onclick = function() {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.querySelectorAll(".chair").forEach(chair => {
+            chair.addEventListener("click", function() {
                 if (this.classList.contains("booked")) return;
                 this.classList.toggle("selected");
-            };
+            });
+        });
 
-            if (position === "top") {
-                chair.style.top = "-10%";
-                chair.style.left = (ratio * 100) + "%";
-                chair.style.transform = "translateX(-50%)";
-            }
-
-            if (position === "bottom") {
-                chair.style.bottom = "-10%";
-                chair.style.left = (ratio * 100) + "%";
-                chair.style.transform = "translateX(-50%)";
-            }
-
-            if (position === "left") {
-                chair.style.left = "-10%";
-                chair.style.top = (ratio * 100) + "%";
-                chair.style.transform = "translateY(-50%)";
-            }
-
-            if (position === "right") {
-                chair.style.right = "-10%";
-                chair.style.top = (ratio * 100) + "%";
-                chair.style.transform = "translateY(-50%)";
-            }
-
-            tableUnit.appendChild(chair);
+        function openEditPopup(icon) {
+            const tableUnit = icon.closest('.table-unit');
+            document.getElementById('editTableId').value = tableUnit.dataset.tableId;
+            document.getElementById('tableNameInput').value = tableUnit.dataset.tableName;
+            document.getElementById('chairInput').value = tableUnit.dataset.chairCount;
+            document.getElementById('editPopup').style.display = "flex";
         }
 
-        for (let i = 0; i < chairsPerSide && chairNo <= chairCount; i++)
-            addChair("top", (i + 1) / (chairsPerSide + 1));
+        function closePopup() {
+            document.getElementById('editPopup').style.display = "none";
+        }
 
-        for (let i = 0; i < chairsPerSide && chairNo <= chairCount; i++)
-            addChair("right", (i + 1) / (chairsPerSide + 1));
+        function openAddTablePopup() {
+            document.getElementById("addTablePopup").style.display = "flex";
+        }
 
-        for (let i = 0; i < chairsPerSide && chairNo <= chairCount; i++)
-            addChair("bottom", (i + 1) / (chairsPerSide + 1));
+        function closeAddPopup() {
+            document.getElementById("addTablePopup").style.display = "none";
+        }
 
-        for (let i = 0; i < chairsPerSide && chairNo <= chairCount; i++)
-            addChair("left", (i + 1) / (chairsPerSide + 1));
+        function createNewTable() {
+            const tableName = document.getElementById("newTableName").value.trim();
+            const chairCount = document.getElementById("newChairCount").value;
 
-        hall.appendChild(tableUnit);
+            const formData = new FormData();
+            formData.append("action", "add_table");
+            formData.append("table_name", tableName);
+            formData.append("chair_count", chairCount);
 
-        tableCounter++;
-        closeAddPopup();
-    }
-</script>
+            fetch("", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        Swal.fire({
+                            toast: true,
+                            position: "top",
+                            icon: "success",
+                            title: data.message,
+                            showConfirmButton: false,
+                            timer: 2000
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire("Error", data.message, "error");
+                    }
+                });
+        }
 
+        function updateTable() {
+            const tableId = document.getElementById("editTableId").value;
+            const tableName = document.getElementById("tableNameInput").value.trim();
+            const chairCount = document.getElementById("chairInput").value;
 
+            const formData = new FormData();
+            formData.append("action", "update_table");
+            formData.append("table_id", tableId);
+            formData.append("table_name", tableName);
+            formData.append("chair_count", chairCount);
+
+            fetch("", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        Swal.fire({
+                            toast: true,
+                            position: "top",
+                            icon: "success",
+                            title: data.message,
+                            showConfirmButton: false,
+                            timer: 2000
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire("Error", data.message, "error");
+                    }
+                });
+        }
+
+        function deleteTable(element) {
+            const tableUnit = element.closest(".table-unit");
+            const tableId = tableUnit.dataset.tableId;
+
+            Swal.fire({
+                title: "Delete table?",
+                text: "This action cannot be undone",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#ef4444",
+                cancelButtonColor: "#6b7280",
+                confirmButtonText: "Yes, delete it"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const formData = new FormData();
+                    formData.append("action", "delete_table");
+                    formData.append("table_id", tableId);
+
+                    fetch("", {
+                            method: "POST",
+                            body: formData
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.status === "success") {
+                                Swal.fire({
+                                    toast: true,
+                                    position: "top",
+                                    icon: "success",
+                                    title: data.message,
+                                    showConfirmButton: false,
+                                    timer: 2000
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire("Error", data.message, "error");
+                            }
+                        });
+                }
+            });
+        }
+    </script>
+</body>
 </html>

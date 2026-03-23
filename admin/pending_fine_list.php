@@ -1,3 +1,11 @@
+<?php
+require "../session_check.php";
+
+if ($_SESSION['role'] != "Admin") {
+    header("Location: ../login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -812,46 +820,36 @@
                         <th>Book ID</th>
                         <th>User ID</th>
                         <th>Library ID</th>
-                        <th>Fine Per Day</th>
-                        <th>Fine Days</th>
                         <th>Fine Amount</th>
                         <th>Status</th>
                         <!-- <th>Actions</th> -->
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>24842354</td>
-                        <td><span class="model-link" onclick="openBookModal()">24842354</span></td>
-                        <td><span class="model-link" onclick="openUserModal()">24842353</span></td>
-                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
-                        <td>10</td>
-                        <td>20</td>
-                        <td>200</td>
-                        <td><span class="status unpaid">Unpaid</span></td>
-                        <!-- <td>
-                            <a href="edit_fine.php?fine_id=24842354"><button class="btn btn-edit">Edit</button></a>
-                            <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br>
-                        </td> -->
-                    </tr>
+                    <?php
+                    $user_id = $_SESSION['id'];
+                    $pending_fine = mysqli_query($con, "SELECT * FROM payment_history WHERE payment_status = 'Unpaid'");
+                    $i = 1;
+                    foreach ($pending_fine as $row) {
 
-                    <tr>
-                        <td>1</td>
-                        <td>24842354</td>
-                        <td><span class="model-link" onclick="openBookModal()">24842354</span></td>
-                        <td><span class="model-link" onclick="openUserModal()">24842353</span></td>
-                        <td><span class="model-link" onclick="openLibraryModal()">24842354</span></td>
-                        <td>10</td>
-                        <td>20</td>
-                        <td>200</td>
-                        <td><span class="status unpaid">Unpaid</span></td>
-                        <!-- <td>
-                            <a href="edit_fine.php?fine_id=24842354"><button class="btn btn-edit">Edit</button></a>
-                            <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br>
-                        </td> -->
-                    </tr>
+                        $book_id = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM issue WHERE issue_id = '{$row['issue_id']}'"));
+                        $user_id = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM issue WHERE issue_id = '{$row['issue_id']}'"));
+                        $library_id = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM issue WHERE issue_id = '{$row['issue_id']}'"));
 
+                        echo "<tr>
+                                <td>{$i}</td>
+                                <td>{$row['payment_id']}</td>
+                                <td><span class='model-link' onclick='openBookModal()'>{$book_id['book_id']}</span></td>
+                                <td><span class='model-link' onclick='openUserModal()'>{$user_id['user_id']}</span></td>
+                                <td><span class='model-link' onclick='openLibraryModal()'>{$library_id['library_id']}</span></td>
+                                <td>₹ {$row['amount']}</td>
+                                <td><span class='status unpaid'>Unpaid</span></td>
+                                
+                            </tr>";
+
+                        $i++;
+                    }
+                    ?>
                 </tbody>
             </table>
         </div>
@@ -964,7 +962,7 @@
         </div>
     </div>
 
-     <div class="l-modal-backdrop" id="libraryModal">
+    <div class="l-modal-backdrop" id="libraryModal">
         <div class="l-modal-card">
 
             <div class="l-modal-header-p">
@@ -1059,22 +1057,28 @@
         var table = $('#bookTable').DataTable({
             responsive: true,
             dom: 'Brtip',
+            
+            columnDefs: [{
+                targets: 0, // Sr No column
+                orderable: false,
+                searchable: false
+            }],
             buttons: [{
                     extend: 'excelHtml5',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7] // column indexes you want
+                        columns: [0, 1, 2, 3, 4, 5, 6] // column indexes you want
                     }
                 },
                 {
                     extend: 'pdfHtml5',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                        columns: [0, 1, 2, 3, 4, 5, 6]
                     }
                 },
                 {
                     extend: 'print',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                        columns: [0, 1, 2, 3, 4, 5, 6]
                     }
                 }
             ],
@@ -1084,7 +1088,19 @@
             scrollCollapse: true
         });
 
-         // LOCATION filter
+        // ✅ AUTO UPDATE SERIAL NUMBER
+        table.on('order.dt search.dt draw.dt', function() {
+            table.column(0, {
+                    search: 'applied',
+                    order: 'applied'
+                })
+                .nodes()
+                .each(function(cell, i) {
+                    cell.innerHTML = i + 1;
+                });
+        }).draw();
+
+        // LOCATION filter
         $('#filterBookID').on('keyup', function() {
             table.column(2).search(this.value).draw();
         });

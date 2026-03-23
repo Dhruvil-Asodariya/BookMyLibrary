@@ -12,6 +12,8 @@
 </head>
 
 <?php
+session_start();
+$_SESSION = []; // clear previous sessions
 if (isset($_POST['login_btn'])) {
 
     $email = $_POST['email'];
@@ -23,27 +25,34 @@ if (isset($_POST['login_btn'])) {
     if (mysqli_num_rows($result) == 1) {
 
         $user_data = mysqli_fetch_assoc($result);
+        if (password_verify($password, $user_data['password'])) {
 
-        if ($user_data['status'] == "Active") {
+            if ($user_data['status'] == "Active") {
 
-            if ($user_data['role'] == "User") {
+                $_SESSION['id'] = $user_data['user_id'];
+                $_SESSION['role'] = $user_data['role'];
 
-                $_SESSION['user'] = $user_data['email'];
-                setcookie("success", "Login successful", time() + 2);
-
-                header("Location: user/home.php");
-                exit();
+                if ($user_data['role'] == "User") {
+                    setcookie("success", "Login successful", time() + 2);
+                    header("Location: user/home.php");
+                    exit();
+                } else if ($user_data['role'] == "Admin") {
+                    setcookie("success", "Login successful", time() + 2);
+                    header("Location: admin/home.php");
+                    exit();
+                } else {
+                    setcookie("success", "Login successful", time() + 2);
+                    header("Location: librarian/home.php");
+                    exit();
+                }
             } else {
 
-                $_SESSION['admin'] = $user_data['email'];
-                setcookie("success", "Login successful", time() + 2);
-
-                header("Location: admin/home.php");
+                setcookie("error", "Your account is inactive. Please contact the administrator.", time() + 2);
+                header("Location: login.php");
                 exit();
             }
         } else {
-
-            setcookie("error", "Your account is inactive. Please contact the administration.", time() + 2);
+            setcookie("error", "Invalid email or password", time() + 2);
             header("Location: login.php");
             exit();
         }
@@ -53,6 +62,14 @@ if (isset($_POST['login_btn'])) {
         header("Location: login.php");
         exit();
     }
+}
+?>
+
+<?php
+if (isset($_GET['timeout'])) {
+    echo "<script>
+    alert('Session expired. Please login again.');
+    </script>";
 }
 ?>
 
@@ -83,7 +100,7 @@ if (isset($_POST['login_btn'])) {
     <div class="login-wrapper">
         <div class="login-card">
             <h1>Welcome Back</h1>
-            <p class="subtitle">Login to your library account</p>
+            <p class="subtitle">Login to your account</p>
 
             <form id="loginForm" method="POST">
 

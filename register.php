@@ -1,5 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+<?php include 'db_config.php'; ?>
+<?php
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require 'PHPMailer/src/Exception.php';
+require 'PHPMailer/src/PHPMailer.php';
+require 'PHPMailer/src/SMTP.php';
+?>
 
 <head>
     <meta charset="UTF-8">
@@ -7,7 +17,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" href="../image/title_image.png" type="image/png">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="icon" href="image/title_image.png" type="image/png">
     <style>
         * {
             margin: 0;
@@ -283,11 +294,9 @@
 
     <div class="breadcrumb-wrapper">
         <nav class="breadcrumb">
-            <a href="home.php" class="dashboard">Dashboard</a>
+            <a href="login.php" class="dashboard">Login</a>
             <span class="separator">›</span>
-            <a href="book_list.php"><span class="dashboard">Book List</span></a>
-            <span class="separator">›</span>
-            <span class="current">Add Book</span>
+            <span class="current">Register</span>
         </nav>
     </div>
 
@@ -297,10 +306,10 @@
 
 
         <div class="edit-card">
-            <form id="editBookForm" method="POST" enctype="multipart/form-data">
+            <form id="registerForm" method="POST" enctype="multipart/form-data">
                 <div class="page-header">
-                    <h2>Add Book</h2>
-                    <p>Add book details in your library system</p>
+                    <h2>Register</h2>
+                    <p>Add your details to create an account</p>
                 </div>
                 <div class="form-grid">
 
@@ -322,56 +331,37 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Author</label>
-                            <input type="text" id="author" name="author">
+                            <label>Last Name</label>
+                            <input type="text" id="last_name" name="last_name">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
-                            <label>Category</label>
-                            <select id="category" name="category">
-                                <option value="">Select Category</option>
-                                
+                            <label>email</label>
+                            <input type="email" id="email" name="email">
+                            <div class="error"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Contact Number</label>
+                            <input type="number" id="contact_number" name="contact_number">
+                            <div class="error"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Gender</label>
+                            <select id="gender" name="gender">
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
                             </select>
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
-                            <label>Year</label>
-                            <input type="number" id="year" name="year">
-                            <div class="error"></div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Library</label>
-                            <select id="library" name="library">
-                                <option value="">Select Library</option>
-                                
-                                ?>
-                            </select>
-                            <div class="error"></div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Total Copies</label>
-                            <input type="number" id="total" name="total_copy">
-                            <div class="error"></div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Available Copies</label>
-                            <input type="number" id="available" name="available_copy">
-                            <div class="error"></div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Language</label>
-                            <select id="language" name="language">
-                                <option value="">Select Language</option>
-                                <option value="English">English</option>
-                                <option value="Hindi">Hindi</option>
-                                <option value="Gujarati">Gujarati</option>
-                            </select>
+                            <label>Address</label>
+                            <input type="text" id="address" name="address">
                             <div class="error"></div>
                         </div>
 
@@ -381,7 +371,7 @@
                 <!-- Buttons -->
                 <div class="actions">
                     <button type="reset" class="btn btn-cancel">Cancel</button>
-                    <button type="submit" name="add_book_btn" class="btn btn-save">Add Book</button>
+                    <button type="submit" name="register_btn" class="btn btn-save">Register</button>
                 </div>
 
             </form>
@@ -390,94 +380,305 @@
     </div>
 
     <?php
-    // if (isset($_POST['add_book_btn'])) {
+    if (isset($_POST['register_btn'])) {
 
-    //     // 🔁 Generate Unique Random ID
-    //     do {
-    //         $book_id = rand(10000000, 99999999);
+        // 🔁 Generate Unique Random ID
+        do {
+            $user_id = rand(10000000, 99999999);
 
-    //         $check_query = mysqli_query(
-    //             $con,
-    //             "SELECT book_id FROM book_list WHERE book_id = '$book_id'"
-    //         );
-    //     } while (mysqli_num_rows($check_query) > 0);
+            $check_query = mysqli_query(
+                $con,
+                "SELECT user_id FROM user WHERE user_id = '$user_id'"
+            );
+        } while (mysqli_num_rows($check_query) > 0);
 
-    //     $library_id = $_POST['library'];
-    //     $title = $_POST['title'];
-    //     $author = $_POST['author'];
-    //     $category = $_POST['category'];
-    //     $year = $_POST['year'];
-    //     $language = $_POST['language'];
-    //     $total_copy = $_POST['total_copy'];
-    //     $available_copy = $_POST['available_copy'];
-    //     $rating = 0.0;
-    //     if ($available_copy == 0) {
-    //         $status = "Unavailable";
-    //     } else {
-    //         $status = "Available";
-    //     }
-    //     $image = uniqid() . $_FILES['image']['name'];
-    //     $image_tmp = $_FILES['image']['tmp_name'];
-    //     $upload_dir = '../book_images/';
+        $password = rand(100000, 999999);
+        $enc_password = password_hash($password, PASSWORD_BCRYPT);
 
-    //     if (!is_dir($upload_dir)) {
-    //         mkdir($upload_dir);
-    //     }
+        $first_name = $_POST['first_name'];
+        $last_name = $_POST['last_name'];
+        $email = $_POST['email'];
+        $contact_number = $_POST['contact_number'];
+        $gender = $_POST['gender'];
+        $address = $_POST['address'];
+        $role = 'User';
+        $status = 'Active';
+        $image = uniqid() . $_FILES['image']['name'];
+        $image_tmp = $_FILES['image']['tmp_name'];
+        $upload_dir = 'image/';
 
-    //     $insert_query = "INSERT INTO book_list 
-    //                     (book_id, library_id, title, author, category, year, language, total_copy, available_copy, rating, status, image)
-    //                     VALUES($book_id, $library_id, '$title', '$author', '$category', $year, '$language', $total_copy, $available_copy, $rating, '$status', '$image')";
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir);
+        }
 
-    //     if (mysqli_query($con, $insert_query)) {
-    //         move_uploaded_file($image_tmp, $upload_dir . $image);
-    //         echo "<script>
-    //                 previewImage.src = '../book_images/$image';
-    //                 document.addEventListener('DOMContentLoaded', function(){
-    //                 Swal.fire({
-    //                     toast: true,
-    //                     position: 'top',
-    //                     icon: 'success',
-    //                     title: 'Book Added Successfully!',
-    //                     showConfirmButton: false,
-    //                     timer: 2000,
-    //                     timerProgressBar: true
-    //                 }).then(() => {
-    //                     window.location.href = 'book_list.php';
-    //                 });
-    //             });
-    //         </script>";
-    //     } else {
-    //         echo "<script>
-    //                 previewImage.src = '../book_images/$image';
-    //                 document.addEventListener('DOMContentLoaded', function(){
-    //                 Swal.fire({
-    //                     toast: true,
-    //                     position: 'top',
-    //                     icon: 'error',
-    //                     title: 'Failed to add book. Please try again.',
-    //                     showConfirmButton: false,
-    //                     timer: 2000,
-    //                     timerProgressBar: true
-    //                 });
-    //             });
-    //         </script>";
-    //     }
-    // }
+        $insert_query = "INSERT INTO user 
+                        (user_id, first_name, last_name, email, contact_no, gender, address, image, password, role, status)
+                        VALUES($user_id, '$first_name', '$last_name', '$email', '$contact_number', '$gender', '$address', '$image', '$enc_password', '$role', '$status')";
+
+        // Check if email already exists
+        $check_email = mysqli_query($con, "SELECT email FROM user WHERE email='$email'");
+
+        if (mysqli_num_rows($check_email) > 0) {
+
+            echo "<script>
+                    Swal.fire({
+                        toast:true,
+                        position:'top',
+                        icon:'error',
+                        title:'Email already exists!',
+                        showConfirmButton:false,
+                        timer:2000
+                    });
+                </script>";
+        } else {
+
+            if (mysqli_query($con, $insert_query)) {
+            move_uploaded_file($image_tmp, $upload_dir . $image);
+
+            $mail = new PHPMailer(true);
+
+            try {
+
+                $mail->isSMTP();
+                $mail->Host = 'smtp.gmail.com';
+                $mail->SMTPAuth = true;
+                $mail->Username = 'dasodariya899@rku.ac.in';
+                $mail->Password = 'impt ujku nrtp taee';
+                $mail->SMTPSecure = 'tls';
+                $mail->Port = 587;
+
+                $mail->setFrom('dasodariya899@rku.ac.in', 'Book My Library');
+                $mail->addAddress($email, $first_name);
+
+                $mail->isHTML(true);
+                $mail->Subject = "Your Account Details";
+
+                $mail->Body = "
+                            <!DOCTYPE html>
+                            <html>
+                            <head>
+                            <meta charset='UTF-8'>
+                            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+
+                            <style>
+
+                            @media only screen and (max-width:600px){
+                            .container{
+                            width:95% !important;
+                            }
+                            }
+
+                            </style>
+
+                            </head>
+
+                            <body style='margin:0;padding:0;background:#e5e5e5;font-family:Arial,Helvetica,sans-serif;'>
+
+                            <table width='100%' cellpadding='0' cellspacing='0' style='padding:25px 10px;'>
+
+                            <tr>
+                            <td align='center'>
+
+                            <table class='container' width='650' cellpadding='0' cellspacing='0'
+                            style='max-width:650px;background:linear-gradient(135deg,#2c3e50,#1b2735);border-radius:10px;color:#ffffff;padding:35px;'>
+
+                            <!-- LOGO -->
+                            <tr>
+                            <td align='center'>
+
+                            <h1 style='margin:0;font-size:28px;'>
+                            🚀 Welcome to <span style='color:#ffa726;'>Book My Library!</span>
+                            </h1>
+
+                            <p style='margin-top:10px;font-size:15px;color:#d5d5d5;'>
+                            Hello $first_name $last_name, we're thrilled to have you with us!
+                            </p>
+
+                            </td>
+                            </tr>
+
+                            <!-- LOGIN CARD -->
+                            <tr>
+                            <td style='padding-top:20px;'>
+
+                            <table width='100%' style='background:#4b5a6a;border-radius:8px;padding:25px;text-align:center;'>
+
+                            <tr>
+                            <td style='font-size:18px;font-weight:bold;color:#ffcc00;padding-bottom:10px;'>
+
+                            🔑 Your Login Credentials
+
+                            </td>
+                            </tr>
+
+                            <tr>
+                            <td style='padding:5px;font-size:15px;'>
+
+                            👤 Username: <b>$email</b>
+
+                            </td>
+                            </tr>
+
+                            <tr>
+                            <td style='padding:5px;font-size:15px;'>
+
+                            🔐 Password: <b style='color:#ffcc00'>$password</b>
+
+                            </td>
+                            </tr>
+
+                            <tr>
+                            <td style='padding-top:10px;color:#ff4d4d;font-size:14px;'>
+
+                            ⚠ Keep your credentials safe and do not share them.
+
+                            </td>
+                            </tr>
+
+                            <tr>
+                            <td style='padding-top:20px;'>
+
+                            <a href='http://localhost/BookMyLibrary/login.php'
+                            style='background:#3498db;color:#ffffff;text-decoration:none;padding:12px 28px;border-radius:6px;font-weight:bold;display:inline-block;font-size:15px;'>
+
+                            🔒 Login to Your Account
+
+                            </a>
+
+                            </td>
+                            </tr>
+
+                            </table>
+
+                            </td>
+                            </tr>
+
+                            <!-- MESSAGE -->
+                            <tr>
+                            <td align='center' style='padding-top:30px;'>
+
+                            <h3 style='color:#ffcc00;margin-bottom:10px;'>📚 Welcome to Book My Library</h3>
+
+                            <p style='color:#dcdcdc;font-size:14px;margin:0;'>
+                            At <span style='color:#ffa726;'>Book My Library</span>, we make it easier for readers to explore, borrow, and manage books anytime, anywhere.
+                            </p>
+
+                            <p style='color:#bbbbbb;font-size:13px;margin-top:10px;font-style:italic;'>
+                            \"Books are a uniquely portable magic.\"<br>
+                            — Book My Library
+                            </p>
+
+                            </td>
+                            </tr>
+
+                            <!-- FOOTER -->
+                            <tr>
+                            <td style='padding-top:30px;'>
+
+                            <table width='100%' style='background:#3e4a57;border-radius:8px;padding:20px;text-align:center;'>
+
+                            <tr>
+                            <td>
+
+                            <h3 style='margin-top:0;'>Best Wishes,</h3>
+
+                            <p style='margin:5px 0;'>📖 The Book My Library Team</p>
+
+                            <!-- SOCIAL ICONS -->
+                            <p style='margin-top:15px;'>
+
+                            <a href='#' style='margin:0 8px;text-decoration:none;'>
+                            <img src='https://cdn-icons-png.flaticon.com/512/733/733547.png' width='24'>
+                            </a>
+
+                            <a href='#' style='margin:0 8px;text-decoration:none;'>
+                            <img src='https://cdn-icons-png.flaticon.com/512/733/733579.png' width='24'>
+                            </a>
+
+                            <a href='#' style='margin:0 8px;text-decoration:none;'>
+                            <img src='https://cdn-icons-png.flaticon.com/512/733/733558.png' width='24'>
+                            </a>
+
+                            <a href='#' style='margin:0 8px;text-decoration:none;'>
+                            <img src='https://cdn-icons-png.flaticon.com/512/733/733635.png' width='24'>
+                            </a>
+
+                            </p>
+
+                            <p style='margin-top:10px;font-size:13px;color:#cccccc;'>
+                            📧 support@bookmylibrary.com | 🌐 www.bookmylibrary.com
+                            </p>
+
+                            </td>
+                            </tr>
+
+                            </table>
+
+                            </td>
+                            </tr>
+
+                            </table>
+
+                            </td>
+                            </tr>
+
+                            </table>
+
+                            </body>
+                            </html>
+                            ";
+
+                $mail->send();
+            } catch (Exception $e) {
+                echo "Mailer Error: {$mail->ErrorInfo}";
+            }
+
+            echo "<script>
+                    document.addEventListener('DOMContentLoaded', function(){
+                        Swal.fire({
+                            toast: true,
+                            position: 'top',
+                            icon: 'success',
+                            title: 'Your login credentials have been sent to your registered email.',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        }).then(function(){
+                            window.location.href='login.php';
+                        });
+                    });
+                </script>";
+        } else {
+
+            echo "<script>
+                    document.addEventListener('DOMContentLoaded', function(){
+                        Swal.fire({
+                            toast: true,
+                            position: 'top',
+                            icon: 'error',
+                            title: 'Failed to register user. Please try again.',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
+                    });
+                </script>";
+        }
+        }
+    }
     ?>
 
     <!-- FOOTER -->
-    
+
 
     <script>
-        const form = document.getElementById("editBookForm");
-        const title = document.getElementById("title");
-        const author = document.getElementById("author");
-        const category = document.getElementById("category");
-        const year = document.getElementById("year");
-        const library = document.getElementById("library");
-        const language = document.getElementById("language");
-        const total = document.getElementById("total");
-        const available = document.getElementById("available");
+        const form = document.getElementById("registerForm");
+        const first_name = document.getElementById("first_name");
+        const last_name = document.getElementById("last_name");
+        const email = document.getElementById("email");
+        const contact_number = document.getElementById("contact_number");
+        const gender = document.getElementById("gender");
+        const address = document.getElementById("address");
         const imageInput = document.getElementById("imageInput");
         const previewImage = document.getElementById("previewImage");
         const imageError = imageInput.parentElement.querySelector(".error");
@@ -516,9 +717,15 @@
             }
         }
 
-        function validateSelect(input) {
-            if (input.value === "") {
-                showError(input, "Please select an option");
+        function validateEmail(input) {
+            let email = input.value.trim();
+            let emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
+
+            if (email === "") {
+                showError(input, "Email is required");
+                return false;
+            } else if (!emailPattern.test(email)) {
+                showError(input, "Enter valid email");
                 return false;
             } else {
                 showSuccess(input);
@@ -526,57 +733,51 @@
             }
         }
 
-        function validateYear() {
-            const currentYear = new Date().getFullYear();
-            if (year.value === "") {
-                showError(year, "This field is required");
+        function validatePhone(input) {
+            let phone = input.value.trim();
+
+            if (phone === "") {
+                showError(input, "Contact number is required");
                 return false;
-            } else if (year.value < 0) {
-                showError(year, "Enter a valid year");
+            } else if (!/^[0-9]+$/.test(phone)) {
+                showError(input, "Contact number must contain only numbers");
                 return false;
-            } else if (year.value.length !== 4 || isNaN(year.value)) {
-                showError(year, "Enter a valid 4-digit year");
-                return false;
-            } else if (year.value > currentYear) {
-                showError(year, "Year cannot be in the future");
+            } else if (phone.length !== 10) {
+                showError(input, "Contact number must be exactly 10 digits");
                 return false;
             } else {
-                showSuccess(year);
+                showSuccess(input);
                 return true;
             }
         }
 
-        function validateCopies() {
-            const totalValue = total.value.trim();
-            const availableValue = available.value.trim();
-            const regex = /^[0-9]+$/; // only whole numbers
+        function validateAddress(input) {
+            let address = input.value.trim();
 
-            // TOTAL validation
-            if (totalValue === "") {
-                showError(total, "This field is required");
+            // allow letters, numbers, space, comma, (), :, -
+            let regex = /^[a-zA-Z0-9\s,():-]+$/;
+
+            if (address === "") {
+                showError(input, "Address is required");
                 return false;
-            } else if (!regex.test(totalValue)) {
-                showError(total, "Enter valid number");
+            } else if (address.length < 5) {
+                showError(input, "Enter full address");
                 return false;
-            } else if (Number(totalValue) <= 0) {
-                showError(total, "Total must be greater than 0");
+            } else if (!regex.test(address)) {
+                showError(input, "Only letters, numbers, space, , ( ) : - allowed");
                 return false;
             } else {
-                showSuccess(total);
+                showSuccess(input);
+                return true;
             }
+        }
 
-            // AVAILABLE validation
-            if (availableValue === "") {
-                showError(available, "This field is required");
-                return false;
-            } else if (!regex.test(availableValue)) {
-                showError(available, "Enter valid number");
-                return false;
-            } else if (Number(availableValue) < 0 || Number(availableValue) > Number(totalValue)) {
-                showError(available, `Available must be between 0 and ${totalValue}`);
+        function validateSelect(input) {
+            if (input.value === "") {
+                showError(input, "Please select an option");
                 return false;
             } else {
-                showSuccess(available);
+                showSuccess(input);
                 return true;
             }
         }
@@ -617,14 +818,12 @@
         }
 
 
-        title.addEventListener("input", () => validateText(title));
-        author.addEventListener("input", () => validateText(author));
-        category.addEventListener("change", () => validateSelect(category));
-        library.addEventListener("change", () => validateSelect(library));
-        language.addEventListener("change", () => validateSelect(language));
-        year.addEventListener("input", validateYear);
-        total.addEventListener("input", validateCopies);
-        available.addEventListener("input", validateCopies);
+        first_name.addEventListener("input", () => validateText(first_name));
+        last_name.addEventListener("input", () => validateText(last_name));
+        email.addEventListener("input", () => validateEmail(email));
+        contact_number.addEventListener("input", () => validatePhone(contact_number));
+        gender.addEventListener("change", () => validateSelect(gender));
+        address.addEventListener("input", () => validateAddress(address));
 
         imageInput.addEventListener("change", function(event) {
             const file = event.target.files[0];
@@ -643,13 +842,12 @@
         form.addEventListener("submit", function(e) {
 
             const isValid =
-                validateText(title) &
-                validateText(author) &
-                validateSelect(category) &
-                validateSelect(library) &
-                validateYear() &
-                validateSelect(language) &
-                validateCopies() &
+                validateText(first_name) &
+                validateText(last_name) &
+                validateEmail(email) &
+                validatePhone(contact_number) &
+                validateSelect(gender) &
+                validateAddress(address) &
                 validateImage(imageInput.files[0]);
 
             if (!isValid) {

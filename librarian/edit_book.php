@@ -1,3 +1,11 @@
+<?php
+require "../session_check.php";
+
+if ($_SESSION['role'] != "Librarian") {
+    header("Location: ../login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -270,10 +278,15 @@
     <!-- MAIN CONTENT -->
     <div class="main-content">
 
+        <?php
+        $book_id = intval($_GET['book_id']);
+        $book = mysqli_query($con, "SELECT * FROM book_list WHERE book_id = $book_id");
+        $data = mysqli_fetch_assoc($book);
 
+        ?>
 
         <div class="edit-card">
-            <form id="editBookForm" action="#" method="POST" enctype="multipart/form-data">
+            <form id="editBookForm" method="POST" enctype="multipart/form-data">
                 <div class="page-header">
                     <h2>Edit Book</h2>
                     <p>Edit book details in your library system</p>
@@ -282,9 +295,9 @@
 
                     <!-- Image -->
                     <label class="image-box">
-                        <img id="previewImage" src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg"><br>
+                        <img id="previewImage" src="../book_images/<?php echo $data['image']; ?>"><br>
                         <span>Click to upload book image</span>
-                        <input type="file" accept="image/*" id="imageInput" value="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg">
+                        <input type="file" accept="image/*" id="imageInput" value="../book_images/<?php echo $data['image']; ?>" name="image">
                     </label>
 
                     <!-- Fields -->
@@ -292,54 +305,56 @@
 
                         <div class="form-group">
                             <label>Title</label>
-                            <input type="text" id="title" value="Introduction to Java">
+                            <input type="text" id="title" value="<?php echo $data['title']; ?>" name="title">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Author</label>
-                            <input type="text" id="author" value="James Gosling">
+                            <input type="text" id="author" value="<?php echo $data['author']; ?>" name="author">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Category</label>
-                            <select id="category">
+                            <select id="category" name="category">
                                 <option value="">Select Category</option>
-                                <option selected>Programming</option>
-                                <option>Science</option>
-                                <option>Database</option>
-                                <option>Mathematics</option>
+                                <option value="Programming" <?php if ($data['category'] == 'Programming') echo 'selected'; ?>>Programming</option>
+                                <option value="Science" <?php if ($data['category'] == 'Science') echo 'selected'; ?>>Science</option>
+                                <option value="Database" <?php if ($data['category'] == 'Database') echo 'selected'; ?>>Database</option>
+                                <option value="Mathematics" <?php if ($data['category'] == 'Mathematics') echo 'selected'; ?>>Mathematics</option>
+                                <option value="History" <?php if ($data['category'] == 'History') echo 'selected'; ?>>History</option>
+                                <option value="Fiction" <?php if ($data['category'] == 'Fiction') echo 'selected'; ?>>Fiction</option>
                             </select>
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Year</label>
-                            <input type="number" id="year" value="2020">
+                            <input type="number" id="year" value="<?php echo $data['year']; ?>" name="year">
                             <div class="error"></div>
                         </div>
 
-                        <!-- <div class="form-group">
-                            <label>Library</label>
-                            <select id="library">
-                                <option value="">Select Library</option>
-                                <option selected>Main Library</option>
-                                <option>Science Block</option>
-                                <option>Engineering Wing</option>
-                            </select>
-                            <div class="error"></div>
-                        </div> -->
-
                         <div class="form-group">
                             <label>Total Copies</label>
-                            <input type="number" id="total" value="4">
+                            <input type="number" id="total" value="<?php echo $data['total_copy']; ?>" name="total_copy">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Available Copies</label>
-                            <input type="number" id="available" value="2">
+                            <input type="number" id="available" value="<?php echo $data['available_copy']; ?>" name="available_copy">
+                            <div class="error"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Language</label>
+                            <select id="language" name="language">
+                                <option value="">Select Language</option>
+                                <option value="English" <?php if ($data['language'] == 'English') echo 'selected'; ?>>English</option>
+                                <option value="Hindi" <?php if ($data['language'] == 'Hindi') echo 'selected'; ?>>Hindi</option>
+                                <option value="Gujarati" <?php if ($data['language'] == 'Gujarati') echo 'selected'; ?>>Gujarati</option>
+                            </select>
                             <div class="error"></div>
                         </div>
 
@@ -349,13 +364,96 @@
                 <!-- Buttons -->
                 <div class="actions">
                     <button type="reset" class="btn btn-cancel">Cancel</button>
-                    <button type="submit" class="btn btn-save">Save Change</button>
+                    <button type="submit" class="btn btn-save" name="save_btn">Save Change</button>
                 </div>
 
             </form>
         </div>
-
     </div>
+
+    <?php
+    if (isset($_POST['save_btn'])) {
+        $title = $_POST['title'];
+        $author = $_POST['author'];
+        $category = $_POST['category'];
+        $year = $_POST['year'];
+        $language = $_POST['language'];
+        $total_copy = $_POST['total_copy'];
+        $available_copy = $_POST['available_copy'];
+        if ($available_copy == 0) {
+            $status = "Unavailable";
+        } else {
+            $status = "Available";
+        }
+        $upload_dir = '../book_images/';
+
+        $old_image = $data['image'];
+
+        // 🔹 Step 2: Check if new image uploaded
+        if (!empty($_FILES['image']['name'])) {
+
+            // Generate new image name
+            $image = uniqid() . $_FILES['image']['name'];
+            $image_tmp = $_FILES['image']['tmp_name'];
+
+            // Delete old image if exists
+            $oldImagePath = $upload_dir . $old_image;
+
+            if (!empty($old_image) && file_exists($oldImagePath)) {
+                unlink($oldImagePath);
+            }
+
+            // Upload new image
+            move_uploaded_file($image_tmp, $upload_dir . $image);
+        } else {
+            // If no new image uploaded, keep old image
+            $image = $old_image;
+        }
+
+        $update_query = "UPDATE book_list SET 
+                            title = '$title', 
+                            author = '$author', 
+                            category = '$category', 
+                            year = $year, 
+                            language = '$language', 
+                            total_copy = $total_copy, 
+                            available_copy = $available_copy, 
+                            status = '$status',
+                            image = '$image' 
+                         WHERE book_id = $book_id";
+
+        if (mysqli_query($con, $update_query)) {
+            echo "<script>
+                    previewImage.src = '../book_images/$image';
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'success',
+                        title: 'Book details updated successfully!',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true,
+                        didClose: () => {
+                            window.location.href = 'book_list.php';
+                        }
+                    });
+                </script>";
+        } else {
+            echo "<script>
+                    previewImage.src = '../book_images/$image';
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'error',
+                        title: 'Failed to update book details. Please try again.',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    });
+                </script>";
+        }
+    }
+    ?>
 
     <!-- FOOTER -->
     <?php include 'footer.php'; ?>
@@ -366,9 +464,9 @@
         const author = document.getElementById("author");
         const category = document.getElementById("category");
         const year = document.getElementById("year");
-        // const library = document.getElementById("library");
         const total = document.getElementById("total");
         const available = document.getElementById("available");
+        const language = document.getElementById("language");
         const imageInput = document.getElementById("imageInput");
         const previewImage = document.getElementById("previewImage");
 
@@ -475,7 +573,7 @@
         title.addEventListener("input", () => validateText(title));
         author.addEventListener("input", () => validateText(author));
         category.addEventListener("change", () => validateSelect(category));
-        // library.addEventListener("change", () => validateSelect(library));
+        language.addEventListener("change", () => validateSelect(language));
         year.addEventListener("input", validateYear);
         total.addEventListener("input", validateCopies);
         available.addEventListener("input", validateCopies);
@@ -487,31 +585,34 @@
         });
 
         form.addEventListener("submit", function(e) {
-            e.preventDefault();
 
             const isValid =
-                validateText(title) &
-                validateText(author) &
-                validateSelect(category) &
-                validateYear() &
-                // validateSelect(library) &
+                validateText(title) &&
+                validateText(author) &&
+                validateSelect(category) &&
+                validateYear() &&
+                validateSelect(language) &&
                 validateCopies();
 
-            if (isValid) {
-                Swal.fire({
-                    toast: true,
-                    position: 'top',
-                    icon: 'success',
-                    title: 'Book details updated successfully!',
-                    showConfirmButton: false,
-                    timer: 2000,
-                    timerProgressBar: true,
-                    didClose: () => {
-                        window.location.href = "book_list.php";
-                    }
-                });
-                previewImage.src = "https://via.placeholder.com/160x220?text=Book+Cover";
+            if (!isvalid) {
+                e.preventDefault();
             }
+
+            // if (isValid) {
+            // Swal.fire({
+            //     toast: true,
+            //     position: 'top',
+            //     icon: 'success',
+            //     title: 'Book details updated successfully!',
+            //     showConfirmButton: false,
+            //     timer: 2000,
+            //     timerProgressBar: true,
+            //     didClose: () => {
+            //         window.location.href = "book_list.php";
+            //     }
+            // });
+            previewImage.src = "https://via.placeholder.com/160x220?text=Book+Cover";
+            // }
         });
     </script>
 

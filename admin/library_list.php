@@ -1,3 +1,11 @@
+<?php
+require "../session_check.php";
+
+if ($_SESSION['role'] != "Admin") {
+    header("Location: ../login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -413,6 +421,188 @@
                 font-size: 13px;
             }
         }
+
+        .model-link {
+            color: #2660de;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Card */
+        .modal-card {
+            background: #ffffff;
+            width: 700px;
+            max-width: 95%;
+            border-radius: 14px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            animation: fadeSlide 0.25s ease;
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Header */
+        .modal-header-p {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header-p h3 {
+            font-size: 18px;
+            color: #0f172a;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        /* Pills container */
+        .pill-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Base pill */
+        .pill {
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        /* Role pill (Blue) */
+        .pill-role-librarian {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .pill-role-user {
+            background-color: #e0f2fe;
+            color: #075985;
+        }
+
+        .pill-role-admin {
+            background-color: #ede9fe;
+            color: #5b21b6;
+        }
+
+        /* Status pills */
+        .pill-active {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .pill-inactive {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Close */
+        .close-icon {
+            font-size: 22px;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .close-icon:hover {
+            color: #ef4444;
+        }
+
+        /* Body */
+        .modal-body-p {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        /* Image */
+        .book-image img {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+
+        /* Details */
+        .book-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .detail span {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        .detail p {
+            margin-top: 4px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        /* Footer */
+        .modal-footer {
+            padding: 14px 20px;
+            border-top: 1px solid #e5e7eb;
+            text-align: right;
+        }
+
+        /* Buttons */
+        .btn-secondary {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #cbd5f5;
+            background: #f8fafc;
+            color: #1e293b;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e7ff;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .modal-body {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .book-details {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 
 </head>
@@ -439,7 +629,7 @@
                         <input type="text" id="filterLibraryName" placeholder="Filter by Library Name">
                     </div>
                     <div class="filter-box">
-                        <label>Location</label>
+                        <label>Library Location</label>
                         <input type="text" id="filterLocation" placeholder="Filter by Location">
                     </div>
                     <div class="filter-box">
@@ -463,6 +653,7 @@
                     <tr>
                         <th>Sr No.</th>
                         <th>Library ID</th>
+                        <th>User ID</th>
                         <th>Library Name</th>
                         <th>Library Owner Name</th>
                         <th>Table Capacity</th>
@@ -478,53 +669,95 @@
                     <?php
                     $librarys = mysqli_query($con, "SELECT * FROM library");
                     $i = 1;
+
                     foreach ($librarys as $row) {
 
                         // Dynamic Status Logic
                         if ($row['status'] == "Active") {
                             $statusClass = "active";
                             $statusText  = "Active";
-                            $buttonText = "Inactive";
+                            $buttonText  = "Inactive";
                         } else {
                             $statusClass = "inactive";
                             $statusText  = "Inactive";
-                            $buttonText = "Active";
+                            $buttonText  = "Active";
                         }
 
-                    echo "
-                        <tr>
-                        <td>{$i}</td>
-                        <td>{$row['library_id']}</td>
-                        <td>{$row['library_name']}</td>
-                        <td>{$row['library_owner_name']}</td>
-                        <td>{$row['table_capacity']}</td>
-                        <td>{$row['chair_capacity']}</td>
-                        <td>{$row['open_at']}</td>
-                        <td>{$row['close_at']}</td>
-                        <td>{$row['library_location']}</td>
-                        <td><span id='status_{$row['library_id']}' 
-                                class='status {$statusClass}'>
-                                {$statusText}
-                            </span></td>
+                        $user_query = mysqli_query($con, "SELECT * FROM user WHERE user_id = '{$row['user_id']}'");
 
-                        <td>
-                            <a href='edit_library.php?library_id=24842354' style='text-decoration: none;'>
-                                <button class='btn btn-edit'>Edit</button>
-                            </a>
-                            <button class='btn btn-delete' onclick='openDeleteModal()'>Delete</button><br>
-                            <button 
-                                class='btn btn-toggle'
-                                onclick='toggleStatus({$row['library_id']}, " . json_encode($statusText) . ", this)'>
-                                {$buttonText}
-                            </button>
-                            <a href='view_table&chair.php?library_id=24842354' style='text-decoration: none;'>
-                                <button class='btn btn-edit'>View Table & Chair</button>
-                            </a>
-                        </td>
-                    </tr>
-                    ";
+                        if ($user_query && mysqli_num_rows($user_query) > 0) {
+                            $user_data = mysqli_fetch_assoc($user_query);
+                        } else {
+                            $user_data = null;
+                        }
 
-                    $i++;
+                        $modalUserId   = $user_data['user_id'] ?? 'NULL';
+                        $modalImage    = $user_data && !empty($user_data['image']) ? '../image/' . $user_data['image'] : '';
+                        $firstName     = htmlspecialchars($user_data['first_name'] ?? 'NULL', ENT_QUOTES);
+                        $lastName      = htmlspecialchars($user_data['last_name'] ?? 'NULL', ENT_QUOTES);
+                        $email         = htmlspecialchars($user_data['email'] ?? 'NULL', ENT_QUOTES);
+                        $contactNo     = htmlspecialchars($user_data['contact_no'] ?? 'NULL', ENT_QUOTES);
+                        $address       = htmlspecialchars($user_data['address'] ?? 'NULL', ENT_QUOTES);
+                        $role          = htmlspecialchars($user_data['role'] ?? 'NULL', ENT_QUOTES);
+                        $userStatus    = htmlspecialchars($user_data['status'] ?? 'NULL', ENT_QUOTES);
+                        $displayUserId = !empty($row['user_id']) ? $row['user_id'] : 'NULL';
+
+                        echo "
+                                <tr>
+                                    <td>{$i}</td>
+                                    <td>{$row['library_id']}</td>
+
+                                    <td>
+                                        <span class='model-link'
+                                            onclick=\"openUserModal(
+                                                '{$modalUserId}',
+                                                '{$modalImage}',
+                                                '{$firstName}',
+                                                '{$lastName}',
+                                                '{$email}',
+                                                '{$contactNo}',
+                                                '{$address}',
+                                                '{$role}',
+                                                '{$userStatus}'
+                                            )\">
+                                            {$displayUserId}
+                                        </span>
+                                    </td>
+
+                                    <td>{$row['library_name']}</td>
+                                    <td>{$row['library_owner_name']}</td>
+                                    <td>{$row['table_capacity']}</td>
+                                    <td>{$row['chair_capacity']}</td>
+                                    <td>{$row['open_at']}</td>
+                                    <td>{$row['close_at']}</td>
+                                    <td>{$row['library_location']}</td>
+
+                                    <td>
+                                        <span id='status_{$row['library_id']}' class='status {$statusClass}'>
+                                            {$statusText}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <a href='edit_library.php?library_id={$row['library_id']}' style='text-decoration: none;'>
+                                            <button class='btn btn-edit'>Edit</button>
+                                        </a>
+
+                                        <button class='btn btn-delete' onclick='openDeleteModal({$row['library_id']})'>Delete</button><br>
+
+                                        <button class='btn btn-toggle'
+                                            onclick='toggleStatus({$row['library_id']}, " . json_encode($statusText) . ", this)'>
+                                            {$buttonText}
+                                        </button>
+
+                                        <a href='view_table&chair.php?library_id={$row['library_id']}' style='text-decoration: none;'>
+                                            <button class='btn btn-edit'>View Table & Chair</button>
+                                        </a>
+                                    </td>
+                                </tr>
+                                ";
+
+                        $i++;
                     }
                     ?>
 
@@ -532,23 +765,127 @@
             </table>
         </div>
     </div>
-    <div class="modal-overlay" id="deleteModal">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3>Delete Library Record</h3>
+
+    <div class="modal-backdrop" id="userModal">
+        <div class="modal-card">
+
+            <div class="modal-header-p">
+                <div class="header-left">
+                    <h3>User Details</h3>
+
+                    <div class="pill-group">
+                        <span id="modalUserRole" class="pill"></span>
+                        <span id="modalUserStatus" class="pill"></span>
+                        <!-- <span class="pill pill-inactive">Inactive</span> -->
+                    </div>
+                </div>
+
+                <span class="close-icon" onclick="closeUserModal()">×</span>
             </div>
 
-            <div class="modal-body">
-                <p>⚠️ Are you sure you want to delete this library record?</p>
-                <span>This action cannot be undone.</span>
+            <div class="modal-body-p">
+                <div class="book-image">
+                    <img id="modalUserImage" src="" alt="User Image">
+                </div>
+
+                <div class="book-details">
+                    <div class="detail">
+                        <span>User ID</span>
+                        <p id="modalUserId"></p>
+                    </div>
+                    <div class="detail">
+                        <span>First Name</span>
+                        <p id="modalUserFirstName"></p>
+                    </div>
+                    <div class="detail">
+                        <span>Last Name</span>
+                        <p id="modalUserLastName"></p>
+                    </div>
+                    <div class="detail">
+                        <span>Email ID</span>
+                        <p id="modalUserEmail"></p>
+                    </div>
+                    <div class="detail">
+                        <span>Contact Number</span>
+                        <p id="modalUserContact"></p>
+                    </div>
+                    <div class="detail">
+                        <span>Address</span>
+                        <p id="modalUserAddress"></p>
+                    </div>
+                </div>
             </div>
 
-            <div class="modal-actions">
-                <button class="btn cancel-btn" onclick="closeDeleteModal()">Cancel</button>
-                <button class="btn delete-btn" onclick="confirmDelete()">Yes, Delete</button>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeUserModal()">Close</button>
             </div>
+
         </div>
     </div>
+
+    <div class="modal-overlay" id="deleteModal">
+        <form method="post">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <h3>Delete Library Record</h3>
+                </div>
+
+                <div class="detail" style="display:none;">
+                    <input type="hidden" name="libraryId" id="libraryId">
+                </div>
+
+                <div class="modal-body">
+                    <p>⚠️ Are you sure you want to delete this library book record?</p>
+                    <span>This action cannot be undone.</span>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn cancel-btn" onclick="closeDeleteModal()">Cancel</button>
+                    <button type="submit" class="btn delete-btn" name="delete_btn">Yes, Delete</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <?php
+    if (isset($_POST['delete_btn'])) {
+        $library_id = intval($_POST['libraryId']);
+
+        $delete_query = "DELETE FROM library WHERE library_id = $library_id";
+
+        if (mysqli_query($con, $delete_query)) {
+            echo "<script>
+                document.addEventListener('DOMContentLoaded', function(){
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'success',
+                        title: 'Library Record Deleted Successfully!',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    }).then(() => {
+                        window.location.href = 'library_list.php';
+                    });
+                });
+            </script>";
+        } else {
+            echo "<script>
+                document.addEventListener('DOMContentLoaded', function(){
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'error',
+                        title: 'Failed to delete library record. Please try again.',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    });
+                });
+            </script>";
+        }
+    }
+    ?>
+
     <?php include 'footer.php'; ?>
 
     <!-- Scripts -->
@@ -567,22 +904,31 @@
         var table = $('#bookTable').DataTable({
             responsive: true,
             dom: 'Brtip',
+            columnDefs: [{
+                targets: 0, // Sr No column
+                orderable: false,
+                searchable: false
+            }],
+
+            order: [
+                [1, 'asc']
+            ],
             buttons: [{
                     extend: 'excelHtml5',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
                     }
                 },
                 {
                     extend: 'pdfHtml5',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
                     }
                 },
                 {
                     extend: 'print',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
                     }
                 }
             ],
@@ -592,21 +938,33 @@
             scrollCollapse: true
         });
 
+        // ✅ AUTO UPDATE SERIAL NUMBER
+        table.on('order.dt search.dt draw.dt', function() {
+            table.column(0, {
+                    search: 'applied',
+                    order: 'applied'
+                })
+                .nodes()
+                .each(function(cell, i) {
+                    cell.innerHTML = i + 1;
+                });
+        }).draw();
+
         // STATUS filter
         $('#filterStatus').on('change', function() {
             var value = this.value.toLowerCase();
 
-            table.column(9).search(value ? '^' + value + '$' : '', true, false).draw();
+            table.column(10).search(value ? '^' + value + '$' : '', true, false).draw();
         });
 
         // LOCATION filter
         $('#filterLocation').on('keyup', function() {
-            table.column(8).search(this.value).draw();
+            table.column(9).search(this.value).draw();
         });
 
         // OWNER filter
         $('#filterLibraryName').on('keyup', function() {
-            table.column(2).search(this.value).draw();
+            table.column(3).search(this.value).draw();
         });
 
         // RESET filters
@@ -620,20 +978,14 @@
 
         const deleteModal = document.getElementById("deleteModal");
 
-        function openDeleteModal() {
+        function openDeleteModal(id) {
+            document.getElementById("libraryId").value = id;
             deleteModal.style.display = "flex";
         }
 
         function closeDeleteModal() {
             deleteModal.style.display = "none";
         }
-
-        function confirmDelete() {
-            closeDeleteModal();
-            alert("Library record deleted successfully!");
-            // Here you can remove the row or call backend later
-        }
-
     </script>
 
     <script>
@@ -694,6 +1046,47 @@
                     }
 
                 });
+        }
+
+        function openUserModal(id, image, first, last, email, contact, address, role, status) {
+
+            document.getElementById("modalUserId").innerText = id;
+            document.getElementById("modalUserFirstName").innerText = first;
+            document.getElementById("modalUserLastName").innerText = last;
+            document.getElementById("modalUserEmail").innerText = email;
+            document.getElementById("modalUserContact").innerText = contact;
+            document.getElementById("modalUserAddress").innerText = address;
+            document.getElementById("modalUserImage").src = image;
+
+            /* ROLE */
+            let roleElement = document.getElementById("modalUserRole");
+            roleElement.innerText = role;
+            roleElement.className = "pill";
+
+            if (role === "Librarian") {
+                roleElement.classList.add("pill-role-librarian");
+            } else if (role === "User") {
+                roleElement.classList.add("pill-role-user");
+            } else if (role === "Admin") {
+                roleElement.classList.add("pill-role-admin");
+            }
+
+            /* STATUS */
+            let statusElement = document.getElementById("modalUserStatus");
+            statusElement.innerText = status;
+            statusElement.className = "pill";
+
+            if (status === "Active") {
+                statusElement.classList.add("pill-active");
+            } else if (status === "Inactive") {
+                statusElement.classList.add("pill-inactive");
+            }
+
+            document.getElementById("userModal").style.display = "flex";
+        }
+
+        function closeUserModal() {
+            document.getElementById("userModal").style.display = "none";
         }
     </script>
 

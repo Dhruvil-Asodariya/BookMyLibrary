@@ -1,3 +1,11 @@
+<?php
+require "../session_check.php";
+
+if ($_SESSION['role'] != "Admin") {
+    header("Location: ../login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -506,7 +514,7 @@
                                 onclick='toggleStatus({$row['category_id']}, " . json_encode($statusText) . ", this)'>
                                 {$buttonText}
                             </button>
-                            <button class='btn btn-delete' onclick='openDeleteModal()'>Delete</button>
+                            <button class='btn btn-delete' onclick='openDeleteModal({$row['category_id']})'>Delete</button>
                         </td>
                     </tr>";
                         $i++;
@@ -519,22 +527,67 @@
     </div>
 
     <div class="modal-overlay" id="deleteModal">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3>Delete Category Record</h3>
-            </div>
+        <form method="post">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <h3>Delete Category Record</h3>
+                </div>
 
-            <div class="modal-body">
-                <p>⚠️ Are you sure you want to delete this category record?</p>
-                <span>This action cannot be undone.</span>
-            </div>
+                <div class="detail" style="display:none;">
+                    <input type="hidden" name="categoryId" id="categoryId">
+                </div>
 
-            <div class="modal-actions">
-                <button class="btn cancel-btn" onclick="closeDeleteModal()">Cancel</button>
-                <button class="btn delete-btn" onclick="confirmDelete()">Yes, Delete</button>
+                <div class="modal-body">
+                    <p>⚠️ Are you sure you want to delete this category record?</p>
+                    <span>This action cannot be undone.</span>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn cancel-btn" onclick="closeDeleteModal()">Cancel</button>
+                    <button type="submit" class="btn delete-btn" name="delete_btn">Yes, Delete</button>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
+    <?php
+    if (isset($_POST['delete_btn'])) {
+        $category_id = intval($_POST['categoryId']);
+
+        $delete_query = "DELETE FROM category WHERE category_id = $category_id";
+
+        if (mysqli_query($con, $delete_query)) {
+            echo "<script>
+                document.addEventListener('DOMContentLoaded', function(){
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'success',
+                        title: 'Category Record Deleted Successfully!',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    }).then(() => {
+                        window.location.href = 'category_list.php';
+                    });
+                });
+            </script>";
+        } else {
+            echo "<script>
+                document.addEventListener('DOMContentLoaded', function(){
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'error',
+                        title: 'Failed to delete category record. Please try again.',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    });
+                });
+            </script>";
+        }
+    }
+    ?>
     <?php include 'footer.php'; ?>
 
     <!-- Scripts -->
@@ -621,18 +674,13 @@
 
         const deleteModal = document.getElementById("deleteModal");
 
-        function openDeleteModal() {
+        function openDeleteModal(id) {
+            document.getElementById("categoryId").value = id;
             deleteModal.style.display = "flex";
         }
 
         function closeDeleteModal() {
             deleteModal.style.display = "none";
-        }
-
-        function confirmDelete() {
-            closeDeleteModal();
-            alert("Category record deleted successfully!");
-            // Here you can remove the row or call backend later
         }
     </script>
 

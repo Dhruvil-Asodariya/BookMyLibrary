@@ -1,3 +1,11 @@
+<?php
+require "../session_check.php";
+
+if ($_SESSION['role'] != "Admin") {
+    header("Location: ../login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -270,7 +278,12 @@
     <!-- MAIN CONTENT -->
     <div class="main-content">
 
+        <?php
+        $user_id = intval($_GET['user_id']);
+        $user = mysqli_query($con, "SELECT * FROM user WHERE user_id = $user_id");
+        $data = mysqli_fetch_assoc($user);
 
+        ?>
 
         <div class="edit-card">
             <form id="editUserForm" action="#" method="POST" enctype="multipart/form-data">
@@ -282,9 +295,9 @@
 
                     <!-- Image -->
                     <label class="image-box">
-                        <img id="previewImage" src=""><br>
+                        <img id="previewImage" src="../image/<?php echo $data['image']; ?>"><br>
                         <span>Click to upload profile image</span>
-                        <input type="file" accept="image/*" id="imageInput" value="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg">
+                        <input type="file" accept="image/*" id="imageInput" value="../book_images/<?php echo $data['image']; ?>" name="image">
                         <div class="error"></div>
                     </label>
 
@@ -293,31 +306,43 @@
 
                         <div class="form-group">
                             <label>First Name</label>
-                            <input type="text" id="first_name" value="John">
+                            <input type="text" id="first_name" value="<?php echo $data['first_name']; ?>" name="first_name">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Last Name</label>
-                            <input type="text" id="last_name" value="Doe">
+                            <input type="text" id="last_name" value="<?php echo $data['last_name']; ?>" name="last_name">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Email</label>
-                            <input type="email" id="email" value="john.doe@example.com">
+                            <input type="email" id="email" value="<?php echo $data['email']; ?>" name="email" disabled>
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Contact Number</label>
-                            <input type="tel" id="contact_number" value="1234567890" maxlength="10">
+                            <input type="tel" id="contact_number" value="<?php echo $data['contact_no']; ?>" name="contact_number" maxlength="10">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
+                            <label>Gender</label>
+                            <select id="gender" name="gender">
+                                <option value="">Select Gender</option>
+                                <option value="Male" <?php if ($data['gender'] == 'Male') echo 'selected'; ?>>Male</option>
+                                <option value="Female" <?php if ($data['gender'] == 'Female') echo 'selected'; ?>>Female</option>
+                                <option value="Other" <?php if ($data['gender'] == 'Other') echo 'selected'; ?>>Other</option>
+                            </select>
+                            <div class="error"></div>
+                        </div>
+
+
+                        <div class="form-group">
                             <label>Address</label>
-                            <input type="text" id="address" value="123 Main St, Cityville">
+                            <input type="text" id="address" value="<?php echo $data['address']; ?>" name="address">
                             <div class="error"></div>
                         </div>
 
@@ -327,13 +352,90 @@
                 <!-- Buttons -->
                 <div class="actions">
                     <button type="reset" class="btn btn-cancel">Cancel</button>
-                    <button type="submit" class="btn btn-save">Save Change</button>
+                    <button type="submit" class="btn btn-save" name="save_btn">Save Change</button>
                 </div>
 
             </form>
         </div>
 
     </div>
+
+    <?php
+    if (isset($_POST['save_btn'])) {
+        $first_name = $_POST['first_name'];
+        $last_name = $_POST['last_name'];
+        $email = $_POST['email'];
+        $contact_number = $_POST['contact_number'];
+        $gender = $_POST['gender'];
+        $address = $_POST['address'];
+
+        $upload_dir = '../image/';
+
+        $old_image = $data['image'];
+
+        // 🔹 Step 2: Check if new image uploaded
+        if (!empty($_FILES['image']['name'])) {
+
+            // Generate new image name
+            $image = uniqid() . $_FILES['image']['name'];
+            $image_tmp = $_FILES['image']['tmp_name'];
+
+            // Delete old image if exists
+            $oldImagePath = $upload_dir . $old_image;
+
+            if (!empty($old_image) && file_exists($oldImagePath)) {
+                unlink($oldImagePath);
+            }
+
+            // Upload new image
+            move_uploaded_file($image_tmp, $upload_dir . $image);
+        } else {
+            // If no new image uploaded, keep old image
+            $image = $old_image;
+        }
+
+        $update_query = "UPDATE user SET 
+                            first_name = '$first_name', 
+                            last_name = '$last_name', 
+                            email = '$email', 
+                            contact_no = '$contact_number', 
+                            gender = '$gender', 
+                            address = '$address', 
+                            image = '$image' 
+                         WHERE user_id = $user_id";
+
+        if (mysqli_query($con, $update_query)) {
+            echo "<script>
+                    previewImage.src = '../image/$image';
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'success',
+                        title: 'User details updated successfully!',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true,
+                        didClose: () => {
+                            window.location.href = 'user_list.php';
+                        }
+                    });
+                </script>";
+        } else {
+            echo "<script>
+                    previewImage.src = '../image/$image';
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'error',
+                        title: 'Failed to update user details. Please try again.',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    });
+                </script>";
+        }
+    }
+    ?>
 
     <!-- FOOTER -->
     <?php include 'footer.php'; ?>
@@ -420,7 +522,7 @@
 
         function validateAddress() {
             const addressValue = address.value.trim();
-            const regex = /^[a-zA-Z0-9\s,.\-\/]+$/;
+            const regex = /^[a-zA-Z0-9\s,():-]+$/;
 
             if (addressValue === "") {
                 showError(address, "Address is required");
@@ -436,10 +538,6 @@
                 return true;
             }
         }
-
-
-
-
 
         // show error in label
         function showImageError(message) {
@@ -476,27 +574,31 @@
             return true;
         }
 
+        function validateSelect(input) {
+            if (input.value === "") {
+                showError(input, "Please select an option");
+                return false;
+            } else {
+                showSuccess(input);
+                return true;
+            }
+        }
+
         first_name.addEventListener("input", () => validateText(first_name));
         last_name.addEventListener("input", () => validateText(last_name));
         email.addEventListener("input", () => validateEmail(email));
         contact_number.addEventListener("input", () => validateContactNumber(contact_number));
+        gender.addEventListener("change", () => validateSelect(gender));
         address.addEventListener("input", () => validateAddress(address));
 
         imageInput.addEventListener("change", function(event) {
-            const file = event.target.files[0];
-
-            if (!validateImage(file)) {
-                imageInput.value = "";
-                return;
-            }
-
             const reader = new FileReader();
             reader.onload = () => previewImage.src = reader.result;
-            reader.readAsDataURL(file);
+            reader.readAsDataURL(event.target.files[0]);
         });
 
         form.addEventListener("submit", function(e) {
-            e.preventDefault();
+
 
             const isValid =
                 validateText(first_name) &
@@ -504,22 +606,10 @@
                 validateEmail(email) &
                 validateContactNumber(contact_number) &
                 validateAddress(address) &
-                validateImage(imageInput.files[0]);
+                validateSelect(gender);
 
-            if (isValid) {
-                Swal.fire({
-                    toast: true,
-                    position: 'top',
-                    icon: 'success',
-                    title: 'User details updated successfully!',
-                    showConfirmButton: false,
-                    timer: 2000,
-                    timerProgressBar: true,
-                    didClose: () => {
-                        window.location.href = "user_list.php";
-                    }
-                });
-                previewImage.src = "https://via.placeholder.com/160x220?text=User+Cover";
+            if (!isValid) {
+                e.preventDefault();
             }
         });
     </script>

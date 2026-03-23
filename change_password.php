@@ -1,3 +1,78 @@
+<?php
+ob_start();
+session_start();
+include "db_config.php";
+require "session_check.php";
+
+$message = "";
+$message_type = "";
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $oldPassword = trim($_POST['oldPassword'] ?? '');
+    $password = trim($_POST['password'] ?? '');
+    $confirmPassword = trim($_POST['confirmPassword'] ?? '');
+
+    if ($oldPassword === "" || $password === "" || $confirmPassword === "") {
+        $message = "All fields are required";
+        $message_type = "error";
+    } elseif (!preg_match('/^[0-9]{6}$/', $oldPassword)) {
+        $message = "Old password must be exactly 6 digits";
+        $message_type = "error";
+    } elseif (!preg_match('/^[0-9]{6}$/', $password)) {
+        $message = "New password must be exactly 6 digits";
+        $message_type = "error";
+    } elseif ($password !== $confirmPassword) {
+        $message = "Passwords do not match";
+        $message_type = "error";
+    } elseif ($oldPassword === $password) {
+        $message = "New password must be different from old password";
+        $message_type = "error";
+    } else {
+
+        $user_id = $_SESSION['id'] ?? '';
+
+        if ($user_id == '') {
+            $message = "Session expired. Please login again.";
+            $message_type = "error";
+        } else {
+            $select = mysqli_query($con, "SELECT password FROM user WHERE user_id='$user_id' LIMIT 1");
+
+            if ($select && mysqli_num_rows($select) > 0) {
+                $row = mysqli_fetch_assoc($select);
+                $dbPassword = $row['password'];
+
+                $isOldPasswordCorrect = false;
+
+                // Supports both hashed password and old plain-text password
+                if (password_verify($oldPassword, $dbPassword)) {
+                    $isOldPasswordCorrect = true;
+                } elseif ($oldPassword === $dbPassword) {
+                    $isOldPasswordCorrect = true;
+                }
+
+                if (!$isOldPasswordCorrect) {
+                    $message = "Old password is incorrect";
+                    $message_type = "error";
+                } else {
+                    $hashed = password_hash($password, PASSWORD_BCRYPT);
+                    $update = mysqli_query($con, "UPDATE user SET password='$hashed' WHERE user_id='$user_id'");
+
+                    if ($update) {
+                        $message = "Password changed successfully!";
+                        $message_type = "success";
+                    } else {
+                        $message = "Failed to change password";
+                        $message_type = "error";
+                    }
+                }
+            } else {
+                $message = "User not found";
+                $message_type = "error";
+            }
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -8,7 +83,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="icon" href="image/title_image.png" type="image/png">
 
     <style>
         * {
@@ -93,7 +167,6 @@
             border-color: #2563eb;
         }
 
-        /* Error Message */
         .error {
             color: #e63946;
             font-size: 12px;
@@ -101,15 +174,11 @@
             display: block;
         }
 
-        /* Input Error Border */
         .form-group input.error-input {
             border: 2px solid #e63946;
             background: #fff5f5;
         }
 
-
-
-        /* Button */
         button {
             width: 100%;
             padding: 13px;
@@ -149,31 +218,6 @@
             color: #2563eb;
         }
 
-        .form-options {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 13px;
-            margin-top: 10px;
-            margin-bottom: 10px;
-        }
-
-        .remember {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            color: #334155;
-        }
-
-        .forgot {
-            color: #2563eb;
-            text-decoration: none;
-        }
-
-        .forgot:hover {
-            text-decoration: underline;
-        }
-
         .back-to-login {
             margin-top: 15px;
             text-align: center;
@@ -189,13 +233,10 @@
             text-decoration: underline;
         }
 
-        /* Optional: spacing for the submit button */
         form button {
             margin-top: 20px;
         }
 
-
-        /* Mobile */
         @media (max-width: 480px) {
             .login-card {
                 padding: 25px;
@@ -213,65 +254,91 @@
 
             <form id="loginForm" method="POST">
 
-                <!-- Password -->
                 <div class="form-group password-group">
-                    <label>Password</label>
-
+                    <label>Current Password</label>
                     <div class="password-wrapper">
-                        <input type="password" id="password" maxlength="6" name="password">
+                        <input type="password" id="oldPassword" maxlength="6" name="oldPassword"
+                            oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+                        <i class="fa-solid fa-eye eye-icon" id="toggleOldPassword"></i>
+                    </div>
+                    <small class="error" id="oldPasswordError"></small>
+                </div>
 
+                <div class="form-group password-group">
+                    <label>New Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" maxlength="6" name="password"
+                            oninput="this.value=this.value.replace(/[^0-9]/g,'')">
                         <i class="fa-solid fa-eye eye-icon" id="togglePassword"></i>
                     </div>
-
                     <small class="error" id="passwordError"></small>
                 </div>
 
-                <!-- Confirm Password -->
                 <div class="form-group password-group">
                     <label>Confirm Password</label>
-
                     <div class="password-wrapper">
-                        <input type="password" id="confirmPassword" maxlength="6" name="confirmPassword">
-
+                        <input type="password" id="confirmPassword" maxlength="6" name="confirmPassword"
+                            oninput="this.value=this.value.replace(/[^0-9]/g,'')">
                         <i class="fa-solid fa-eye eye-icon" id="toggleConfirmPassword"></i>
                     </div>
-
                     <small class="error" id="confirmPasswordError"></small>
                 </div>
 
-
                 <button type="submit">Change Password</button>
-
-
-
             </form>
         </div>
     </div>
 
 </body>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
+    const oldPassword = document.getElementById("oldPassword");
     const password = document.getElementById("password");
     const confirmpassword = document.getElementById("confirmPassword");
 
+    const oldPasswordError = document.getElementById("oldPasswordError");
     const passwordError = document.getElementById("passwordError");
     const confirmPasswordError = document.getElementById("confirmPasswordError");
 
+    const toggleOldPassword = document.getElementById("toggleOldPassword");
     const togglePassword = document.getElementById("togglePassword");
     const toggleConfirmPassword = document.getElementById("toggleConfirmPassword");
 
-    /* Password Validation */
+    function validateOldPassword() {
+        const value = oldPassword.value.trim();
+        const digitPattern = /^[0-9]{6}$/;
+
+        if (value === "") {
+            oldPasswordError.textContent = "Old password is required";
+            oldPassword.classList.add("error-input");
+            return false;
+        } else if (!digitPattern.test(value)) {
+            oldPasswordError.textContent = "Old password must be exactly 6 digits";
+            oldPassword.classList.add("error-input");
+            return false;
+        } else {
+            oldPasswordError.textContent = "";
+            oldPassword.classList.remove("error-input");
+            return true;
+        }
+    }
+
     function validatePassword() {
         const value = password.value.trim();
         const digitPattern = /^[0-9]{6}$/;
 
         if (value === "") {
-            passwordError.textContent = "Password is required";
+            passwordError.textContent = "New password is required";
             password.classList.add("error-input");
             return false;
         } else if (!digitPattern.test(value)) {
-            passwordError.textContent = "Password must be exactly 6 digits";
+            passwordError.textContent = "New password must be exactly 6 digits";
+            password.classList.add("error-input");
+            return false;
+        } else if (value === oldPassword.value.trim() && value !== "") {
+            passwordError.textContent = "New password must be different from old password";
             password.classList.add("error-input");
             return false;
         } else {
@@ -281,7 +348,6 @@
         }
     }
 
-    /* Confirm Password Validation */
     function validateConfirmPassword() {
         const value = confirmpassword.value.trim();
 
@@ -300,12 +366,28 @@
         }
     }
 
+    oldPassword.addEventListener("input", () => {
+        validateOldPassword();
+        validatePassword();
+    });
 
-    /* Live validation */
-    password.addEventListener("input", validatePassword);
+    password.addEventListener("input", () => {
+        validatePassword();
+        validateConfirmPassword();
+    });
+
     confirmpassword.addEventListener("input", validateConfirmPassword);
 
-    /* Show / Hide password */
+    toggleOldPassword.addEventListener("click", () => {
+        if (oldPassword.type === "password") {
+            oldPassword.type = "text";
+            toggleOldPassword.classList.replace("fa-eye", "fa-eye-slash");
+        } else {
+            oldPassword.type = "password";
+            toggleOldPassword.classList.replace("fa-eye-slash", "fa-eye");
+        }
+    });
+
     togglePassword.addEventListener("click", () => {
         if (password.type === "password") {
             password.type = "text";
@@ -326,28 +408,13 @@
         }
     });
 
-    /* Submit Validation (SHOW ALL ERRORS) */
     document.getElementById("loginForm").addEventListener("submit", function(e) {
-        e.preventDefault();
-
+        const isOldPasswordValid = validateOldPassword();
         const isPasswordValid = validatePassword();
         const isConfirmPasswordValid = validateConfirmPassword();
 
-        if (isPasswordValid && isConfirmPasswordValid) {
-
-            Swal.fire({
-                toast: true,
-                position: 'top',
-                icon: 'success',
-                title: 'Password changed successfully!',
-                showConfirmButton: false,
-                timer: 2000,
-                timerProgressBar: true,
-                didClose: () => {
-                    window.history.back();
-                }
-            });
-
+        if (!(isOldPasswordValid && isPasswordValid && isConfirmPasswordValid)) {
+            e.preventDefault();
         }
     });
 
@@ -356,4 +423,26 @@
     }
 </script>
 
+<?php if ($message !== ""): ?>
+    <script>
+        Swal.fire({
+            toast: true,
+            position: 'top',
+            icon: '<?php echo $message_type; ?>',
+            title: '<?php echo $message; ?>',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            didClose: () => {
+                <?php if ($message_type === "success"): ?>
+                    setTimeout(() => {
+                        window.location.href = "login.php";
+                    }, 300);
+                <?php endif; ?>
+            }
+        });
+    </script>
+<?php endif; ?>
+
 </html>
+<?php ob_end_flush(); ?>

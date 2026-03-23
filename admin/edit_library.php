@@ -1,3 +1,11 @@
+<?php
+require "../session_check.php";
+
+if ($_SESSION['role'] != "Admin") {
+    header("Location: ../login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -236,10 +244,15 @@
     <!-- MAIN CONTENT -->
     <div class="main-content">
 
+        <?php
+        $library_id = intval($_GET['library_id']);
+        $library = mysqli_query($con, "SELECT * FROM library WHERE library_id = $library_id");
+        $data = mysqli_fetch_assoc($library);
 
+        ?>
 
         <div class="edit-card">
-            <form id="editLibraryForm" action="#" method="POST">
+            <form id="editLibraryForm" method="POST">
                 <div class="page-header">
                     <h2>Edit Library</h2>
                     <p>Edit library details in your library system</p>
@@ -250,44 +263,50 @@
                     <div class="form-fields">
 
                         <div class="form-group">
+                            <label>User ID</label>
+                            <input type="text" id="userId" value="<?php echo $data['user_id']; ?>" name="userId">
+                            <div class="error"></div>
+                        </div>
+
+                        <div class="form-group">
                             <label>Library name</label>
-                            <input type="text" id="libraryName" value="Central City Library">
+                            <input type="text" id="libraryName" value="<?php echo $data['library_name']; ?>" name="libraryName">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Library Owner Name</label>
-                            <input type="text" id="libraryOwnerName" value="James Gosling">
+                            <input type="text" id="libraryOwnerName" value="<?php echo $data['library_owner_name']; ?>" name="libraryOwnerName">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Table Capacity</label>
-                            <input type="number" id="tableCapacity" value="120">
+                            <input type="number" id="tableCapacity" value="<?php echo $data['table_capacity']; ?>" name="tableCapacity">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Chair Capacity</label>
-                            <input type="number" id="chairCapacity" value="240">
+                            <input type="number" id="chairCapacity" value="<?php echo $data['chair_capacity']; ?>" name="chairCapacity">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Open At</label>
-                            <input type="time" id="openAt" value="08:00">
+                            <input type="time" id="openAt" value="<?php echo $data['open_at']; ?>" name="openAt">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Close At</label>
-                            <input type="time" id="closeAt" value="21:00">
+                            <input type="time" id="closeAt" value="<?php echo $data['close_at']; ?>" name="closeAt">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Library Location</label>
-                            <input type="text" id="libraryLocation" value="Downtown, Rajkot">
+                            <input type="text" id="libraryLocation" value="<?php echo $data['library_location']; ?>" name="libraryLocation">
                             <div class="error"></div>
                         </div>
 
@@ -297,11 +316,80 @@
                 <!-- Buttons -->
                 <div class="actions">
                     <button type="reset" class="btn btn-cancel">Cancel</button>
-                    <button type="submit" class="btn btn-save">Save Change</button>
+                    <button type="submit" class="btn btn-save" name="save_btn">Save Change</button>
                 </div>
 
             </form>
         </div>
+
+        <?php
+        if (isset($_POST['save_btn'])) {
+
+            $user_id_input = trim($_POST['userId'] ?? '');
+
+            if (!empty($user_id_input)) {
+
+                $check_user = mysqli_query($con, "SELECT user_id FROM user WHERE user_id = '$user_id_input'");
+
+                if ($check_user && mysqli_num_rows($check_user) > 0) {
+                    $user_id = "'" . $user_id_input . "'";
+                    mysqli_query($con, "UPDATE user SET role = 'Librarian' WHERE user_id = $user_id");
+                } else {
+                    $user_id = "NULL";
+                }
+            } else {
+                $user_id = "NULL";
+            }
+
+            $library_name = $_POST['libraryName'];
+            $library_owner_name = $_POST['libraryOwnerName'];
+            $table_capacity = $_POST['tableCapacity'];
+            $chair_capacity = $_POST['chairCapacity'];
+            $open_at = $_POST['openAt'];
+            $close_at = $_POST['closeAt'];
+            $library_location = $_POST['libraryLocation'];
+
+            $update_query = "UPDATE library SET
+                            user_id = $user_id,
+                            library_name = '$library_name',
+                            library_owner_name = '$library_owner_name',
+                            table_capacity = $table_capacity,
+                            chair_capacity = $chair_capacity,
+                            open_at = '$open_at',
+                            close_at = '$close_at',
+                            library_location = '$library_location'
+                            WHERE library_id = $library_id";
+
+            if (mysqli_query($con, $update_query)) {
+                echo "<script>
+                        Swal.fire({
+                            toast: true,
+                            position: 'top',
+                            icon: 'success',
+                            title: 'Library details updated successfully!',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true,
+                            didClose: () => {
+                                window.location.href = 'library_list.php';
+                            }
+                        });
+                    </script>";
+            } else {
+                echo "<script>
+                        Swal.fire({
+                            toast: true,
+                            position: 'top',
+                            icon: 'error',
+                            title: 'Failed to update library details. Please try again.',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
+                    </script>";
+            }
+        }
+        ?>
 
     </div>
 
@@ -310,6 +398,7 @@
 
     <script>
         const form = document.getElementById("editLibraryForm");
+        const userId = document.getElementById("userId");
         const libraryName = document.getElementById("libraryName");
         const libraryOwnerName = document.getElementById("libraryOwnerName");
         const tableCapacity = document.getElementById("tableCapacity");
@@ -331,6 +420,22 @@
             error.style.display = "none";
             input.classList.remove("invalid");
             input.classList.add("valid");
+        }
+
+        function validateUserId(input) {
+            const value = input.value.trim();
+            const regex = /^[0-9]{8}$/;
+
+            if (value === "") {
+                showError(input, "This field is required");
+                return false;
+            } else if (!regex.test(value)) {
+                showError(input, "Only 8 digits are allowed");
+                return false;
+            } else {
+                showSuccess(input);
+                return true;
+            }
         }
 
         function validateText(input) {
@@ -434,6 +539,7 @@
         }
 
 
+        userId.addEventListener("input", () => validateUserId(userId));
         libraryName.addEventListener("input", () => validateText(libraryName));
         libraryOwnerName.addEventListener("input", () => validateText(libraryOwnerName));
         tableCapacity.addEventListener("input", validateTable);
@@ -443,7 +549,10 @@
         libraryLocation.addEventListener("input", validateLocation);
 
         form.addEventListener("submit", function(e) {
-            e.preventDefault();
+
+            if (!isValid) {
+                e.preventDefault();
+            }
 
             const isValid =
                 validateText(libraryName) &
@@ -453,21 +562,6 @@
                 validateTime() &
                 validateTime() &
                 validateLocation();
-
-            if (isValid) {
-                Swal.fire({
-                    toast: true,
-                    position: 'top',
-                    icon: 'success',
-                    title: 'Library details updated successfully!',
-                    showConfirmButton: false,
-                    timer: 2000,
-                    timerProgressBar: true,
-                    didClose: () => {
-                        window.location.href = "library_list.php";
-                    }
-                });
-            }
         });
     </script>
 

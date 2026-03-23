@@ -1,3 +1,11 @@
+<?php
+require "../session_check.php";
+
+if ($_SESSION['role'] != "Librarian") {
+    header("Location: ../login.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -162,9 +170,34 @@
             color: #166534;
         }
 
-        .unissued {
+        .returned {
+            background: #dbeafe;
+            color: #1e3a8a;
+        }
+
+        .yet-to-return {
+            background: #fef9c3;
+            color: #854d0e;
+        }
+
+        .overdue {
             background: #fee2e2;
             color: #991b1b;
+        }
+
+        .return-at-library {
+            background: #fff7ed;
+            color: #c2410c;
+        }
+
+        .btn-renew {
+            background: #16a34a;
+            color: #fff;
+            display: inline-block;
+        }
+
+        .btn-renew:hover {
+            background: #15803d;
         }
 
         img.cover {
@@ -799,6 +832,18 @@
                         <input type="date" id="filterReturnDate">
                     </div>
 
+                    <div class="filter-box">
+                        <label>Status</label>
+                        <select id="filterStatus">
+                            <option value="">All Status</option>
+                            <option value="Issued">Issued</option>
+                            <option value="Returned">Returned</option>
+                            <option value="Yet to return">Yet to return</option>
+                            <option value="Overdue">Overdue</option>
+                            <option value="Return at library">Return at library</option>
+                        </select>
+                    </div>
+
                     <div class="filter-box btn-area">
                         <label>&nbsp;</label>
                         <button class="btn btn-add" onclick="resetFilters()">Reset</button>
@@ -821,24 +866,102 @@
                         <th>Return Date</th>
                         <th>Fine Amount</th>
                         <th>Status</th>
-                        <!-- <th>Actions</th> -->
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>24842354</td>
-                        <td><span class="model-link" onclick="openBookModal()">24842354</span></td>
-                        <td><span class="model-link" onclick="openUserModal()">24842353</span></td>
-                        <td>12-01-2026</td>
-                        <td>08-02-2026</td>
-                        <td>656</td>
-                        <td><span class="status issued">Issued</span></td>
-                        <!-- <td>
-                            <a href="edit_issued_book.php?issued_id=24842354"><button class="btn btn-edit">Edit</button></a>
-                            <button class="btn btn-delete" onclick="openDeleteModal()">Delete</button><br>
-                        </td> -->
-                    </tr>
+
+                    <?php
+                    if (session_status() === PHP_SESSION_NONE) {
+                        session_start();
+                    }
+                    $user_id = $_SESSION['id'];
+                    $library_id = mysqli_fetch_assoc(mysqli_query($con, "SELECT library_id FROM library WHERE user_id = '$user_id'"))['library_id'];
+                    $issue = mysqli_query($con, "SELECT * FROM issue WHERE library_id = '$library_id' ORDER BY issue_date DESC");
+                    $i = 1;
+                    foreach ($issue as $row) {
+
+                        // Dynamic Status Logic
+                        if ($row['status'] == "Issued") {
+                            $statusClass = "issued";
+                            $statusText  = "Issued";
+                        }
+                        if ($row['status'] == "Returned") {
+                            $statusClass = "returned";
+                            $statusText  = "Returned";
+                        }
+                        if ($row['status'] == "Yet to return") {
+                            $statusClass = "yet-to-return";
+                            $statusText  = "Yet to return";
+                        }
+                        if ($row['status'] == "Overdue") {
+                            $statusClass = "overdue";
+                            $statusText  = "Overdue";
+                        }
+                        if ($row['status'] == "Return at library") {
+                            $statusClass = "return-at-library";
+                            $statusText  = "Return at library";
+                        }
+
+                        $showRenew = false;
+
+                        if ($statusText == "Yet to return" && $row['renew_count'] < 2) {
+                            $showRenew = true;
+                        }
+
+                        $book_data = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM book_list WHERE book_id = '{$row['book_id']}'"));
+                        $user_data = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM user WHERE user_id = '{$row['user_id']}'"));
+                        $library_data = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM library WHERE library_id = '{$row['library_id']}'"));
+
+                        echo "<tr>
+                                <td>{$i}</td>
+                                <td>{$row['issue_id']}</td>
+                                <td>
+                                    <span class='model-link'
+                                    onclick=\"openBookModal(
+                                    '{$book_data['book_id']}',
+                                    '../book_images/{$book_data['image']}',
+                                    '" . htmlspecialchars($book_data['title'], ENT_QUOTES) . "',
+                                    '" . htmlspecialchars($book_data['author'], ENT_QUOTES) . "',
+                                    '" . htmlspecialchars($book_data['category'], ENT_QUOTES) . "',
+                                    '{$book_data['year']}',
+                                    '" . htmlspecialchars($library_data['library_name'], ENT_QUOTES) . "'
+                                    )\">
+                                    {$row['book_id']}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class='model-link'
+                                    onclick=\"openUserModal(
+                                    '{$user_data['user_id']}',
+                                    '../image/{$user_data['image']}',
+                                    '" . htmlspecialchars($user_data['first_name'], ENT_QUOTES) . "',
+                                    '" . htmlspecialchars($user_data['last_name'], ENT_QUOTES) . "',
+                                    '" . htmlspecialchars($user_data['email'], ENT_QUOTES) . "',
+                                    '" . htmlspecialchars($user_data['contact_no'], ENT_QUOTES) . "',
+                                    '" . htmlspecialchars($user_data['address'], ENT_QUOTES) . "',
+                                    '" . htmlspecialchars($user_data['role'], ENT_QUOTES) . "',
+                                    '" . htmlspecialchars($user_data['status'], ENT_QUOTES) . "'
+                                    )\">
+                                    {$row['user_id']}
+                                    </span>
+                                </td>
+                                <td>{$row['issue_date']}</td>
+                                <td>{$row['return_date']}</td>
+                                <td>₹ {$row['fine_amount']}</td>
+                                <td><span class='status {$statusClass}'>{$statusText}</span></td>
+                                <td>";
+                                if($row['status'] == "Return at library"){
+                                    echo "<button class='btn btn-renew' onclick='returnBook(\"{$row['issue_id']}\")'>Return</button>";
+                                }
+                                else{
+                                    echo "--";
+                                }
+                                echo "</td>
+                              </tr>";
+                        $i++;
+                    }
+                    ?>
 
                 </tbody>
             </table>
@@ -855,33 +978,33 @@
 
             <div class="modal-body-p">
                 <div class="book-image">
-                    <img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" alt="Book Image">
+                    <img id="modalBookImage" src="" alt="Book Image">
                 </div>
 
                 <div class="book-details">
                     <div class="detail">
                         <span>Book ID</span>
-                        <p>24842354</p>
+                        <p id="modalBookId"></p>
                     </div>
                     <div class="detail">
                         <span>Title</span>
-                        <p>Introduction to Java</p>
+                        <p id="modalBookTitle"></p>
                     </div>
                     <div class="detail">
                         <span>Author</span>
-                        <p>James Gosling</p>
+                        <p id="modalBookAuthor"></p>
                     </div>
                     <div class="detail">
                         <span>Category</span>
-                        <p>Programming</p>
+                        <p id="modalBookCategory"></p>
                     </div>
                     <div class="detail">
                         <span>Publish Year</span>
-                        <p>2020</p>
+                        <p id="modalBookYear"></p>
                     </div>
                     <div class="detail">
                         <span>Library Name</span>
-                        <p>Main Library</p>
+                        <p id="modalBookLibrary"></p>
                     </div>
                 </div>
             </div>
@@ -901,10 +1024,8 @@
                     <h3>User Details</h3>
 
                     <div class="pill-group">
-                        <span class="pill pill-role-librarian">Librarian</span>
-                        <!-- <span class="pill pill-role-user">User</span> -->
-                        <!-- <span class="pill pill-role-admin">Admin</span> -->
-                        <span class="pill pill-active">Active</span>
+                        <span id="modalUserRole" class="pill"></span>
+                        <span id="modalUserStatus" class="pill"></span>
                         <!-- <span class="pill pill-inactive">Inactive</span> -->
                     </div>
                 </div>
@@ -914,99 +1035,39 @@
 
             <div class="modal-body-p">
                 <div class="book-image">
-                    <img src="../image/default_profile.png" alt="Book Image">
+                    <img id="modalUserImage" src="" alt="User Image">
                 </div>
 
                 <div class="book-details">
                     <div class="detail">
                         <span>User ID</span>
-                        <p>24842354</p>
+                        <p id="modalUserId"></p>
                     </div>
                     <div class="detail">
                         <span>First Name</span>
-                        <p>John</p>
+                        <p id="modalUserFirstName"></p>
                     </div>
                     <div class="detail">
                         <span>Last Name</span>
-                        <p>Doe</p>
+                        <p id="modalUserLastName"></p>
                     </div>
                     <div class="detail">
                         <span>Email ID</span>
-                        <p>john.doe@example.com </p>
+                        <p id="modalUserEmail"></p>
                     </div>
                     <div class="detail">
                         <span>Contact Number</span>
-                        <p>9876543210</p>
+                        <p id="modalUserContact"></p>
                     </div>
                     <div class="detail">
                         <span>Address</span>
-                        <p>123 Main St, Cityville</p>
+                        <p id="modalUserAddress"></p>
                     </div>
                 </div>
             </div>
 
             <div class="modal-footer">
                 <button class="btn-secondary" onclick="closeUserModal()">Close</button>
-            </div>
-
-        </div>
-    </div>
-
-    <div class="l-modal-backdrop" id="libraryModal">
-        <div class="l-modal-card">
-
-            <div class="l-modal-header-p">
-                <div class="l-header-left">
-                    <h3>Library Details</h3>
-
-                    <div class="l-pill-group">
-                        <span class="l-pill pill-active">Active</span>
-                        <!-- <span class="pill pill-inactive">Inactive</span> -->
-                    </div>
-                </div>
-                <span class="close-icon" onclick="closeLibraryModal()">×</span>
-            </div>
-
-            <div class="l-modal-body-p">
-
-                <div class="l-book-details">
-                    <div class="l-detail">
-                        <span>Library ID</span>
-                        <p>24842354</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Library Name</span>
-                        <p>Central City Library</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Library Owner Name</span>
-                        <p>James Gosling</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Table capacity</span>
-                        <p>120</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Chair Capacity</span>
-                        <p>240</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Open At</span>
-                        <p>08:00 AM</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Close At</span>
-                        <p>09:00 PM</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Library Location</span>
-                        <p>Downtown, Rajkot</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="l-modal-footer">
-                <button class="l-btn-secondary" onclick="closeLibraryModal()">Close</button>
             </div>
 
         </div>
@@ -1047,6 +1108,15 @@
         var table = $('#bookTable').DataTable({
             responsive: true,
             dom: 'Brtip',
+            columnDefs: [{
+                targets: 0, // Sr No column
+                orderable: false,
+                searchable: false
+            }],
+
+            order: [
+                [1, 'asc']
+            ],
             buttons: [{
                     extend: 'excelHtml5',
                     exportOptions: {
@@ -1072,29 +1142,41 @@
             scrollCollapse: true
         });
 
-        function formatDateForTable(date) {
-            if (!date) return "";
-            const parts = date.split("-");
-            return parts[2] + "-" + parts[1] + "-" + parts[0]; // yyyy-mm-dd → dd-mm-yyyy
-        }
+        // ✅ AUTO UPDATE SERIAL NUMBER
+        table.on('order.dt search.dt draw.dt', function() {
+            table.column(0, {
+                    search: 'applied',
+                    order: 'applied'
+                })
+                .nodes()
+                .each(function(cell, i) {
+                    cell.innerHTML = i + 1;
+                });
+        }).draw();
+
+        // STATUS filter
+        $('#filterStatus').on('change', function() {
+            var value = this.value.toLowerCase();
+
+            table.column(7).search(value ? '^' + value + '$' : '', true, false).draw();
+        });
 
         // Issue filter
         $('#filterIssueDate').on('change', function() {
-            let val = formatDateForTable(this.value);
-            table.column(5).search(val).draw();
+            table.column(4).search(this.value).draw();
         });
 
 
         // Return filter
         $('#filterReturnDate').on('change', function() {
-            let val = formatDateForTable(this.value);
-            table.column(7).search(val).draw();
+            table.column(5).search(this.value).draw();
         });
 
 
         // RESET filters
         function resetFilters() {
             $('#filterIssueDate').val('');
+            $('#filterStatus').val('');
             $('#filterReturnDate').val('');
 
             table.columns().search('').draw();
@@ -1116,7 +1198,15 @@
             // Here you can remove the row or call backend later
         }
 
-        function openBookModal() {
+        function openBookModal(bookId, image, title, author, category, year, library) {
+            document.getElementById("modalBookId").innerText = bookId;
+            document.getElementById("modalBookImage").src = image;
+            document.getElementById("modalBookTitle").innerText = title;
+            document.getElementById("modalBookAuthor").innerText = author;
+            document.getElementById("modalBookCategory").innerText = category;
+            document.getElementById("modalBookYear").innerText = year;
+            document.getElementById("modalBookLibrary").innerText = library;
+
             document.getElementById("bookModal").style.display = "flex";
         }
 
@@ -1124,7 +1214,40 @@
             document.getElementById("bookModal").style.display = "none";
         }
 
-        function openUserModal() {
+        function openUserModal(id, image, first, last, email, contact, address, role, status) {
+
+            document.getElementById("modalUserId").innerText = id;
+            document.getElementById("modalUserFirstName").innerText = first;
+            document.getElementById("modalUserLastName").innerText = last;
+            document.getElementById("modalUserEmail").innerText = email;
+            document.getElementById("modalUserContact").innerText = contact;
+            document.getElementById("modalUserAddress").innerText = address;
+            document.getElementById("modalUserImage").src = image;
+
+            /* ROLE */
+            let roleElement = document.getElementById("modalUserRole");
+            roleElement.innerText = role;
+            roleElement.className = "pill";
+
+            if (role === "Librarian") {
+                roleElement.classList.add("pill-role-librarian");
+            } else if (role === "User") {
+                roleElement.classList.add("pill-role-user");
+            } else if (role === "Admin") {
+                roleElement.classList.add("pill-role-admin");
+            }
+
+            /* STATUS */
+            let statusElement = document.getElementById("modalUserStatus");
+            statusElement.innerText = status;
+            statusElement.className = "pill";
+
+            if (status === "Active") {
+                statusElement.classList.add("pill-active");
+            } else if (status === "Inactive") {
+                statusElement.classList.add("pill-inactive");
+            }
+
             document.getElementById("userModal").style.display = "flex";
         }
 
@@ -1139,6 +1262,44 @@
         function closeLibraryModal() {
             document.getElementById("libraryModal").style.display = "none";
         }
+
+        function returnBook(issue_id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You want to return this book",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, return it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "return_book.php?issue_id=" + issue_id;
+                }
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const params = new URLSearchParams(window.location.search);
+            const icon = params.get("icon");
+            const msg = params.get("msg");
+
+            if (icon && msg) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: icon,
+                    title: msg,
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true
+                });
+
+                // remove query params after showing toast
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
     </script>
 
 </body>
