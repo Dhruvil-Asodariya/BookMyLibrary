@@ -30,11 +30,38 @@ function sendOtpMail($to, $otp)
 
         $mail->isHTML(true);
         $mail->Subject = 'OTP for Forgot Password';
-        $mail->Body    = "
-            <h3>Password Reset OTP</h3>
-            <p>Your OTP is: <b>$otp</b></p>
-            <p>This OTP is valid for <b>1 minute</b>.</p>
-        ";
+        $mail->Body = "
+                <div style='font-family: Arial, sans-serif; max-width: 650px; margin: auto; border: 1px solid #ddd; border-radius: 10px; overflow: hidden; background: #ffffff;'>
+
+                    <div style='background: linear-gradient(135deg, #0f172a, #1e3a8a); color: #fff; padding: 20px; text-align: center;'>
+                        <h2 style='margin: 0;'>🔐 Password Reset OTP</h2>
+                    </div>
+
+                    <div style='padding: 20px; color: #333;'>
+
+                        <p>Hello,</p>
+                        <p>You requested to reset your password for <strong>Book My Library</strong>.</p>
+
+                        <div style='margin: 25px 0; text-align: center;'>
+                            <p style='margin-bottom: 10px;'>Your OTP is:</p>
+                            <div style='display: inline-block; padding: 15px 25px; font-size: 24px; font-weight: bold; letter-spacing: 5px; background: #f1f5f9; border: 2px dashed #1e3a8a; border-radius: 8px; color: #1e3a8a;'>
+                                $otp
+                            </div>
+                        </div>
+
+                        <p style='text-align: center; color: #555;'>
+                            This OTP is valid for <strong>1 minute</strong>.
+                        </p>
+
+                        <div style='margin-top: 25px; padding: 15px; background: #fff3cd; border: 1px solid #ffeeba; border-radius: 8px; color: #856404;'>
+                            ⚠️ Do not share this OTP with anyone. If you did not request this, please ignore this email.
+                        </div>
+
+                        <p style='margin-top: 25px;'>Thank you,<br><strong>Book My Library</strong></p>
+
+                    </div>
+                </div>
+                ";
 
         return $mail->send();
     } catch (Exception $e) {
@@ -42,6 +69,54 @@ function sendOtpMail($to, $otp)
     }
 }
 
+function sendPasswordChangedMail($to)
+{
+    $mail = new PHPMailer(true);
+
+    try {
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'dasodariya899@rku.ac.in';
+        $mail->Password   = 'impt ujku nrtp taee';
+        $mail->SMTPSecure = 'tls';
+        $mail->Port       = 587;
+
+        $mail->setFrom('dasodariya899@rku.ac.in', 'Book My Library');
+        $mail->addAddress($to);
+
+        $mail->isHTML(true);
+        $mail->Subject = 'Password Changed Successfully';
+        $mail->Body = "
+                <div style='font-family: Arial, sans-serif; max-width: 650px; margin: auto; border: 1px solid #ddd; border-radius: 10px; overflow: hidden; background: #ffffff;'>
+
+                    <div style='background: linear-gradient(135deg, #0f172a, #1e3a8a); color: #fff; padding: 20px; text-align: center;'>
+                        <h2 style='margin: 0;'>🔐 Password Updated</h2>
+                    </div>
+
+                    <div style='padding: 20px; color: #333;'>
+                        <p>Hello,</p>
+
+                        <p>Your password has been successfully changed.</p>
+
+                        <div style='margin-top: 20px; padding: 15px; background: #e6fffa; border: 1px solid #b2f5ea; border-radius: 8px;'>
+                            ✅ You can now login using your new password.
+                        </div>
+
+                        <div style='margin-top: 20px; padding: 15px; background: #fff3cd; border: 1px solid #ffeeba; border-radius: 8px; color: #856404;'>
+                            ⚠️ For security reasons, we do not display your password.
+                        </div>
+
+                        <p style='margin-top: 25px;'>Thank you,<br><strong>Book My Library</strong></p>
+                    </div>
+                </div>
+                ";
+
+        return $mail->send();
+    } catch (Exception $e) {
+        return false;
+    }
+}
 /* =========================
    AJAX REQUEST HANDLER
 ========================= */
@@ -120,6 +195,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
 
     // RESET PASSWORD
+    // RESET PASSWORD
     if ($action === "reset_password") {
         $newPassword = trim($_POST['new_password']);
         $confirmPassword = trim($_POST['confirm_password']);
@@ -150,6 +226,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $update = mysqli_query($con, "UPDATE user SET password='$hashed' WHERE email='$email'");
 
         if ($update) {
+
+            // send password changed confirmation mail
+            sendPasswordChangedMail($email);
+
             unset(
                 $_SESSION['forgot_email'],
                 $_SESSION['forgot_otp'],

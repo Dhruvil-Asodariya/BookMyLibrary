@@ -79,63 +79,50 @@ function sendLibraryMail($email, $name, $book_name, $status, $returnDate, $fine 
 
         // 📧 HTML Email Template
         $message = "
-        <div style='background:#1f2a36;padding:30px;font-family:Arial,sans-serif;color:#fff;'>
+                    <div style='font-family: Arial, sans-serif; max-width: 650px; margin: auto; border: 1px solid #ddd; border-radius: 10px; overflow: hidden; background: #ffffff;'>
 
-            <div style='max-width:650px;margin:auto;background:#2c3e50;border-radius:10px;padding:25px;'>
+                        <div style='background: linear-gradient(135deg, #0f172a, #1e3a8a); color: #fff; padding: 20px; text-align: center;'>
+                            <h2 style='margin: 0;'>🚀 Welcome to <span style=\"color:#ffcc70;\">Book My Library</span></h2>
+                        </div>
 
-                <h2 style='text-align:center;color:#fff;'>
-                    🚀 Welcome to <span style='color:#ff9f1c;'>Book My Library</span>
-                </h2>
+                        <div style='padding: 20px; color: #333;'>
 
-                <p style='text-align:center;color:#ddd;'>
-                    Hello <b>$name</b>, we're glad to connect with you!
-                </p>
+                            <p>Hello <strong>$name</strong>, we're glad to connect with you!</p>
 
-                <div style='background:#3b4b5b;padding:20px;border-radius:8px;margin-top:20px;text-align:center;'>
+                            <div style='background: #f8fafc; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-top: 20px; text-align: center;'>
+                                <h3 style='margin-top: 0; color: #1e3a8a;'>$title</h3>
+                                <p style='color: #444; font-size: 15px; line-height: 1.6; margin-bottom: 0;'>
+                                    $content
+                                </p>
 
-                    <h3 style='color:#ffc107;'>$title</h3>
+                                <a href='http://localhost/BookMyLibrary/login.php'
+                                style='display: inline-block; margin-top: 18px; background: #1e3a8a; color: #fff; padding: 12px 20px; text-decoration: none; border-radius: 6px; font-weight: bold;'>
+                                🔐 Visit Library
+                                </a>
+                            </div>
 
-                    <p style='color:#eee;font-size:15px;'>
-                        $content
-                    </p>
+                            <div style='margin-top: 25px; padding: 18px; border: 1px solid #ddd; border-radius: 8px; background: #ffffff;'>
+                                <h3 style='margin-top: 0; color: #1e3a8a;'>📚 Book My Library</h3>
+                                <p style='margin: 10px 0; color: #444;'>
+                                    Manage your books, borrowing history, and payments easily.
+                                </p>
+                                <p style='margin: 0; color: #666; font-style: italic;'>
+                                    'Books are a uniquely portable magic.'
+                                </p>
+                            </div>
 
-                    <a href='http://localhost/BookMyLibrary/login.php'
-                       style='display:inline-block;margin-top:15px;background:#4da3ff;color:#fff;padding:12px 20px;text-decoration:none;border-radius:5px;'>
-                       🔐 Visit Library
-                    </a>
+                            <div style='margin-top: 25px; padding: 18px; border: 1px solid #ddd; border-radius: 8px; background: #f8fafc; text-align: center;'>
+                                <p style='margin: 0 0 8px 0; color: #333;'>Best Wishes,</p>
+                                <p style='margin: 0; font-weight: bold; color: #1e3a8a;'>📖 The Book My Library Team</p>
+                                <p style='margin-top: 10px; font-size: 13px; color: #666;'>
+                                    📧 support@bookmylibrary.com
+                                </p>
+                            </div>
 
-                </div>
-
-                <div style='text-align:center;margin-top:25px;'>
-
-                    <h3 style='color:#ffc107;'>📚 Book My Library</h3>
-
-                    <p style='color:#ddd;'>
-                        Manage your books, borrowing history, and payments easily.
-                    </p>
-
-                    <p style='color:#aaa;font-style:italic;'>
-                        'Books are a uniquely portable magic.'
-                    </p>
-
-                </div>
-
-                <div style='background:#3b4b5b;padding:20px;border-radius:8px;margin-top:25px;text-align:center;'>
-
-                    <p>Best Wishes,</p>
-
-                    <b>📖 The Book My Library Team</b>
-
-                    <p style='margin-top:10px;font-size:13px;color:#ccc;'>
-                        📧 support@bookmylibrary.com
-                    </p>
-
-                </div>
-
-            </div>
-
-        </div>
-        ";
+                        </div>
+                    </div>
+                    ";
+    
 
         $mail->isHTML(true);
         $mail->Subject = $title;
@@ -144,5 +131,74 @@ function sendLibraryMail($email, $name, $book_name, $status, $returnDate, $fine 
         $mail->send();
     } catch (Exception $e) {
         echo "Mail Error: " . $mail->ErrorInfo;
+    }
+}
+
+function sendChairBookingMail($email, $name, $libraryName, $tableId, $chairId, $startTime, $endTime)
+{
+    $mail = new PHPMailer(true);
+
+    try {
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'dasodariya899@rku.ac.in';
+        $mail->Password   = 'impt ujku nrtp taee';
+        $mail->SMTPSecure = 'tls';
+        $mail->Port       = 587;
+
+        $mail->setFrom('dasodariya899@rku.ac.in', 'Book My Library');
+        $mail->addAddress($email, $name);
+
+        $mail->isHTML(true);
+        $mail->Subject = "Chair Booking Confirmation";
+
+        $startFormatted = date("d-m-Y h:i A", strtotime($startTime));
+        $endFormatted   = date("d-m-Y h:i A", strtotime($endTime));
+
+        $mail->Body = "
+            <div style='font-family: Arial, sans-serif; max-width: 650px; margin: auto; border: 1px solid #ddd; border-radius: 10px; overflow: hidden;'>
+                <div style='background: linear-gradient(135deg, #0f172a, #1e3a8a); color: #fff; padding: 20px; text-align: center;'>
+                    <h2 style='margin: 0;'>Chair Booking Confirmation</h2>
+                </div>
+
+                <div style='padding: 20px; color: #333;'>
+                    <p>Hello <strong>{$name}</strong>,</p>
+                    <p>Your chair has been booked successfully.</p>
+
+                    <table style='width: 100%; border-collapse: collapse; margin-top: 15px;'>
+                        <tr>
+                            <td style='padding: 10px; border: 1px solid #ddd;'><strong>Library Name</strong></td>
+                            <td style='padding: 10px; border: 1px solid #ddd;'>{$libraryName}</td>
+                        </tr>
+                        <tr>
+                            <td style='padding: 10px; border: 1px solid #ddd;'><strong>Table</strong></td>
+                            <td style='padding: 10px; border: 1px solid #ddd;'>{$tableId}</td>
+                        </tr>
+                        <tr>
+                            <td style='padding: 10px; border: 1px solid #ddd;'><strong>Chair</strong></td>
+                            <td style='padding: 10px; border: 1px solid #ddd;'>{$chairId}</td>
+                        </tr>
+                        <tr>
+                            <td style='padding: 10px; border: 1px solid #ddd;'><strong>Start Time</strong></td>
+                            <td style='padding: 10px; border: 1px solid #ddd;'>{$startFormatted}</td>
+                        </tr>
+                        <tr>
+                            <td style='padding: 10px; border: 1px solid #ddd;'><strong>End Time</strong></td>
+                            <td style='padding: 10px; border: 1px solid #ddd;'>{$endFormatted}</td>
+                        </tr>
+                    </table>
+
+                    <p style='margin-top: 20px;'>Please arrive on time and use your booked chair within the allotted duration.</p>
+
+                    <p>Thank you,<br><strong>Book My Library</strong></p>
+                </div>
+            </div>
+        ";
+
+        return $mail->send();
+    } catch (Exception $e) {
+        error_log("Chair Booking Mail Error: " . $mail->ErrorInfo);
+        return false;
     }
 }

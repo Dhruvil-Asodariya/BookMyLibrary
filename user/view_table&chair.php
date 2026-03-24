@@ -126,34 +126,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         date_default_timezone_set('Asia/Kolkata');
         mysqli_query($con, "SET time_zone = '+05:30'");
 
-        $start_time = date("Y-m-d H:i:s");
-        $end_time   = date("Y-m-d H:i:s", strtotime($start_time . " +2 hour"));
+        $start_time   = date("Y-m-d H:i:s");
+        $end_time     = date("Y-m-d H:i:s", strtotime($start_time . " +2 hour"));
         $booking_date = date("Y-m-d");
 
-        $insert = mysqli_query($con, "
-                                    INSERT INTO chair_bookings
-                                    (library_id, table_id, chair_id, user_id, booking_date, start_time, end_time, status)
-                                    VALUES
-                                    ('$library_id', '$table_id', '$chair_id', '$user_id', '$booking_date', '$start_time', '$end_time', 'active')
-                                ");
+        $insert = mysqli_query($con, "INSERT INTO chair_bookings
+                    (library_id, table_id, chair_id, user_id, booking_date, start_time, end_time, status)
+                    VALUES
+                    ('$library_id', '$table_id', '$chair_id', '$user_id', '$booking_date', '$start_time', '$end_time', 'active')
+                ");
 
         if (!$insert) {
             throw new Exception(mysqli_error($con));
         }
 
-        $updateChair = mysqli_query($con, "
-                                        UPDATE library_chairs
-                                        SET status = 'booked'
-                                        WHERE chair_id = '$chair_id'
-                                        AND table_id = '$table_id'
-                                        AND library_id = '$library_id'
-                                    ");
+        $updateChair = mysqli_query($con, "UPDATE library_chairs
+                    SET status = 'booked'
+                    WHERE chair_id = '$chair_id'
+                    AND table_id = '$table_id'
+                    AND library_id = '$library_id'
+                ");
 
         if (!$updateChair) {
             throw new Exception(mysqli_error($con));
         }
 
         mysqli_commit($con);
+
+        /* ---------------- EMAIL SEND AFTER SUCCESSFUL BOOKING ---------------- */
+
+        $userQuery = mysqli_query($con, "SELECT first_name, last_name, email FROM user WHERE user_id = '$user_id'");
+        $userData  = mysqli_fetch_assoc($userQuery);
+
+        $libraryQuery = mysqli_query($con, "SELECT library_name FROM library WHERE library_id = '$library_id'");
+        $libraryData  = mysqli_fetch_assoc($libraryQuery);
+
+        $userName    = trim(($userData['first_name'] ?? '') . ' ' . ($userData['last_name'] ?? ''));
+        $userEmail   = $userData['email'] ?? '';
+        $libraryName = $libraryData['library_name'] ?? 'Library';
+
+        $tableQuery = mysqli_query($con, "
+                SELECT table_name 
+                FROM library_tables 
+                WHERE table_id = '$table_id'
+            ");
+        $tableData = mysqli_fetch_assoc($tableQuery);
+        $tableName = $tableData['table_name'] ?? 'Table';
+
+        $chairQuery = mysqli_query($con, "
+                SELECT chair_no 
+                FROM library_chairs 
+                WHERE chair_id = '$chair_id'
+            ");
+        $chairData = mysqli_fetch_assoc($chairQuery);
+        $chairName = "C" . ($chairData['chair_no'] ?? '0');
+
+        if (!empty($userEmail)) {
+            require_once "../send_mail.php"; // adjust path if needed
+
+            $mailSent = sendChairBookingMail(
+                $userEmail,
+                $userName,
+                $libraryName,
+                $tableName,
+                $chairName,
+                $start_time,
+                $end_time
+            );
+
+            // Optional: if mail fails, just log it, do not cancel booking
+            if (!$mailSent) {
+                error_log("Chair booking mail failed for user_id: $user_id");
+            }
+        }
+
         jsonResponse("success", "Chair booked successfully for 2 hour.");
     } catch (Exception $e) {
         mysqli_rollback($con);

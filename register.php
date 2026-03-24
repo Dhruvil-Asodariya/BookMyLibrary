@@ -433,207 +433,108 @@ require 'PHPMailer/src/SMTP.php';
         } else {
 
             if (mysqli_query($con, $insert_query)) {
-            move_uploaded_file($image_tmp, $upload_dir . $image);
+                move_uploaded_file($image_tmp, $upload_dir . $image);
 
-            $mail = new PHPMailer(true);
+                $mail = new PHPMailer(true);
 
-            try {
+                try {
 
-                $mail->isSMTP();
-                $mail->Host = 'smtp.gmail.com';
-                $mail->SMTPAuth = true;
-                $mail->Username = 'dasodariya899@rku.ac.in';
-                $mail->Password = 'impt ujku nrtp taee';
-                $mail->SMTPSecure = 'tls';
-                $mail->Port = 587;
+                    $mail->isSMTP();
+                    $mail->Host = 'smtp.gmail.com';
+                    $mail->SMTPAuth = true;
+                    $mail->Username = 'dasodariya899@rku.ac.in';
+                    $mail->Password = 'impt ujku nrtp taee';
+                    $mail->SMTPSecure = 'tls';
+                    $mail->Port = 587;
 
-                $mail->setFrom('dasodariya899@rku.ac.in', 'Book My Library');
-                $mail->addAddress($email, $first_name);
+                    $mail->setFrom('dasodariya899@rku.ac.in', 'Book My Library');
+                    $mail->addAddress($email, $first_name);
 
-                $mail->isHTML(true);
-                $mail->Subject = "Your Account Details";
+                    $mail->isHTML(true);
+                    $mail->Subject = "Your Account Details";
 
-                $mail->Body = "
-                            <!DOCTYPE html>
-                            <html>
-                            <head>
-                            <meta charset='UTF-8'>
-                            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                    $mail->Body = "
+                        <div style='font-family: Arial, sans-serif; max-width: 650px; margin: auto; border: 1px solid #ddd; border-radius: 10px; overflow: hidden; background: #ffffff;'>
 
-                            <style>
+                            <!-- HEADER -->
+                            <div style='background: linear-gradient(135deg, #0f172a, #1e3a8a); color: #fff; padding: 20px; text-align: center;'>
+                                <h2 style='margin: 0;'>🚀 Welcome to <span style=\"color:#ffcc70;\">Book My Library</span></h2>
+                                <p style='margin-top:10px;color:#e2e8f0;'>
+                                    Hello $first_name $last_name, we're thrilled to have you with us!
+                                </p>
+                            </div>
 
-                            @media only screen and (max-width:600px){
-                            .container{
-                            width:95% !important;
-                            }
-                            }
+                            <!-- CONTENT -->
+                            <div style='padding: 20px; color: #333;'>
 
-                            </style>
+                                <!-- LOGIN CARD -->
+                                <div style='background: #f8fafc; border: 1px solid #ddd; border-radius: 8px; padding: 20px; text-align: center;'>
 
-                            </head>
+                                    <h3 style='color:#1e3a8a;margin-top:0;'>🔑 Your Login Credentials</h3>
 
-                            <body style='margin:0;padding:0;background:#e5e5e5;font-family:Arial,Helvetica,sans-serif;'>
+                                    <p style='margin:8px 0;'>👤 Username: <b>$email</b></p>
 
-                            <table width='100%' cellpadding='0' cellspacing='0' style='padding:25px 10px;'>
+                                    <p style='margin:8px 0;'>🔐 Password: 
+                                        <b style='color:#1e3a8a;'>$password</b>
+                                    </p>
 
-                            <tr>
-                            <td align='center'>
+                                    <p style='margin-top:10px;color:#dc2626;font-size:14px;'>
+                                        ⚠ Keep your credentials safe and do not share them.
+                                    </p>
 
-                            <table class='container' width='650' cellpadding='0' cellspacing='0'
-                            style='max-width:650px;background:linear-gradient(135deg,#2c3e50,#1b2735);border-radius:10px;color:#ffffff;padding:35px;'>
+                                    <a href='http://localhost/BookMyLibrary/login.php'
+                                    style='display:inline-block;margin-top:15px;background:#1e3a8a;color:#fff;padding:12px 20px;text-decoration:none;border-radius:6px;font-weight:bold;'>
+                                    🔒 Login to Your Account
+                                    </a>
 
-                            <!-- LOGO -->
-                            <tr>
-                            <td align='center'>
+                                </div>
 
-                            <h1 style='margin:0;font-size:28px;'>
-                            🚀 Welcome to <span style='color:#ffa726;'>Book My Library!</span>
-                            </h1>
+                                <!-- MESSAGE -->
+                                <div style='margin-top:25px; padding:18px; border: 1px solid #ddd; border-radius: 8px; background:#ffffff; text-align:center;'>
 
-                            <p style='margin-top:10px;font-size:15px;color:#d5d5d5;'>
-                            Hello $first_name $last_name, we're thrilled to have you with us!
-                            </p>
+                                    <h3 style='color:#1e3a8a;margin-top:0;'>📚 Welcome to Book My Library</h3>
 
-                            </td>
-                            </tr>
+                                    <p style='color:#444;font-size:14px;'>
+                                        At <span style='color:#1e3a8a;'>Book My Library</span>, we make it easier for readers to explore, borrow, and manage books anytime, anywhere.
+                                    </p>
 
-                            <!-- LOGIN CARD -->
-                            <tr>
-                            <td style='padding-top:20px;'>
+                                    <p style='color:#666;font-size:13px;font-style:italic;'>
+                                        \"Books are a uniquely portable magic.\"<br>
+                                        — Book My Library
+                                    </p>
 
-                            <table width='100%' style='background:#4b5a6a;border-radius:8px;padding:25px;text-align:center;'>
+                                </div>
 
-                            <tr>
-                            <td style='font-size:18px;font-weight:bold;color:#ffcc00;padding-bottom:10px;'>
+                                <!-- FOOTER -->
+                                <div style='margin-top:25px; padding:18px; border: 1px solid #ddd; border-radius: 8px; background:#f8fafc; text-align:center;'>
 
-                            🔑 Your Login Credentials
+                                    <h3 style='margin:0;'>Best Wishes,</h3>
+                                    <p style='margin:5px 0;'>📖 The Book My Library Team</p>
 
-                            </td>
-                            </tr>
+                                    <!-- SOCIAL ICONS -->
+                                    <div style='margin-top:15px;'>
+                                        <a href='#'><img src='https://cdn-icons-png.flaticon.com/512/733/733547.png' width='24' style='margin:0 5px;'></a>
+                                        <a href='#'><img src='https://cdn-icons-png.flaticon.com/512/733/733579.png' width='24' style='margin:0 5px;'></a>
+                                        <a href='#'><img src='https://cdn-icons-png.flaticon.com/512/733/733558.png' width='24' style='margin:0 5px;'></a>
+                                        <a href='#'><img src='https://cdn-icons-png.flaticon.com/512/733/733635.png' width='24' style='margin:0 5px;'></a>
+                                    </div>
 
-                            <tr>
-                            <td style='padding:5px;font-size:15px;'>
+                                    <p style='margin-top:10px;font-size:13px;color:#666;'>
+                                        📧 support@bookmylibrary.com | 🌐 www.bookmylibrary.com
+                                    </p>
 
-                            👤 Username: <b>$email</b>
+                                </div>
 
-                            </td>
-                            </tr>
+                            </div>
+                        </div>
+                        ";
 
-                            <tr>
-                            <td style='padding:5px;font-size:15px;'>
+                    $mail->send();
+                } catch (Exception $e) {
+                    echo "Mailer Error: {$mail->ErrorInfo}";
+                }
 
-                            🔐 Password: <b style='color:#ffcc00'>$password</b>
-
-                            </td>
-                            </tr>
-
-                            <tr>
-                            <td style='padding-top:10px;color:#ff4d4d;font-size:14px;'>
-
-                            ⚠ Keep your credentials safe and do not share them.
-
-                            </td>
-                            </tr>
-
-                            <tr>
-                            <td style='padding-top:20px;'>
-
-                            <a href='http://localhost/BookMyLibrary/login.php'
-                            style='background:#3498db;color:#ffffff;text-decoration:none;padding:12px 28px;border-radius:6px;font-weight:bold;display:inline-block;font-size:15px;'>
-
-                            🔒 Login to Your Account
-
-                            </a>
-
-                            </td>
-                            </tr>
-
-                            </table>
-
-                            </td>
-                            </tr>
-
-                            <!-- MESSAGE -->
-                            <tr>
-                            <td align='center' style='padding-top:30px;'>
-
-                            <h3 style='color:#ffcc00;margin-bottom:10px;'>📚 Welcome to Book My Library</h3>
-
-                            <p style='color:#dcdcdc;font-size:14px;margin:0;'>
-                            At <span style='color:#ffa726;'>Book My Library</span>, we make it easier for readers to explore, borrow, and manage books anytime, anywhere.
-                            </p>
-
-                            <p style='color:#bbbbbb;font-size:13px;margin-top:10px;font-style:italic;'>
-                            \"Books are a uniquely portable magic.\"<br>
-                            — Book My Library
-                            </p>
-
-                            </td>
-                            </tr>
-
-                            <!-- FOOTER -->
-                            <tr>
-                            <td style='padding-top:30px;'>
-
-                            <table width='100%' style='background:#3e4a57;border-radius:8px;padding:20px;text-align:center;'>
-
-                            <tr>
-                            <td>
-
-                            <h3 style='margin-top:0;'>Best Wishes,</h3>
-
-                            <p style='margin:5px 0;'>📖 The Book My Library Team</p>
-
-                            <!-- SOCIAL ICONS -->
-                            <p style='margin-top:15px;'>
-
-                            <a href='#' style='margin:0 8px;text-decoration:none;'>
-                            <img src='https://cdn-icons-png.flaticon.com/512/733/733547.png' width='24'>
-                            </a>
-
-                            <a href='#' style='margin:0 8px;text-decoration:none;'>
-                            <img src='https://cdn-icons-png.flaticon.com/512/733/733579.png' width='24'>
-                            </a>
-
-                            <a href='#' style='margin:0 8px;text-decoration:none;'>
-                            <img src='https://cdn-icons-png.flaticon.com/512/733/733558.png' width='24'>
-                            </a>
-
-                            <a href='#' style='margin:0 8px;text-decoration:none;'>
-                            <img src='https://cdn-icons-png.flaticon.com/512/733/733635.png' width='24'>
-                            </a>
-
-                            </p>
-
-                            <p style='margin-top:10px;font-size:13px;color:#cccccc;'>
-                            📧 support@bookmylibrary.com | 🌐 www.bookmylibrary.com
-                            </p>
-
-                            </td>
-                            </tr>
-
-                            </table>
-
-                            </td>
-                            </tr>
-
-                            </table>
-
-                            </td>
-                            </tr>
-
-                            </table>
-
-                            </body>
-                            </html>
-                            ";
-
-                $mail->send();
-            } catch (Exception $e) {
-                echo "Mailer Error: {$mail->ErrorInfo}";
-            }
-
-            echo "<script>
+                echo "<script>
                     document.addEventListener('DOMContentLoaded', function(){
                         Swal.fire({
                             toast: true,
@@ -648,9 +549,9 @@ require 'PHPMailer/src/SMTP.php';
                         });
                     });
                 </script>";
-        } else {
+            } else {
 
-            echo "<script>
+                echo "<script>
                     document.addEventListener('DOMContentLoaded', function(){
                         Swal.fire({
                             toast: true,
@@ -663,7 +564,7 @@ require 'PHPMailer/src/SMTP.php';
                         });
                     });
                 </script>";
-        }
+            }
         }
     }
     ?>
