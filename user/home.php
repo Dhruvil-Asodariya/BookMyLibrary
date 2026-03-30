@@ -496,6 +496,8 @@ include '../update_status.php';
             <!-- <a href="review&rating_list.php">Review & Rating</a> -->
 
             <a href="view_table&chair.php">View Table & Chair</a>
+
+            <a href="request_librarian.php">Request</a>
         </div>
 
         <div class="nav-right">

@@ -235,6 +235,8 @@ include '../update_status.php';
 
             <a href="review&rating_list.php">Review & Rating</a>
 
+            <a href="librarian_requests.php">Request</a>
+
             <!-- <a href="view_table&chair.php">View Table & Chair</a> -->
         </div>
 

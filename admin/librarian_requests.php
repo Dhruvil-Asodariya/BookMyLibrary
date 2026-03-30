@@ -450,15 +450,11 @@ if ($_SESSION['role'] != "Admin") {
                 </div>
                 <div class="advanced-filters">
                     <div class="filter-box">
-                        <label>Category Name</label>
-                        <input type="text" id="filterCategoryName" placeholder="Filter by Category Name">
-                    </div>
-                    <div class="filter-box">
                         <label>Status</label>
                         <select id="filterStatus">
                             <option value="">All Status</option>
-                            <option value="Active">Active</option>
-                            <option value="Inactive">Inactive</option>
+                            <option value="Approved">Approved</option>
+                            <option value="Pending">Pending</option>
                         </select>
                     </div>
 
@@ -472,50 +468,56 @@ if ($_SESSION['role'] != "Admin") {
                 <thead>
                     <tr>
                         <th>Sr No.</th>
-                        <th>Category ID</th>
-                        <th>Category Name</th>
-                        <th>Description</th>
+                        <th>Request ID</th>
+                        <th>User ID</th>
+                        <th>Subject</th>
+                        <th>Message</th>
+                        <th>Request Date</th>
                         <th>Status</th>
+                        <th>Approved Date</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php
-                    $category = mysqli_query($con, "SELECT * FROM category");
+                    $category = mysqli_query($con, "SELECT * FROM librarian_request");
                     $i = 1;
                     foreach ($category as $row) {
 
                         // Dynamic Status Logic
-                        if ($row['status'] == "Active") {
+                        if ($row['status'] == "Approved") {
                             $statusClass = "active";
-                            $statusText  = "Active";
-                            $buttonText = "Inactive";
+                            $statusText  = "Approved";
                         } else {
                             $statusClass = "inactive";
-                            $statusText  = "Inactive";
-                            $buttonText = "Active";
+                            $statusText  = "Pending";
                         }
 
                         echo "
                     <tr>
                         <td>{$i}</td>
-                        <td>{$row['category_id']}</td>
-                        <td>{$row['category_name']}</td>
-                        <td>{$row['category_description']}</td>
-                        <td><span id='status_{$row['category_id']}' 
+                        <td>{$row['request_id']}</td>
+                        <td>{$row['user_id']}</td>
+                        <td>{$row['subject']}</td>
+                        <td>{$row['message']}</td>
+                        <td>{$row['request_date']}</td>
+                        <td><span id='status_{$row['request_id']}' 
                                 class='status {$statusClass}'>
                                 {$statusText}
                             </span>
                         </td>
-                        <td>
-                            <a href='edit_category.php?category_id={$row['category_id']}'><button class='btn btn-edit'>Edit</button></a>
-                           <button 
+                        <td>{$row['approved_date']}</td>
+                        <td>";
+                        if ($row['status'] == "Pending") {
+                            echo " <button 
                                 class='btn btn-toggle'
-                                onclick='toggleStatus({$row['category_id']}, " . json_encode($statusText) . ", this)'>
-                                {$buttonText}
-                            </button>
-                            <button class='btn btn-delete' onclick='openDeleteModal({$row['category_id']})'>Delete</button>
-                        </td>
+                                onclick='toggleStatus({$row['request_id']}, " . json_encode($statusText) . ", this)'>
+                                Approve
+                            </button>";
+                        } else {
+                            echo "--";
+                        }
+                        echo "</td>
                     </tr>";
                         $i++;
                     }
@@ -526,68 +528,6 @@ if ($_SESSION['role'] != "Admin") {
         </div>
     </div>
 
-    <div class="modal-overlay" id="deleteModal">
-        <form method="post">
-            <div class="modal-box">
-                <div class="modal-header">
-                    <h3>Delete Category Record</h3>
-                </div>
-
-                <div class="detail" style="display:none;">
-                    <input type="hidden" name="categoryId" id="categoryId">
-                </div>
-
-                <div class="modal-body">
-                    <p>⚠️ Are you sure you want to delete this category record?</p>
-                    <span>This action cannot be undone.</span>
-                </div>
-
-                <div class="modal-actions">
-                    <button type="button" class="btn cancel-btn" onclick="closeDeleteModal()">Cancel</button>
-                    <button type="submit" class="btn delete-btn" name="delete_btn">Yes, Delete</button>
-                </div>
-            </div>
-        </form>
-    </div>
-    <?php
-    if (isset($_POST['delete_btn'])) {
-        $category_id = intval($_POST['categoryId']);
-
-        $delete_query = "DELETE FROM category WHERE category_id = $category_id";
-
-        if (mysqli_query($con, $delete_query)) {
-            echo "<script>
-                document.addEventListener('DOMContentLoaded', function(){
-                    Swal.fire({
-                        toast: true,
-                        position: 'top',
-                        icon: 'success',
-                        title: 'Category Record Deleted Successfully!',
-                        showConfirmButton: false,
-                        timer: 2000,
-                        timerProgressBar: true
-                    }).then(() => {
-                        window.location.href = 'category_list.php';
-                    });
-                });
-            </script>";
-        } else {
-            echo "<script>
-                document.addEventListener('DOMContentLoaded', function(){
-                    Swal.fire({
-                        toast: true,
-                        position: 'top',
-                        icon: 'error',
-                        title: 'Failed to delete category record. Please try again.',
-                        showConfirmButton: false,
-                        timer: 2000,
-                        timerProgressBar: true
-                    });
-                });
-            </script>";
-        }
-    }
-    ?>
     <?php include 'footer.php'; ?>
 
     <!-- Scripts -->
@@ -618,19 +558,19 @@ if ($_SESSION['role'] != "Admin") {
             buttons: [{
                     extend: 'excelHtml5',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4] // column indexes you want
+                        columns: [0, 1, 2, 3, 4, 5, 7, 8] // column indexes you want
                     }
                 },
                 {
                     extend: 'pdfHtml5',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4]
+                        columns: [0, 1, 2, 3, 4, 5, 7, 8]
                     }
                 },
                 {
                     extend: 'print',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4]
+                        columns: [0, 1, 2, 3, 4, 5, 7, 8]
                     }
                 }
             ],
@@ -657,21 +597,15 @@ if ($_SESSION['role'] != "Admin") {
             var value = $(this).val().trim();
 
             if (value === '') {
-                table.column(4).search('').draw();
+                table.column(6).search('').draw();
             } else {
-                table.column(4).search(value, false, false).draw();
+                table.column(6).search(value, false, false).draw();
             }
-        });
-
-        // OWNER filter
-        $('#filterCategoryName').on('keyup', function() {
-            table.column(2).search(this.value).draw();
         });
 
         // RESET filters
         function resetFilters() {
             $('#filterStatus').val('');
-            $('#filterCategoryName').val('');
 
             table.columns().search('').draw();
         }
@@ -689,14 +623,14 @@ if ($_SESSION['role'] != "Admin") {
     </script>
 
     <script>
-        function toggleStatus(category_id, current_status, btn) {
+        function toggleStatus(request_id, current_status, btn) {
 
-            fetch("category_status_update.php", {
+            fetch("request_status_update.php", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/x-www-form-urlencoded"
                     },
-                    body: "category_id=" + category_id + "&current_status=" + current_status
+                    body: "request_id=" + request_id + "&current_status=" + current_status
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -710,28 +644,11 @@ if ($_SESSION['role'] != "Admin") {
                             title: 'Status Updated Successfully!',
                             showConfirmButton: false,
                             timer: 2000,
-                            timerProgressBar: true
+                            timerProgressBar: true,
+                            didClose: () => {
+                                window.location.href = 'librarian_requests.php';
+                            }
                         });
-
-                        // 🔥 Update Button Text Instantly
-                        btn.innerText = data.buttonText;
-
-                        // Update onclick with new status
-                        btn.setAttribute("onclick",
-                            "toggleStatus(" + category_id + ", '" + data.newStatus + "', this)");
-
-                        // ✅ Update Status Column Text
-                        let statusSpan = document.getElementById("status_" + category_id);
-                        statusSpan.innerText = data.newStatus;
-
-                        // ✅ Update Status Badge Class
-                        statusSpan.classList.remove("active", "inactive");
-
-                        if (data.newStatus === "Active") {
-                            statusSpan.classList.add("active");
-                        } else {
-                            statusSpan.classList.add("inactive");
-                        }
 
                     } else {
                         Swal.fire({

@@ -602,7 +602,7 @@ include '../update_status.php';
             <div class="card pending" onclick="card_pending()">
                 <div class="card-content">
                     <h2>Total Fine Pending (₹)</h2>
-                    <div class="value" id="finePending"><?php echo $pending_fine_data['total']; ?></div>
+                    <div class="value" id="finePending"><?php echo isset($pending_fine_data['total']) ? $pending_fine_data['total'] : 0 ?></div>
                     <div class="sub">Yet to be collected</div>
                 </div>
             </div>

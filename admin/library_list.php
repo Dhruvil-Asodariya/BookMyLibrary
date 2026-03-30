@@ -952,9 +952,13 @@ if ($_SESSION['role'] != "Admin") {
 
         // STATUS filter
         $('#filterStatus').on('change', function() {
-            var value = this.value.toLowerCase();
+            var value = $(this).val().trim();
 
-            table.column(10).search(value ? '^' + value + '$' : '', true, false).draw();
+            if (value === '') {
+                table.column(10).search('').draw();
+            } else {
+                table.column(10).search(value, false, false).draw();
+            }
         });
 
         // LOCATION filter

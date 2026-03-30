@@ -1,7 +1,7 @@
 <?php
 require "../session_check.php";
 
-if ($_SESSION['role'] != "Admin") {
+if ($_SESSION['role'] != "User") {
     header("Location: ../login.php");
     exit();
 }
@@ -11,7 +11,7 @@ if ($_SESSION['role'] != "Admin") {
 
 <head>
     <meta charset="UTF-8">
-    <title>Edit Library | Library System</title>
+    <title>Add Library | Library System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -223,6 +223,32 @@ if ($_SESSION['role'] != "Admin") {
                 font-size: 13px;
             }
         }
+
+        @keyframes shake {
+            0% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-4px);
+            }
+
+            50% {
+                transform: translateX(4px);
+            }
+
+            75% {
+                transform: translateX(-4px);
+            }
+
+            100% {
+                transform: translateX(0);
+            }
+        }
+
+        .form-group input.error-input {
+            animation: shake 0.25s;
+        }
     </style>
 </head>
 
@@ -235,27 +261,22 @@ if ($_SESSION['role'] != "Admin") {
         <nav class="breadcrumb">
             <a href="home.php" class="dashboard">Dashboard</a>
             <span class="separator">›</span>
-            <a href="library_list.php"><span class="dashboard">Library List</span></a>
+            <a href="request_librarian.php"><span class="dashboard">Request</span></a>
             <span class="separator">›</span>
-            <span class="current">Edit Library</span>
+            <span class="current">Add Library</span>
         </nav>
     </div>
 
     <!-- MAIN CONTENT -->
     <div class="main-content">
 
-        <?php
-        $library_id = intval($_GET['library_id']);
-        $library = mysqli_query($con, "SELECT * FROM library WHERE library_id = $library_id");
-        $data = mysqli_fetch_assoc($library);
 
-        ?>
 
         <div class="edit-card">
-            <form id="editLibraryForm" method="POST">
+            <form id="editLibraryForm" action="#" method="POST">
                 <div class="page-header">
-                    <h2>Edit Library</h2>
-                    <p>Edit library details in your library system</p>
+                    <h2>Add Library</h2>
+                    <p>Add library details in your library system</p>
                 </div>
                 <div class="form-grid">
 
@@ -263,44 +284,44 @@ if ($_SESSION['role'] != "Admin") {
                     <div class="form-fields">
 
                         <div class="form-group">
-                            <label>Library name</label>
-                            <input type="text" id="libraryName" value="<?php echo $data['library_name']; ?>" name="libraryName">
+                            <label>Library Name</label>
+                            <input type="text" id="libraryName" name="libraryName">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Library Owner Name</label>
-                            <input type="text" id="libraryOwnerName" value="<?php echo $data['library_owner_name']; ?>" name="libraryOwnerName">
+                            <input type="text" id="libraryOwnerName" name="libraryOwnerName">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Table Capacity</label>
-                            <input type="number" id="tableCapacity" value="<?php echo $data['table_capacity']; ?>" name="tableCapacity">
+                            <input type="number" id="tableCapacity" name="tableCapacity">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Chair Capacity</label>
-                            <input type="number" id="chairCapacity" value="<?php echo $data['chair_capacity']; ?>" name="chairCapacity">
+                            <input type="number" id="chairCapacity" name="chairCapacity">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Open At</label>
-                            <input type="time" id="openAt" value="<?php echo $data['open_at']; ?>" name="openAt">
+                            <input type="time" id="openAt" name="openAt">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Close At</label>
-                            <input type="time" id="closeAt" value="<?php echo $data['close_at']; ?>" name="closeAt">
+                            <input type="time" id="closeAt" name="closeAt">
                             <div class="error"></div>
                         </div>
 
                         <div class="form-group">
                             <label>Library Location</label>
-                            <input type="text" id="libraryLocation" value="<?php echo $data['library_location']; ?>" name="libraryLocation">
+                            <input type="text" id="libraryLocation" name="libraryLocation">
                             <div class="error"></div>
                         </div>
 
@@ -310,65 +331,91 @@ if ($_SESSION['role'] != "Admin") {
                 <!-- Buttons -->
                 <div class="actions">
                     <button type="reset" class="btn btn-cancel">Cancel</button>
-                    <button type="submit" class="btn btn-save" name="save_btn">Save Change</button>
+                    <button type="submit" class="btn btn-save" name="add_library">Add Library</button>
                 </div>
 
             </form>
         </div>
 
-        <?php
-        if (isset($_POST['save_btn'])) {
+    </div>
 
-            $library_name = $_POST['libraryName'];
-            $library_owner_name = $_POST['libraryOwnerName'];
-            $table_capacity = $_POST['tableCapacity'];
-            $chair_capacity = $_POST['chairCapacity'];
-            $open_at = $_POST['openAt'];
-            $close_at = $_POST['closeAt'];
-            $library_location = $_POST['libraryLocation'];
+    <?php
+    if (isset($_POST['add_library'])) {
+        // 🔁 Generate Unique Random ID
+        do {
+            $library_id = rand(10000000, 99999999);
 
-            $update_query = "UPDATE library SET
-                            library_name = '$library_name',
-                            library_owner_name = '$library_owner_name',
-                            table_capacity = $table_capacity,
-                            chair_capacity = $chair_capacity,
-                            open_at = '$open_at',
-                            close_at = '$close_at',
-                            library_location = '$library_location'
-                            WHERE library_id = $library_id";
+            $check_query = mysqli_query(
+                $con,
+                "SELECT library_id FROM library WHERE library_id = '$library_id'"
+            );
+        } while (mysqli_num_rows($check_query) > 0);
 
-            if (mysqli_query($con, $update_query)) {
+        $user_id = $_SESSION['id'];
+        $library_name = $_POST['libraryName'];
+        $library_owner_name = $_POST['libraryOwnerName'];
+        $table_capacity = $_POST['tableCapacity'];
+        $chair_capacity = $_POST['chairCapacity'];
+        $open_at = $_POST['openAt'];
+        $close_at = $_POST['closeAt'];
+        $library_location = $_POST['libraryLocation'];
+        $status = "Active";
+
+        $insert_query = "INSERT INTO library
+                        (library_id, user_id, library_name, library_owner_name, table_capacity, chair_capacity, open_at, close_at, library_location, status)
+                        VALUES($library_id, $user_id, '$library_name', '$library_owner_name', $table_capacity, $chair_capacity, '$open_at', '$close_at', '$library_location', '$status')";
+
+        // Check if library already exists
+        $check_library = mysqli_query($con, "SELECT library_name FROM library WHERE library_name='$library_name'");
+
+        if (mysqli_num_rows($check_library) > 0) {
+
+            echo "<script>
+                    Swal.fire({
+                        toast:true,
+                        position:'top',
+                        icon:'error',
+                        title:'Library already exists!',
+                        showConfirmButton:false,
+                        timer:2000
+                    });
+                </script>";
+        } else {
+            if (mysqli_query($con, $insert_query)) {
+                mysqli_query($con, "UPDATE user SET role = 'Librarian' WHERE user_id = $user_id");
                 echo "<script>
-                        Swal.fire({
-                            toast: true,
-                            position: 'top',
-                            icon: 'success',
-                            title: 'Library details updated successfully!',
-                            showConfirmButton: false,
-                            timer: 2000,
-                            timerProgressBar: true,
-                            didClose: () => {
-                                window.location.href = 'library_list.php';
-                            }
-                        });
-                    </script>";
+                    document.addEventListener('DOMContentLoaded', function(){
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'success',
+                        title: 'Library Added Successfully!',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    }).then(() => {
+                        window.location.href = '../login.php';
+                    });
+                });
+            </script>";
             } else {
                 echo "<script>
-                        Swal.fire({
-                            toast: true,
-                            position: 'top',
-                            icon: 'error',
-                            title: 'Failed to update library details. Please try again.',
-                            showConfirmButton: false,
-                            timer: 2000,
-                            timerProgressBar: true
-                        });
-                    </script>";
+                    document.addEventListener('DOMContentLoaded', function(){
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'error',
+                        title: 'Failed to add library. Please try again.',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
+                    });
+                });
+            </script>";
             }
         }
-        ?>
-
-    </div>
+    }
+    ?>
 
     <!-- FOOTER -->
     <?php include 'footer.php'; ?>
@@ -455,12 +502,11 @@ if ($_SESSION['role'] != "Admin") {
         function validateTime() {
             const openTime = openAt.value;
             const closeTime = closeAt.value;
-            let isValid = true;
 
             // Open time
             if (!openTime) {
                 showError(openAt, "Open time is required");
-                isValid = false;
+                return false;
             } else {
                 showSuccess(openAt);
             }
@@ -468,15 +514,15 @@ if ($_SESSION['role'] != "Admin") {
             // Close time
             if (!closeTime) {
                 showError(closeAt, "Close time is required");
-                isValid = false;
+                return false;
             } else if (openTime >= closeTime) {
                 showError(closeAt, "Close time must be after open time");
-                isValid = false;
+                return false;
             } else {
                 showSuccess(closeAt);
             }
 
-            return isValid;
+            return true;
         }
 
         function validateLocation() {
@@ -498,7 +544,6 @@ if ($_SESSION['role'] != "Admin") {
             }
         }
 
-
         libraryName.addEventListener("input", () => validateText(libraryName));
         libraryOwnerName.addEventListener("input", () => validateText(libraryOwnerName));
         tableCapacity.addEventListener("input", validateTable);
@@ -509,9 +554,6 @@ if ($_SESSION['role'] != "Admin") {
 
         form.addEventListener("submit", function(e) {
 
-            if (!isValid) {
-                e.preventDefault();
-            }
 
             const isValid =
                 validateText(libraryName) &
@@ -521,6 +563,25 @@ if ($_SESSION['role'] != "Admin") {
                 validateTime() &
                 validateTime() &
                 validateLocation();
+
+            if (!isValid) {
+                e.preventDefault();
+            }
+
+            // if (isValid) {
+            //     Swal.fire({
+            //         toast: true,
+            //         position: 'top',
+            //         icon: 'success',
+            //         title: 'Library details added successfully!',
+            //         showConfirmButton: false,
+            //         timer: 2000,
+            //         timerProgressBar: true,
+            //         didClose: () => {
+            //             window.location.href = "library_list.php";
+            //         }
+            //     });
+            // }
         });
     </script>
 

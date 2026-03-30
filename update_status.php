@@ -108,12 +108,11 @@ while ($update_data = mysqli_fetch_assoc($issues)) {
     // Send mail only once when status changes
     if ($oldStatus != $newStatus && $lastMailedStatus != $newStatus) {
 
-        if (sendLibraryMail($userEmail, $userName, $bookName, $newStatus, date("d M Y", strtotime($returnDate)), $fine)) {
-            mysqli_query($con, "
-                UPDATE issue 
-                SET last_mailed_status='$newStatus' 
-                WHERE issue_id='$issue_id'
-            ");
+        if ($newStatus == "Yet to return") {
+            sendLibraryMail($userEmail, $userName, $bookName, $newStatus, date("d M Y", strtotime($graceDate)), $fine);
+        } else {
+            sendLibraryMail($userEmail, $userName, $bookName, $newStatus, date("d M Y", strtotime($returnDate)), $fine);
         }
+        mysqli_query($con, "UPDATE issue SET last_mailed_status='$newStatus' WHERE issue_id='$issue_id' ");
     }
 }

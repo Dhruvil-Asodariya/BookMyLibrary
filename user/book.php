@@ -785,6 +785,7 @@ if ($_SESSION['role'] != "User") {
     </div>
 
     <?php
+    include_once "../send_mail.php";
     if (isset($_POST['confirm_btn'])) {
 
         if (!isset($_POST['agree_tc'])) {
@@ -827,11 +828,14 @@ if ($_SESSION['role'] != "User") {
             $fine_amount = 0;
             $status = "Issued";
 
+            $user_data = mysqli_fetch_assoc(mysqli_query($con , "SELECT * FROM user WHERE user_id = $user_id"));
+            $book_data = mysqli_fetch_assoc(mysqli_query($con , "SELECT title FROM book_list WHERE book_id = $book_id"));
+
             $insert_query = "INSERT INTO issue 
                         (issue_id, book_id, user_id, library_id, issue_date, return_date, fine_amount, status)
                         VALUES($issue_id, $book_id, $user_id, $library_id, '$issue_date', '$return_date', $fine_amount, '$status')";
 
-            $checkIssue = mysqli_query($con, "SELECT * FROM issue WHERE book_id = '$book_id' AND status != 'Returned' ");
+            $checkIssue = mysqli_query($con, "SELECT * FROM issue WHERE book_id = '$book_id' AND user_id = $user_id AND status != 'Returned'");
 
             if (mysqli_num_rows($checkIssue) > 0) {
                 echo "<script>
@@ -850,7 +854,11 @@ if ($_SESSION['role'] != "User") {
             } else {
                 if (mysqli_query($con, $insert_query)) {
                     mysqli_query($con, "UPDATE book_list SET available_copy = available_copy - 1 WHERE book_id='$book_id'");
-                                                echo "<script>
+
+                    sendLibraryMail($user_data['email'], $user_data['first_name'] . " " . $user_data['last_name'], $book_data['title'], "Issued", $return_date);
+
+                    mysqli_query($con, "UPDATE issue SET last_mailed_status = 'Issued' WHERE issue_id = $issue_id");
+                    echo "<script>
                     document.addEventListener('DOMContentLoaded', function(){
                         Swal.fire({
                             toast: true,
