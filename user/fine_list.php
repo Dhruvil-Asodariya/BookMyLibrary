@@ -675,12 +675,27 @@ if ($_SESSION['role'] != "User") {
                     $i = 1;
                     foreach ($fine as $row) {
 
-                        $book_id = mysqli_fetch_assoc(mysqli_query($con, "SELECT book_id FROM issue WHERE issue_id = '{$row['issue_id']}'"))['book_id'];
+                        $book_id = mysqli_fetch_assoc(mysqli_query($con, "SELECT book_id FROM issue WHERE issue_id = '{$row['issue_id']}'"));
+                        $book_data = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM book_list WHERE book_id = '{$book_id['book_id']}'"));
+                        $library_data = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM library WHERE library_id = '{$row['library_id']}'"));
 
                         echo "<tr>
                                 <td>{$i}</td>
                                 <td>{$row['payment_id']}</td>
-                                <td><span class='model-link' onclick='openBookModal()'>{$book_id}</span></td>
+                                <td>
+                                    <span class='model-link'
+                                    onclick=\"openBookModal(
+                                    '{$book_data['book_id']}',
+                                    '../book_images/{$book_data['image']}',
+                                    '" . htmlspecialchars($book_data['title'], ENT_QUOTES) . "',
+                                    '" . htmlspecialchars($book_data['author'], ENT_QUOTES) . "',
+                                    '" . htmlspecialchars($book_data['category'], ENT_QUOTES) . "',
+                                    '{$book_data['year']}',
+                                    '" . htmlspecialchars($library_data['library_name'], ENT_QUOTES) . "'
+                                    )\">
+                                    {$book_id['book_id']}
+                                    </span>
+                                </td>
                                 <td>{$row['amount']}</td>
                                 <td><span class='status paid'>Paid</span></td>
                                 <td>{$row['payment_method']}</td>
@@ -710,33 +725,33 @@ if ($_SESSION['role'] != "User") {
 
             <div class="modal-body-p">
                 <div class="book-image">
-                    <img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" alt="Book Image">
+                    <img id="modalBookImage" src="" alt="Book Image">
                 </div>
 
                 <div class="book-details">
                     <div class="detail">
                         <span>Book ID</span>
-                        <p>24842354</p>
+                        <p id="modalBookId"></p>
                     </div>
                     <div class="detail">
                         <span>Title</span>
-                        <p>Introduction to Java</p>
+                        <p id="modalBookTitle"></p>
                     </div>
                     <div class="detail">
                         <span>Author</span>
-                        <p>James Gosling</p>
+                        <p id="modalBookAuthor"></p>
                     </div>
                     <div class="detail">
                         <span>Category</span>
-                        <p>Programming</p>
+                        <p id="modalBookCategory"></p>
                     </div>
                     <div class="detail">
                         <span>Publish Year</span>
-                        <p>2020</p>
+                        <p id="modalBookYear"></p>
                     </div>
                     <div class="detail">
                         <span>Library Name</span>
-                        <p>Main Library</p>
+                        <p id="modalBookLibrary"></p>
                     </div>
                 </div>
             </div>
@@ -844,20 +859,20 @@ if ($_SESSION['role'] != "User") {
             // Here you can remove the row or call backend later
         }
 
-        function openBookModal() {
+        function openBookModal(bookId, image, title, author, category, year, library) {
+            document.getElementById("modalBookId").innerText = bookId;
+            document.getElementById("modalBookImage").src = image;
+            document.getElementById("modalBookTitle").innerText = title;
+            document.getElementById("modalBookAuthor").innerText = author;
+            document.getElementById("modalBookCategory").innerText = category;
+            document.getElementById("modalBookYear").innerText = year;
+            document.getElementById("modalBookLibrary").innerText = library;
+
             document.getElementById("bookModal").style.display = "flex";
         }
 
         function closeBookModal() {
             document.getElementById("bookModal").style.display = "none";
-        }
-
-        function openUserModal() {
-            document.getElementById("userModal").style.display = "flex";
-        }
-
-        function closeUserModal() {
-            document.getElementById("userModal").style.display = "none";
         }
     </script>
 
