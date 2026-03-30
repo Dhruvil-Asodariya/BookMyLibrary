@@ -46,6 +46,45 @@ function jsonResponse($status, $message)
 }
 
 /* ---------------------------------------------
+   Helper: sync library capacity
+--------------------------------------------- */
+function syncLibraryCapacity($con, $library_id)
+{
+    $tableCountQuery = mysqli_query($con, "
+        SELECT COUNT(*) AS total_tables
+        FROM library_tables
+        WHERE library_id = '$library_id'
+    ");
+
+    $chairCountQuery = mysqli_query($con, "
+        SELECT COUNT(*) AS total_chairs
+        FROM library_chairs
+        WHERE library_id = '$library_id'
+    ");
+
+    if (!$tableCountQuery || !$chairCountQuery) {
+        throw new Exception("Failed to calculate library capacity.");
+    }
+
+    $tableCountData = mysqli_fetch_assoc($tableCountQuery);
+    $chairCountData = mysqli_fetch_assoc($chairCountQuery);
+
+    $total_tables = intval($tableCountData['total_tables']);
+    $total_chairs = intval($chairCountData['total_chairs']);
+
+    $updateLibrary = mysqli_query($con, "
+        UPDATE library
+        SET table_capacity = '$total_tables',
+            chair_capacity = '$total_chairs'
+        WHERE library_id = '$library_id'
+    ");
+
+    if (!$updateLibrary) {
+        throw new Exception("Failed to update library capacity: " . mysqli_error($con));
+    }
+}
+
+/* ---------------------------------------------
    Helper: chair position
 --------------------------------------------- */
 function getChairPosition($index, $total)
@@ -105,7 +144,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
         $table_name_safe = mysqli_real_escape_string($con, $table_name);
 
-        $check = mysqli_query($con, "SELECT table_id FROM library_tables WHERE library_id = '$library_id' AND table_name = '$table_name_safe' LIMIT 1");
+        $check = mysqli_query($con, "
+            SELECT table_id
+            FROM library_tables
+            WHERE library_id = '$library_id' AND table_name = '$table_name_safe'
+            LIMIT 1
+        ");
+
         if (mysqli_num_rows($check) > 0) {
             jsonResponse("error", "Table name already exists in this library.");
         }
@@ -134,6 +179,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     throw new Exception(mysqli_error($con));
                 }
             }
+
+            syncLibraryCapacity($con, $library_id);
 
             mysqli_commit($con);
             jsonResponse("success", "Table added successfully.");
@@ -164,10 +211,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $table_name_safe = mysqli_real_escape_string($con, $table_name);
 
         $checkCurrent = mysqli_query($con, "
-            SELECT * FROM library_tables
+            SELECT *
+            FROM library_tables
             WHERE table_id = '$table_id' AND library_id = '$library_id'
             LIMIT 1
         ");
+
         if (mysqli_num_rows($checkCurrent) == 0) {
             jsonResponse("error", "Table not found.");
         }
@@ -176,17 +225,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $old_chair_count = intval($currentData['chair_count']);
 
         $checkDuplicate = mysqli_query($con, "
-            SELECT table_id FROM library_tables
+            SELECT table_id
+            FROM library_tables
             WHERE library_id = '$library_id'
               AND table_name = '$table_name_safe'
               AND table_id != '$table_id'
             LIMIT 1
         ");
+
         if (mysqli_num_rows($checkDuplicate) > 0) {
             jsonResponse("error", "Another table already has this name.");
         }
 
-        /* Prevent reducing below booked chair count */
         $bookedCountQuery = mysqli_query($con, "
             SELECT COUNT(*) AS booked_count
             FROM library_chairs
@@ -194,6 +244,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
               AND library_id = '$library_id'
               AND status = 'booked'
         ");
+
         $bookedCountData = mysqli_fetch_assoc($bookedCountQuery);
         $booked_count = intval($bookedCountData['booked_count']);
 
@@ -240,6 +291,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 }
             }
 
+            syncLibraryCapacity($con, $library_id);
+
             mysqli_commit($con);
             jsonResponse("success", "Table updated successfully.");
         } catch (Exception $e) {
@@ -257,7 +310,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
 
         $check = mysqli_query($con, "
-            SELECT table_id FROM library_tables
+            SELECT table_id
+            FROM library_tables
             WHERE table_id = '$table_id' AND library_id = '$library_id'
             LIMIT 1
         ");
@@ -266,15 +320,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             jsonResponse("error", "Table not found.");
         }
 
-        $delete = mysqli_query($con, "
-            DELETE FROM library_tables
-            WHERE table_id = '$table_id' AND library_id = '$library_id'
+        $bookedCheck = mysqli_query($con, "
+            SELECT COUNT(*) AS booked_count
+            FROM library_chairs
+            WHERE table_id = '$table_id'
+              AND library_id = '$library_id'
+              AND status = 'booked'
         ");
 
-        if ($delete) {
+        $bookedData = mysqli_fetch_assoc($bookedCheck);
+        $booked_count = intval($bookedData['booked_count']);
+
+        if ($booked_count > 0) {
+            jsonResponse("error", "Cannot delete table because some chairs are booked.");
+        }
+
+        mysqli_begin_transaction($con);
+
+        try {
+            $deleteChairs = mysqli_query($con, "
+                DELETE FROM library_chairs
+                WHERE table_id = '$table_id' AND library_id = '$library_id'
+            ");
+
+            if (!$deleteChairs) {
+                throw new Exception(mysqli_error($con));
+            }
+
+            $deleteTable = mysqli_query($con, "
+                DELETE FROM library_tables
+                WHERE table_id = '$table_id' AND library_id = '$library_id'
+            ");
+
+            if (!$deleteTable) {
+                throw new Exception(mysqli_error($con));
+            }
+
+            syncLibraryCapacity($con, $library_id);
+
+            mysqli_commit($con);
             jsonResponse("success", "Table deleted successfully.");
-        } else {
-            jsonResponse("error", "Delete failed: " . mysqli_error($con));
+        } catch (Exception $e) {
+            mysqli_rollback($con);
+            jsonResponse("error", "Delete failed: " . $e->getMessage());
         }
     }
 }
@@ -284,7 +372,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 --------------------------------------------- */
 $tables = [];
 $tableQuery = mysqli_query($con, "
-    SELECT * FROM library_tables
+    SELECT *
+    FROM library_tables
     WHERE library_id = '$library_id'
     ORDER BY table_id ASC
 ");
@@ -294,7 +383,8 @@ while ($tableRow = mysqli_fetch_assoc($tableQuery)) {
 
     $chairs = [];
     $chairQuery = mysqli_query($con, "
-        SELECT * FROM library_chairs
+        SELECT *
+        FROM library_chairs
         WHERE table_id = '$table_id' AND library_id = '$library_id'
         ORDER BY chair_no ASC
     ");

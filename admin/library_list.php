@@ -853,6 +853,8 @@ if ($_SESSION['role'] != "Admin") {
         $delete_query = "DELETE FROM library WHERE library_id = $library_id";
 
         if (mysqli_query($con, $delete_query)) {
+
+            mysqli_query($con, "DELETE FROM library_tables WHERE library_id = $library_id");
             echo "<script>
                 document.addEventListener('DOMContentLoaded', function(){
                     Swal.fire({

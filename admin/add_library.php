@@ -296,6 +296,12 @@ if ($_SESSION['role'] != "Admin") {
                         </div>
 
                         <div class="form-group">
+                            <label>Library Email</label>
+                            <input type="text" id="libraryEmail" name="libraryEmail">
+                            <div class="error"></div>
+                        </div>
+
+                        <div class="form-group">
                             <label>Table Capacity</label>
                             <input type="number" id="tableCapacity" name="tableCapacity">
                             <div class="error"></div>
@@ -353,6 +359,7 @@ if ($_SESSION['role'] != "Admin") {
 
         $library_name = $_POST['libraryName'];
         $library_owner_name = $_POST['libraryOwnerName'];
+        $library_email = $_POST['libraryEmail'];
         $table_capacity = $_POST['tableCapacity'];
         $chair_capacity = $_POST['chairCapacity'];
         $open_at = $_POST['openAt'];
@@ -361,8 +368,8 @@ if ($_SESSION['role'] != "Admin") {
         $status = "Active";
 
         $insert_query = "INSERT INTO library
-                        (library_id, library_name, library_owner_name, table_capacity, chair_capacity, open_at, close_at, library_location, status)
-                        VALUES($library_id, '$library_name', '$library_owner_name', $table_capacity, $chair_capacity, '$open_at', '$close_at', '$library_location', '$status')";
+                        (library_id, library_name, library_owner_name, library_email, table_capacity, chair_capacity, open_at, close_at, library_location, status)
+                        VALUES($library_id, '$library_name', '$library_owner_name', '$library_email', $table_capacity, $chair_capacity, '$open_at', '$close_at', '$library_location', '$status')";
 
         // Check if library already exists
         $check_library = mysqli_query($con, "SELECT library_name FROM library WHERE library_name='$library_name'");
@@ -381,6 +388,43 @@ if ($_SESSION['role'] != "Admin") {
                 </script>";
         } else {
             if (mysqli_query($con, $insert_query)) {
+
+                // 2. Distribute chairs among tables
+                $base_chairs = intdiv($chair_capacity, $table_capacity);
+                $extra_chairs = $chair_capacity % $table_capacity;
+
+                // 3. Create tables and chairs automatically
+                for ($i = 1; $i <= $table_capacity; $i++) {
+
+                    // Extra 1 chair for first few tables
+                    $chairs_for_this_table = $base_chairs + ($i <= $extra_chairs ? 1 : 0);
+
+                    $table_name = "Table " . $i;
+
+                    $insert_table = "
+                        INSERT INTO library_tables (library_id, table_name, chair_count)
+                        VALUES ('$library_id', '$table_name', '$chairs_for_this_table')
+                    ";
+
+                    if (!mysqli_query($con, $insert_table)) {
+                        throw new Exception("Table insert failed: " . mysqli_error($con));
+                    }
+
+                    $table_id = mysqli_insert_id($con);
+
+                    // Insert chairs for current table
+                    for ($j = 1; $j <= $chairs_for_this_table; $j++) {
+                        $insert_chair = "
+                            INSERT INTO library_chairs (table_id, library_id, chair_no, status, booked_by)
+                            VALUES ('$table_id', '$library_id', '$j', 'available', NULL)
+                        ";
+
+                        if (!mysqli_query($con, $insert_chair)) {
+                            throw new Exception("Chair insert failed: " . mysqli_error($con));
+                        }
+                    }
+                }
+
                 echo "<script>
                     document.addEventListener('DOMContentLoaded', function(){
                     Swal.fire({
@@ -422,6 +466,7 @@ if ($_SESSION['role'] != "Admin") {
         const form = document.getElementById("editLibraryForm");
         const libraryName = document.getElementById("libraryName");
         const libraryOwnerName = document.getElementById("libraryOwnerName");
+        const libraryEmail = document.getElementById("libraryEmail");
         const tableCapacity = document.getElementById("tableCapacity");
         const chairCapacity = document.getElementById("chairCapacity");
         const openAt = document.getElementById("openAt");
@@ -455,6 +500,22 @@ if ($_SESSION['role'] != "Admin") {
                 return false;
             } else if (!regex.test(value)) {
                 showError(input, "Only letters are allowed");
+                return false;
+            } else {
+                showSuccess(input);
+                return true;
+            }
+        }
+
+        function validateEmail(input) {
+            let email = input.value.trim();
+            let emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
+
+            if (email === "") {
+                showError(input, "Email is required");
+                return false;
+            } else if (!emailPattern.test(email)) {
+                showError(input, "Enter valid email");
                 return false;
             } else {
                 showSuccess(input);
@@ -544,6 +605,7 @@ if ($_SESSION['role'] != "Admin") {
 
         libraryName.addEventListener("input", () => validateText(libraryName));
         libraryOwnerName.addEventListener("input", () => validateText(libraryOwnerName));
+        libraryEmail.addEventListener("input", () => validateEmail(libraryEmail));
         tableCapacity.addEventListener("input", validateTable);
         chairCapacity.addEventListener("input", validateTable);
         openAt.addEventListener("input", validateTime);
@@ -556,6 +618,7 @@ if ($_SESSION['role'] != "Admin") {
             const isValid =
                 validateText(libraryName) &
                 validateText(libraryOwnerName) &
+                validateEmail(libraryEmail) &
                 validateTable() &
                 validateTable() &
                 validateTime() &

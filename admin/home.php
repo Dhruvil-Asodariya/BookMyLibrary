@@ -641,7 +641,7 @@ include '../update_status.php';
             <div class="card totalfine" onclick="card_totalfine()">
                 <div class="card-content">
                     <h2>Total Fine Collected (₹)</h2>
-                    <div class="value" id="fineCollected"><?php echo $fine_data['total']; ?></div>
+                    <div class="value" id="fineCollected"><?php echo isset($fine_data['total']) ? $fine_data['total'] : 0 ?></div>
                     <div class="sub">Overall revenue</div>
                 </div>
             </div>
