@@ -399,6 +399,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             color: #007bff;
             font-size: 14px;
         }
+
+        .otp-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .otp-box {
+            width: 48px !important;
+            height: 52px;
+            padding: 0 !important;
+            text-align: center;
+            font-size: 22px !important;
+            font-weight: 700;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            outline: none;
+            background: #f8fafc;
+            color: #0f172a;
+            transition: 0.2s ease;
+        }
+
+        .otp-box:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+            background: #fff;
+        }
+
+        .otp-box.filled {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+
+        @media (max-width: 480px) {
+            .otp-container {
+                gap: 6px;
+            }
+
+            .otp-box {
+                width: 40px !important;
+                height: 46px;
+                font-size: 18px !important;
+            }
+        }
     </style>
 </head>
 
@@ -422,12 +467,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             </form>
 
             <!-- VERIFY OTP FORM -->
+            <!-- VERIFY OTP FORM -->
             <form id="otpForm" style="display:none;" novalidate>
                 <p class="subtitle">Enter OTP received on your email</p>
 
                 <div class="form-group">
                     <label>Enter OTP</label>
-                    <input type="text" id="otp" maxlength="6" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+
+                    <div class="otp-container">
+                        <input type="text" class="otp-box" maxlength="1" inputmode="numeric">
+                        <input type="text" class="otp-box" maxlength="1" inputmode="numeric">
+                        <input type="text" class="otp-box" maxlength="1" inputmode="numeric">
+                        <input type="text" class="otp-box" maxlength="1" inputmode="numeric">
+                        <input type="text" class="otp-box" maxlength="1" inputmode="numeric">
+                        <input type="text" class="otp-box" maxlength="1" inputmode="numeric">
+                    </div>
+
+                    <input type="hidden" id="otp">
                     <small class="error" id="otpError"></small>
                 </div>
 
@@ -473,7 +529,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         const resetForm = document.getElementById("resetForm");
 
         const email = document.getElementById("email");
-        const otp = document.getElementById("otp");
+        const otp = document.getElementById("otp"); // hidden input
+        const otpInputs = document.querySelectorAll(".otp-box");
+
         const newPassword = document.getElementById("newPassword");
         const confirmPassword = document.getElementById("confirmPassword");
 
@@ -489,7 +547,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         let timerInterval;
         let timeLeft = 60;
 
-        // LIVE EMAIL VALIDATION
+        // EMAIL VALIDATION
         email.addEventListener("input", function() {
             const value = email.value.trim();
             const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -503,9 +561,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             }
         });
 
-        // LIVE OTP VALIDATION
-        otp.addEventListener("input", function() {
-            const value = otp.value.trim();
+        // OTP FUNCTIONS
+        function getOtpValue() {
+            return Array.from(otpInputs).map(input => input.value).join("");
+        }
+
+        function validateOtpBoxes() {
+            const value = getOtpValue();
+            otp.value = value;
 
             if (value === "") {
                 otpError.textContent = "OTP is required";
@@ -514,9 +577,74 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             } else {
                 otpError.textContent = "";
             }
+        }
+
+        otpInputs.forEach((input, index) => {
+            input.addEventListener("input", function() {
+                this.value = this.value.replace(/[^0-9]/g, "").slice(0, 1);
+
+                if (this.value !== "") {
+                    this.classList.add("filled");
+                    if (index < otpInputs.length - 1) {
+                        otpInputs[index + 1].focus();
+                    }
+                } else {
+                    this.classList.remove("filled");
+                }
+
+                validateOtpBoxes();
+            });
+
+            input.addEventListener("keydown", function(e) {
+                if (e.key === "Backspace") {
+                    if (this.value === "" && index > 0) {
+                        otpInputs[index - 1].focus();
+                        otpInputs[index - 1].value = "";
+                        otpInputs[index - 1].classList.remove("filled");
+                    } else {
+                        this.value = "";
+                        this.classList.remove("filled");
+                    }
+                    validateOtpBoxes();
+                }
+
+                if (e.key === "ArrowLeft" && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+
+                if (e.key === "ArrowRight" && index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
+                }
+            });
+
+            input.addEventListener("paste", function(e) {
+                e.preventDefault();
+
+                const pastedData = (e.clipboardData || window.clipboardData)
+                    .getData("text")
+                    .replace(/[^0-9]/g, "")
+                    .slice(0, 6);
+
+                if (!pastedData) return;
+
+                otpInputs.forEach((box, i) => {
+                    box.value = pastedData[i] || "";
+                    if (box.value !== "") {
+                        box.classList.add("filled");
+                    } else {
+                        box.classList.remove("filled");
+                    }
+                });
+
+                otp.value = getOtpValue();
+                validateOtpBoxes();
+
+                const nextIndex = Math.min(pastedData.length, otpInputs.length - 1);
+                otpInputs[nextIndex].focus();
+            });
         });
 
-        // LIVE PASSWORD VALIDATION
+        // PASSWORD VALIDATION
         function validatePasswords() {
             const pass = newPassword.value.trim();
             const confirm = confirmPassword.value.trim();
@@ -575,8 +703,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     if (data.status === "success") {
                         message.style.color = "green";
                         message.textContent = data.message;
+
                         otpForm.style.display = "block";
                         resetForm.style.display = "none";
+
+                        otpInputs.forEach(input => {
+                            input.value = "";
+                            input.classList.remove("filled");
+                        });
+
+                        otp.value = "";
+                        otpError.textContent = "";
+                        otpInputs[0].focus();
+
                         startTimer();
                     } else {
                         message.style.color = "red";
@@ -593,7 +732,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         otpForm.addEventListener("submit", function(e) {
             e.preventDefault();
 
-            const otpValue = otp.value.trim();
+            const otpValue = getOtpValue();
+            otp.value = otpValue;
 
             if (otpValue === "") {
                 otpError.textContent = "OTP is required";
@@ -620,8 +760,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     if (data.status === "success") {
                         message.style.color = "green";
                         message.textContent = data.message;
+
                         otpForm.style.display = "none";
                         resetForm.style.display = "block";
+
                         clearInterval(timerInterval);
                         otpTimer.textContent = "";
                     } else {

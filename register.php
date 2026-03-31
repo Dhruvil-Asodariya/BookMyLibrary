@@ -337,7 +337,7 @@ require 'PHPMailer/src/SMTP.php';
                         </div>
 
                         <div class="form-group">
-                            <label>email</label>
+                            <label>Email</label>
                             <input type="email" id="email" name="email">
                             <div class="error"></div>
                         </div>

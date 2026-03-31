@@ -297,7 +297,7 @@ if ($_SESSION['role'] != "Admin") {
 
                         <div class="form-group">
                             <label>Library Email</label>
-                            <input type="text" id="libraryEmail" name="libraryEmail">
+                            <input type="email" id="libraryEmail" name="libraryEmail">
                             <div class="error"></div>
                         </div>
 
