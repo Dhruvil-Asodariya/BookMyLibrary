@@ -60,7 +60,7 @@ function sendLibraryMail($email, $name, $book_name, $status, $returnDate, $fine 
             Please return it immediately.
             ";
         } elseif ($status == "Return at library") {
-            
+
             $title = "📖 Return Confirmation";
 
             $content = "
@@ -74,6 +74,27 @@ function sendLibraryMail($email, $name, $book_name, $status, $returnDate, $fine 
             $content = "
             Thank you for returning the book <b>$book_name</b>.<br>
             We hope you enjoyed reading it.
+            ";
+        } elseif ($status == "Pending") {
+
+            $title = "📚 Book Issue Pending";
+
+            $content = "
+            Your request for the book <b>$book_name</b> has been received successfully.<br>
+            The issue process is currently <b>pending approval</b>.<br>
+            You will be notified once it is approved.<br><br>
+
+            After approval, please visit the library and collect the book <b>within 24 hours</b>.
+            ";
+        } elseif ($status == "Cancelled") {
+
+            $title = "❌ Request Cancelled";
+
+            $content = "
+            Your request for the book <b>$book_name</b> has been <b>cancelled</b>.<br>
+            The request was not approved within <b>24 hours</b>.<br><br>
+
+            Please make a new request if you still want to issue this book.
             ";
         }
 
@@ -122,7 +143,7 @@ function sendLibraryMail($email, $name, $book_name, $status, $returnDate, $fine 
                         </div>
                     </div>
                     ";
-    
+
 
         $mail->isHTML(true);
         $mail->Subject = $title;

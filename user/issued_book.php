@@ -166,6 +166,11 @@ if ($_SESSION['role'] != "User") {
             display: inline-block;
         }
 
+        .pending {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
         .issued {
             background: #dcfce7;
             color: #166534;
@@ -1206,6 +1211,10 @@ if ($_SESSION['role'] != "User") {
                         if ($row['status'] == "Return at library") {
                             $statusClass = "return-at-library";
                             $statusText  = "Return at library";
+                        }
+                        if ($row['status'] == "Pending") {
+                            $statusClass = "pending";
+                            $statusText  = "Pending";
                         }
 
                         $showRenew = false;

@@ -826,10 +826,10 @@ if ($_SESSION['role'] != "User") {
             $issue_date = $_POST['issue_date'];
             $return_date = $_POST['return_date'];
             $fine_amount = 0;
-            $status = "Issued";
+            $status = "Pending";
 
-            $user_data = mysqli_fetch_assoc(mysqli_query($con , "SELECT * FROM user WHERE user_id = $user_id"));
-            $book_data = mysqli_fetch_assoc(mysqli_query($con , "SELECT title FROM book_list WHERE book_id = $book_id"));
+            $user_data = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM user WHERE user_id = $user_id"));
+            $book_data = mysqli_fetch_assoc(mysqli_query($con, "SELECT title FROM book_list WHERE book_id = $book_id"));
 
             $insert_query = "INSERT INTO issue 
                         (issue_id, book_id, user_id, library_id, issue_date, return_date, fine_amount, status)
@@ -853,41 +853,52 @@ if ($_SESSION['role'] != "User") {
                 </script>";
             } else {
                 if (mysqli_query($con, $insert_query)) {
+
                     mysqli_query($con, "UPDATE book_list SET available_copy = available_copy - 1 WHERE book_id='$book_id'");
 
-                    sendLibraryMail($user_data['email'], $user_data['first_name'] . " " . $user_data['last_name'], $book_data['title'], "Issued", $return_date);
+                    sendLibraryMail(
+                        $user_data['email'],
+                        $user_data['first_name'] . " " . $user_data['last_name'],
+                        $book_data['title'],
+                        "Pending",
+                        $return_date
+                    );
 
-                    mysqli_query($con, "UPDATE issue SET last_mailed_status = 'Issued' WHERE issue_id = $issue_id");
+                    mysqli_query($con, "UPDATE issue SET last_mailed_status = 'Pending' WHERE issue_id = $issue_id");
+
                     echo "<script>
-                    document.addEventListener('DOMContentLoaded', function(){
-                        Swal.fire({
-                            toast: true,
-                            position: 'top',
-                            icon: 'success',
-                            title: 'Booking confirmed successfully!',
-                            showConfirmButton: false,
-                            timer: 2000,
-                            timerProgressBar: true,
-                            didClose: () => {
-                                window.location.href = 'issued_book.php';
-                            }
-                        });
-                    });
-                </script>";
+                            document.addEventListener('DOMContentLoaded', function(){
+                                Swal.fire({
+                                    toast: true,
+                                    position: 'top',
+                                    icon: 'success',
+                                    title: 'Request sent! Waiting for approval 📚',
+                                    text: 'Collect the book within 24 hours after approval.',
+                                    showConfirmButton: false,
+                                    timer: 2500,
+                                    timerProgressBar: true,
+                                    didClose: () => {
+                                        window.location.href = 'issued_book.php';
+                                    }
+                                });
+                            });
+                        </script>";
                 } else {
+
                     echo "<script>
-                    document.addEventListener('DOMContentLoaded', function(){
-                        Swal.fire({
-                            toast: true,
-                            position: 'top',
-                            icon: 'error',
-                            title: 'Failed to confirm booking. Please try again.',
-                            showConfirmButton: false,
-                            timer: 2000,
-                            timerProgressBar: true
-                        });
-                    });
-                </script>";
+                            document.addEventListener('DOMContentLoaded', function(){
+                                Swal.fire({
+                                    toast: true,
+                                    position: 'top',
+                                    icon: 'error',
+                                    title: 'Request failed ❌',
+                                    text: 'Unable to process your request. Please try again.',
+                                    showConfirmButton: false,
+                                    timer: 2500,
+                                    timerProgressBar: true
+                                });
+                            });
+                        </script>";
                 }
             }
         }

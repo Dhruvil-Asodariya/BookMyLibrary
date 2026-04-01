@@ -165,6 +165,11 @@ if ($_SESSION['role'] != "Librarian") {
             display: inline-block;
         }
 
+        .pending {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
         .issued {
             background: #dcfce7;
             color: #166534;
@@ -902,6 +907,10 @@ if ($_SESSION['role'] != "Librarian") {
                             $statusClass = "return-at-library";
                             $statusText  = "Return at library";
                         }
+                        if ($row['status'] == "Pending") {
+                            $statusClass = "pending";
+                            $statusText  = "Pending";
+                        }
 
                         $showRenew = false;
 
@@ -951,13 +960,14 @@ if ($_SESSION['role'] != "Librarian") {
                                 <td>₹ {$row['fine_amount']}</td>
                                 <td><span class='status {$statusClass}'>{$statusText}</span></td>
                                 <td>";
-                                if($row['status'] == "Return at library"){
-                                    echo "<button class='btn btn-renew' onclick='returnBook(\"{$row['issue_id']}\")'>Return</button>";
-                                }
-                                else{
-                                    echo "--";
-                                }
-                                echo "</td>
+                        if ($row['status'] == "Return at library") {
+                            echo "<button class='btn btn-renew' onclick='returnBook(\"{$row['issue_id']}\")'>Return</button>";
+                        } elseif ($row['status'] == "Pending") {
+                            echo "<button class='btn btn-renew' onclick='issueBook(\"{$row['issue_id']}\")'>Issue</button>";
+                        } else {
+                            echo "--";
+                        }
+                        echo "</td>
                               </tr>";
                         $i++;
                     }
@@ -1276,6 +1286,23 @@ if ($_SESSION['role'] != "Librarian") {
             }).then((result) => {
                 if (result.isConfirmed) {
                     window.location.href = "return_book.php?issue_id=" + issue_id;
+                }
+            });
+        }
+
+        function issueBook(issue_id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You want to issue this book",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, issue it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "issue_book.php?issue_id=" + issue_id;
                 }
             });
         }

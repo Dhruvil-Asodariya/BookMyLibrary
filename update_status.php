@@ -6,9 +6,11 @@ if (session_status() === PHP_SESSION_NONE) {
 
 include "db_config.php";
 include "send_mail.php";
+date_default_timezone_set('Asia/Kolkata');
 
 $user_id = $_SESSION['id'];
 $today = date("Y-m-d");
+$now = date("Y-m-d H:i:s");
 
 $issues = mysqli_query($con, "SELECT * FROM issue WHERE user_id='$user_id'");
 $user_data = mysqli_query($con, "SELECT * FROM user WHERE user_id='$user_id'");
@@ -17,12 +19,13 @@ $user_data_fetch = mysqli_fetch_assoc($user_data);
 while ($update_data = mysqli_fetch_assoc($issues)) {
 
     $issue_id = $update_data['issue_id'];
+    $book_id = $update_data['book_id'];
     $oldStatus = $update_data['status'];
     $lastMailedStatus = $update_data['last_mailed_status'] ?? '';
     $returnDate = $update_data['return_date'];
     $graceDate = date("Y-m-d", strtotime($returnDate . " +2 days"));
 
-    $book_title = mysqli_query($con, "SELECT * FROM book_list WHERE book_id='{$update_data['book_id']}'");
+    $book_title = mysqli_query($con, "SELECT * FROM book_list WHERE book_id='{$book_id}'");
     $book_title_fetch = mysqli_fetch_assoc($book_title);
 
     $bookName = $book_title_fetch['title'];
@@ -32,16 +35,71 @@ while ($update_data = mysqli_fetch_assoc($issues)) {
     $newStatus = $oldStatus;
     $fine = 0;
 
-    // Final statuses should not be changed again
-    if ($oldStatus == 'Returned' || $oldStatus == 'Return at library') {
+    /* =========================
+       PENDING EXPIRE AFTER 24 HOURS
+    ========================= */
+    if ($oldStatus == 'Pending') {
+
+        // change created_at to your actual datetime column name if different
+        $pendingTime = $update_data['created_at'];
+
+        if (!empty($pendingTime)) {
+
+            $expireTime = date("Y-m-d H:i:s", strtotime($pendingTime . " +24 hours"));
+
+            // DEBUG (optional)
+            // echo "Now: $now | Expire: $expireTime <br>";
+
+            if (strtotime($now) >= strtotime($expireTime)) {
+
+                // ✅ Only delete AFTER 24 hours
+
+                mysqli_query($con, "
+                    UPDATE book_list 
+                    SET available_copy = available_copy + 1 
+                    WHERE book_id='$book_id'
+                ");
+
+                mysqli_query($con, "
+                    DELETE FROM issue 
+                    WHERE issue_id='$issue_id'
+                ");
+
+                // 📧 Send cancellation mail
+                sendLibraryMail(
+                    $userEmail,
+                    $userName,
+                    $bookName,
+                    "Cancelled",   // 👈 new status for mail
+                    date("d M Y", strtotime($pendingTime)),
+                    0
+                );
+
+                continue;
+            }
+        }
 
         // keep last_mailed_status same as current status
         if ($lastMailedStatus != $oldStatus) {
             mysqli_query($con, "
-            UPDATE issue
-            SET last_mailed_status='$oldStatus'
-            WHERE issue_id='$issue_id'
-        ");
+                UPDATE issue
+                SET last_mailed_status='$oldStatus'
+                WHERE issue_id='$issue_id'
+            ");
+        }
+
+        continue;
+    }
+
+    // Final statuses should not be changed again
+    if ($oldStatus == 'Returned' || $oldStatus == 'Return at library') {
+
+        if ($lastMailedStatus != $oldStatus) {
+            mysqli_query($con, "
+                UPDATE issue
+                SET last_mailed_status='$oldStatus'
+                WHERE issue_id='$issue_id'
+            ");
         }
 
         continue;
@@ -113,6 +171,7 @@ while ($update_data = mysqli_fetch_assoc($issues)) {
         } else {
             sendLibraryMail($userEmail, $userName, $bookName, $newStatus, date("d M Y", strtotime($returnDate)), $fine);
         }
-        mysqli_query($con, "UPDATE issue SET last_mailed_status='$newStatus' WHERE issue_id='$issue_id' ");
+
+        mysqli_query($con, "UPDATE issue SET last_mailed_status='$newStatus' WHERE issue_id='$issue_id'");
     }
 }
