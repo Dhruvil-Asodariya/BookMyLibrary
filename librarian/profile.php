@@ -276,7 +276,7 @@ if ($_SESSION['role'] != "Librarian") {
                 padding-bottom: 20px;
             }
 
-            orm-grid {
+            form-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -503,7 +503,7 @@ if ($_SESSION['role'] != "Librarian") {
                     <p>Update your profile information</p>
                 </div>
 
-                <form method="POST" onsubmit="return validateForm();">
+                <form method="POST" onsubmit="return validatePersonalForm();">
                     <div class="form-grid">
 
                         <div class="form-group">
@@ -661,7 +661,7 @@ if ($_SESSION['role'] != "Librarian") {
                     <p>Update your library information</p>
                 </div>
 
-                <form method="POST" onsubmit="return validateForm();">
+                <form method="POST" onsubmit="return validateLibraryForm();">
                     <div class="form-grid">
 
                         <div class="form-group">
@@ -1018,13 +1018,10 @@ if ($_SESSION['role'] != "Librarian") {
 
     <!-- Edit Personal Profile Script -->
     <script>
-        /* OPEN EDIT FORM */
         function openEditForm() {
-
             document.getElementById("viewProfile").style.display = "none";
             document.getElementById("editProfile").style.display = "block";
 
-            // Fill edit fields from view
             document.getElementById("editFirstName").value =
                 document.getElementById("viewFirstName").innerText;
 
@@ -1044,7 +1041,6 @@ if ($_SESSION['role'] != "Librarian") {
                 document.getElementById("viewAddress").innerText;
         }
 
-        /* CANCEL EDIT */
         function cancelEdit() {
             document.getElementById("editProfile").style.display = "none";
             document.getElementById("viewProfile").style.display = "block";
@@ -1052,17 +1048,13 @@ if ($_SESSION['role'] != "Librarian") {
 
         document.getElementById("editFirstName").addEventListener("input", validateFirstName);
         document.getElementById("editLastName").addEventListener("input", validateLastName);
-        document.getElementById("editEmail").addEventListener("input", validateEmail);
         document.getElementById("editPhone").addEventListener("input", validatePhone);
         document.getElementById("editGender").addEventListener("change", validateGender);
         document.getElementById("editAddress").addEventListener("input", validateAddress);
 
-        /* SAVE PROFILE */
         function saveEdit() {
+            if (!validatePersonalForm()) return false;
 
-            if (!validateForm()) return;
-
-            // Update view values
             document.getElementById("viewFirstName").innerText =
                 document.getElementById("editFirstName").value;
 
@@ -1081,64 +1073,61 @@ if ($_SESSION['role'] != "Librarian") {
             document.getElementById("viewAddress").innerText =
                 document.getElementById("editAddress").value;
 
-            cancelEdit(); // go back to view
+            cancelEdit();
+            return true;
         }
-
-        /* VALIDATION */
 
         function validateFirstName() {
             let firstName = document.getElementById("editFirstName");
-
-            let regex = /^[A-Za-z\s]+$/; // only letters + space
+            let regex = /^[A-Za-z\s]+$/;
 
             if (firstName.value.trim() === "") {
-                showError(firstName, "firstNameError", "First name is required");
+                personalShowError(firstName, "firstNameError", "First name is required");
                 return false;
             } else if (firstName.value.trim().length < 2) {
-                showError(firstName, "firstNameError", "First name must be at least 2 characters");
+                personalShowError(firstName, "firstNameError", "First name must be at least 2 characters");
                 return false;
             } else if (!regex.test(firstName.value.trim())) {
-                showError(firstName, "firstNameError", "Only letters allowed");
+                personalShowError(firstName, "firstNameError", "Only letters allowed");
                 return false;
             }
 
-            showSuccess(firstName, "firstNameError");
+            personalShowSuccess(firstName, "firstNameError");
             return true;
         }
 
         function validateLastName() {
             let lastName = document.getElementById("editLastName");
-
-            let regex = /^[A-Za-z\s]+$/; // only letters + space
+            let regex = /^[A-Za-z\s]+$/;
 
             if (lastName.value.trim() === "") {
-                showError(lastName, "lastNameError", "Last name is required");
+                personalShowError(lastName, "lastNameError", "Last name is required");
                 return false;
             } else if (lastName.value.trim().length < 2) {
-                showError(lastName, "lastNameError", "Last name must be at least 2 characters");
+                personalShowError(lastName, "lastNameError", "Last name must be at least 2 characters");
                 return false;
             } else if (!regex.test(lastName.value.trim())) {
-                showError(lastName, "lastNameError", "Only letters allowed");
+                personalShowError(lastName, "lastNameError", "Only letters allowed");
                 return false;
             }
 
-            showSuccess(lastName, "lastNameError");
+            personalShowSuccess(lastName, "lastNameError");
             return true;
         }
 
-        function validateEmail() {
+        function validatePersonalEmail() {
             let email = document.getElementById("editEmail");
             let emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
 
             if (email.value.trim() === "") {
-                showError(email, "emailError", "Email is required");
+                personalShowError(email, "emailError", "Email is required");
                 return false;
             } else if (!emailPattern.test(email.value.trim())) {
-                showError(email, "emailError", "Enter valid email");
+                personalShowError(email, "emailError", "Enter valid email");
                 return false;
             }
 
-            showSuccess(email, "emailError");
+            personalShowSuccess(email, "emailError");
             return true;
         }
 
@@ -1147,17 +1136,17 @@ if ($_SESSION['role'] != "Librarian") {
             let value = phone.value.trim();
 
             if (value === "") {
-                showError(phone, "phoneError", "Phone number is required");
+                personalShowError(phone, "phoneError", "Phone number is required");
                 return false;
             } else if (!/^[0-9]+$/.test(value)) {
-                showError(phone, "phoneError", "Phone must contain only numbers");
+                personalShowError(phone, "phoneError", "Phone must contain only numbers");
                 return false;
             } else if (value.length !== 10) {
-                showError(phone, "phoneError", "Phone number must be exactly 10 digits");
+                personalShowError(phone, "phoneError", "Phone number must be exactly 10 digits");
                 return false;
             }
 
-            showSuccess(phone, "phoneError");
+            personalShowSuccess(phone, "phoneError");
             return true;
         }
 
@@ -1165,55 +1154,51 @@ if ($_SESSION['role'] != "Librarian") {
             let gender = document.getElementById("editGender");
 
             if (!gender.value) {
-                showError(gender, "genderError", "Select gender");
+                personalShowError(gender, "genderError", "Select gender");
                 return false;
             }
-            showSuccess(gender, "genderError");
+
+            personalShowSuccess(gender, "genderError");
             return true;
         }
 
         function validateAddress() {
             let address = document.getElementById("editAddress");
             let value = address.value.trim();
-
-            // allow letters, numbers, space, comma, (), :, -
             let regex = /^[a-zA-Z0-9\s,():-]+$/;
 
             if (value === "") {
-                showError(address, "addressError", "Address is required");
+                personalShowError(address, "addressError", "Address is required");
                 return false;
             } else if (value.length < 5) {
-                showError(address, "addressError", "Enter full address");
+                personalShowError(address, "addressError", "Enter full address");
                 return false;
             } else if (!regex.test(value)) {
-                showError(address, "addressError", "Only letters, numbers, space, , ( ) : - allowed");
+                personalShowError(address, "addressError", "Only letters, numbers, space, , ( ) : - allowed");
                 return false;
             }
 
-            showSuccess(address, "addressError");
+            personalShowSuccess(address, "addressError");
             return true;
         }
 
-
-        function validateForm() {
+        function validatePersonalForm() {
             return (
                 validateFirstName() &&
                 validateLastName() &&
-                validateEmail() &&
+                validatePersonalEmail() &&
                 validatePhone() &&
                 validateGender() &&
                 validateAddress()
             );
         }
 
-        /* HELPERS */
-
-        function showError(input, errorId, message) {
+        function personalShowError(input, errorId, message) {
             document.getElementById(errorId).innerText = message;
             input.classList.add("invalid");
         }
 
-        function showSuccess(input, errorId) {
+        function personalShowSuccess(input, errorId) {
             document.getElementById(errorId).innerText = "";
             input.classList.remove("invalid");
         }
@@ -1222,6 +1207,8 @@ if ($_SESSION['role'] != "Librarian") {
     <!-- Edit Library Profile Script -->
     <script>
         function convertTo24Hour(time12h) {
+            if (!time12h.includes(" ")) return time12h;
+
             let [time, modifier] = time12h.split(' ');
             let [hours, minutes] = time.split(':');
 
@@ -1230,13 +1217,11 @@ if ($_SESSION['role'] != "Librarian") {
 
             return `${hours.toString().padStart(2,'0')}:${minutes}`;
         }
-        /* OPEN EDIT FORM */
-        function openLibraryEditForm() {
 
+        function openLibraryEditForm() {
             document.getElementById("viewLibraryProfile").style.display = "none";
             document.getElementById("editLibraryProfile").style.display = "block";
 
-            // Fill edit fields from view
             document.getElementById("editLibraryName").value =
                 document.getElementById("viewLibraryName").innerText;
 
@@ -1256,7 +1241,6 @@ if ($_SESSION['role'] != "Librarian") {
                 document.getElementById("viewLibraryLocation").innerText;
         }
 
-        /* CANCEL EDIT */
         function cancelLibraryEdit() {
             document.getElementById("editLibraryProfile").style.display = "none";
             document.getElementById("viewLibraryProfile").style.display = "block";
@@ -1264,17 +1248,13 @@ if ($_SESSION['role'] != "Librarian") {
 
         document.getElementById("editLibraryName").addEventListener("input", validateLibraryName);
         document.getElementById("editLibraryOwnerName").addEventListener("input", validateLibraryOwnerName);
-        document.getElementById("editLibraryEmail").addEventListener("input", validateEmail);
-        document.getElementById("editOpenAt").addEventListener("input", validateTime);
-        document.getElementById("editCloseAt").addEventListener("change", validateTime);
-        document.getElementById("editLibraryLocation").addEventListener("input", validateLocation);
+        document.getElementById("editOpenAt").addEventListener("input", validateLibraryTime);
+        document.getElementById("editCloseAt").addEventListener("change", validateLibraryTime);
+        document.getElementById("editLibraryLocation").addEventListener("input", validateLibraryLocation);
 
-        /* SAVE PROFILE */
         function saveLibraryEdit() {
+            if (!validateLibraryForm()) return false;
 
-            if (!validateForm()) return;
-
-            // Update view values
             document.getElementById("viewLibraryName").innerText =
                 document.getElementById("editLibraryName").value;
 
@@ -1285,140 +1265,134 @@ if ($_SESSION['role'] != "Librarian") {
                 document.getElementById("editLibraryEmail").value;
 
             document.getElementById("viewOpenAt").innerText =
-                convertTo24Hour(document.getElementById("editOpenAt").value);
+                document.getElementById("editOpenAt").value;
 
             document.getElementById("viewCloseAt").innerText =
-                convertTo24Hour(document.getElementById("editCloseAt").value);
+                document.getElementById("editCloseAt").value;
 
             document.getElementById("viewLibraryLocation").innerText =
                 document.getElementById("editLibraryLocation").value;
 
-            cancelLibraryEdit(); // go back to view
+            cancelLibraryEdit();
+            return true;
         }
-
-        /* VALIDATION */
 
         function validateLibraryName() {
             let name = document.getElementById("editLibraryName");
-            let regex = /^[A-Za-z\s]+$/; // only letters + space
+            let regex = /^[A-Za-z\s]+$/;
 
             if (name.value.trim() === "") {
-                showError(name, "libraryNameError", "Library name is required");
+                libraryShowError(name, "libraryNameError", "Library name is required");
                 return false;
             } else if (name.value.trim().length < 2) {
-                showError(name, "libraryNameError", "Library name must be at least 2 characters");
+                libraryShowError(name, "libraryNameError", "Library name must be at least 2 characters");
                 return false;
             } else if (!regex.test(name.value.trim())) {
-                showError(name, "libraryNameError", "Only letters allowed");
+                libraryShowError(name, "libraryNameError", "Only letters allowed");
                 return false;
             }
 
-            showSuccess(name, "libraryNameError");
+            libraryShowSuccess(name, "libraryNameError");
             return true;
         }
 
         function validateLibraryOwnerName() {
             let name = document.getElementById("editLibraryOwnerName");
-            let regex = /^[A-Za-z\s]+$/; // only letters + space
+            let regex = /^[A-Za-z\s]+$/;
 
             if (name.value.trim() === "") {
-                showError(name, "libraryOwnerNameError", "Library owner name is required");
+                libraryShowError(name, "libraryOwnerNameError", "Library owner name is required");
                 return false;
             } else if (name.value.trim().length < 2) {
-                showError(name, "libraryOwnerNameError", "Library owner name must be at least 2 characters");
+                libraryShowError(name, "libraryOwnerNameError", "Library owner name must be at least 2 characters");
                 return false;
             } else if (!regex.test(name.value.trim())) {
-                showError(name, "libraryOwnerNameError", "Only letters allowed");
+                libraryShowError(name, "libraryOwnerNameError", "Only letters allowed");
                 return false;
             }
 
-            showSuccess(name, "libraryOwnerNameError");
+            libraryShowSuccess(name, "libraryOwnerNameError");
             return true;
         }
 
-        function validateEmail() {
+        function validateLibraryEmail() {
             let email = document.getElementById("editLibraryEmail");
             let emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
 
             if (email.value.trim() === "") {
-                showError(email, "libraryEmailError", "Email is required");
+                libraryShowError(email, "libraryEmailError", "Email is required");
                 return false;
             } else if (!emailPattern.test(email.value.trim())) {
-                showError(email, "libraryEmailError", "Enter valid email");
+                libraryShowError(email, "libraryEmailError", "Enter valid email");
                 return false;
             }
 
-            showSuccess(email, "libraryEmailError");
+            libraryShowSuccess(email, "libraryEmailError");
             return true;
         }
 
-        function validateTime() {
+        function validateLibraryTime() {
             let openAt = document.getElementById("editOpenAt");
             let closeAt = document.getElementById("editCloseAt");
 
             if (!openAt.value) {
-                showError(openAt, "openAtError", "Open time is required");
+                libraryShowError(openAt, "openAtError", "Open time is required");
                 return false;
             } else {
-                showSuccess(openAt, "openAtError");
+                libraryShowSuccess(openAt, "openAtError");
             }
 
             if (!closeAt.value) {
-                showError(closeAt, "closeAtError", "Close time is required");
+                libraryShowError(closeAt, "closeAtError", "Close time is required");
                 return false;
             } else {
-                showSuccess(closeAt, "closeAtError");
+                libraryShowSuccess(closeAt, "closeAtError");
             }
 
             if (openAt.value && closeAt.value && openAt.value >= closeAt.value) {
-                showError(closeAt, "closeAtError", "Close time must be after open time");
+                libraryShowError(closeAt, "closeAtError", "Close time must be after open time");
                 return false;
             }
 
             return true;
         }
 
-        function validateLocation() {
+        function validateLibraryLocation() {
             let location = document.getElementById("editLibraryLocation");
             let value = location.value.trim();
-
-            // allow letters, numbers, space, comma, (), :, -
             let regex = /^[a-zA-Z0-9\s,():-]+$/;
 
             if (value === "") {
-                showError(location, "libraryLocationError", "Location is required");
+                libraryShowError(location, "libraryLocationError", "Location is required");
                 return false;
             } else if (value.length < 5) {
-                showError(location, "libraryLocationError", "Enter full location");
+                libraryShowError(location, "libraryLocationError", "Enter full location");
                 return false;
             } else if (!regex.test(value)) {
-                showError(location, "libraryLocationError", "Only letters, numbers, space, , ( ) : - allowed");
+                libraryShowError(location, "libraryLocationError", "Only letters, numbers, space, , ( ) : - allowed");
                 return false;
             }
 
-            showSuccess(location, "libraryLocationError");
+            libraryShowSuccess(location, "libraryLocationError");
             return true;
         }
 
-
-        function validateForm() {
+        function validateLibraryForm() {
             return (
                 validateLibraryName() &&
                 validateLibraryOwnerName() &&
-                validateEmail() &&
-                validateTime() &&
-                validateLocation()
+                validateLibraryEmail() &&
+                validateLibraryTime() &&
+                validateLibraryLocation()
             );
         }
 
-        /* HELPERS */
-
-        function showError(input, errorId, message) {
+        function libraryShowError(input, errorId, message) {
             document.getElementById(errorId).innerText = message;
             input.classList.add("invalid");
         }
 
-        function showSuccess(input, errorId) {
+        function libraryShowSuccess(input, errorId) {
             document.getElementById(errorId).innerText = "";
             input.classList.remove("invalid");
         }

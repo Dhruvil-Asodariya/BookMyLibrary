@@ -560,7 +560,7 @@ $latestRequest = mysqli_fetch_assoc($latestRequestQuery);
                         name="send_request"
                         class="btn-submit"
                         <?php echo ($pendingRequest || $approvedRequest) ? 'disabled' : ''; ?>>
-                        <i class="fa-solid fa-paper-plane"></i> Send Request to Admin
+                        Send Request to Admin
                     </button>
                 </form>
 

@@ -785,7 +785,7 @@ if ($_SESSION['role'] != "Admin") {
         <nav class="breadcrumb">
             <a href="home.php" class="dashboard">Dashboard</a>
             <span class="separator">›</span>
-            <span class="current">Fine List</span>
+            <span class="current">Pending Fine List</span>
         </nav>
     </div>
     <div class="container">

@@ -428,6 +428,183 @@ if ($_SESSION['role'] != "Admin") {
         .btn-area {
             justify-content: flex-end;
         }
+
+        /* Backdrop */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Card */
+        .modal-card {
+            background: #ffffff;
+            width: 700px;
+            max-width: 95%;
+            border-radius: 14px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            animation: fadeSlide 0.25s ease;
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Header */
+        .modal-header-p {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header-p h3 {
+            font-size: 18px;
+            color: #0f172a;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        /* Pills container */
+        .pill-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Base pill */
+        .pill {
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1;
+        }
+
+        /* Role pill (Blue) */
+        .pill-role-librarian {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .pill-role-user {
+            background-color: #e0f2fe;
+            color: #075985;
+        }
+
+        .pill-role-admin {
+            background-color: #ede9fe;
+            color: #5b21b6;
+        }
+
+        /* Status pills */
+        .pill-active {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .pill-inactive {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Close */
+        .close-icon {
+            font-size: 22px;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .close-icon:hover {
+            color: #ef4444;
+        }
+
+        /* Body */
+        .modal-body-p {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        /* Image */
+        .book-image img {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+        }
+
+        /* Details */
+        .book-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .detail span {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        .detail p {
+            margin-top: 4px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        /* Footer */
+        .modal-footer {
+            padding: 14px 20px;
+            border-top: 1px solid #e5e7eb;
+            text-align: right;
+        }
+
+        /* Buttons */
+        .btn-secondary {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #cbd5f5;
+            background: #f8fafc;
+            color: #1e293b;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e7ff;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .modal-body {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .book-details {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 
 </head>
@@ -438,7 +615,8 @@ if ($_SESSION['role'] != "Admin") {
         <nav class="breadcrumb">
             <a href="home.php" class="dashboard">Dashboard</a>
             <span class="separator">›</span>
-            <span class="current">Category List</span>
+            <span class="current">Request
+            </span>
         </nav>
     </div>
     <div class="container">
@@ -493,11 +671,28 @@ if ($_SESSION['role'] != "Admin") {
                             $statusText  = "Pending";
                         }
 
+                        $user_data = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM user WHERE user_id = '{$row['user_id']}'"));
+
                         echo "
                     <tr>
                         <td>{$i}</td>
                         <td>{$row['request_id']}</td>
-                        <td>{$row['user_id']}</td>
+                        <td>
+                                    <span class='model-link'
+                                    onclick=\"openUserModal(
+                                    '{$user_data['user_id']}',
+                                    '../image/{$user_data['image']}',
+                                    '" . htmlspecialchars($user_data['first_name'], ENT_QUOTES) . "',
+                                    '" . htmlspecialchars($user_data['last_name'], ENT_QUOTES) . "',
+                                    '" . htmlspecialchars($user_data['email'], ENT_QUOTES) . "',
+                                    '" . htmlspecialchars($user_data['contact_no'], ENT_QUOTES) . "',
+                                    '" . htmlspecialchars($user_data['address'], ENT_QUOTES) . "',
+                                    '" . htmlspecialchars($user_data['role'], ENT_QUOTES) . "',
+                                    '" . htmlspecialchars($user_data['status'], ENT_QUOTES) . "'
+                                    )\">
+                                    {$row['user_id']}
+                                    </span>
+                                </td>
                         <td>{$row['subject']}</td>
                         <td>{$row['message']}</td>
                         <td>{$row['request_date']}</td>
@@ -525,6 +720,63 @@ if ($_SESSION['role'] != "Admin") {
 
                 </tbody>
             </table>
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="userModal">
+        <div class="modal-card">
+
+            <div class="modal-header-p">
+                <div class="header-left">
+                    <h3>User Details</h3>
+
+                    <div class="pill-group">
+                        <span id="modalUserRole" class="pill"></span>
+                        <span id="modalUserStatus" class="pill"></span>
+                        <!-- <span class="pill pill-inactive">Inactive</span> -->
+                    </div>
+                </div>
+
+                <span class="close-icon" onclick="closeUserModal()">×</span>
+            </div>
+
+            <div class="modal-body-p">
+                <div class="book-image">
+                    <img id="modalUserImage" src="" alt="User Image">
+                </div>
+
+                <div class="book-details">
+                    <div class="detail">
+                        <span>User ID</span>
+                        <p id="modalUserId"></p>
+                    </div>
+                    <div class="detail">
+                        <span>First Name</span>
+                        <p id="modalUserFirstName"></p>
+                    </div>
+                    <div class="detail">
+                        <span>Last Name</span>
+                        <p id="modalUserLastName"></p>
+                    </div>
+                    <div class="detail">
+                        <span>Email ID</span>
+                        <p id="modalUserEmail"></p>
+                    </div>
+                    <div class="detail">
+                        <span>Contact Number</span>
+                        <p id="modalUserContact"></p>
+                    </div>
+                    <div class="detail">
+                        <span>Address</span>
+                        <p id="modalUserAddress"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeUserModal()">Close</button>
+            </div>
+
         </div>
     </div>
 
@@ -663,6 +915,47 @@ if ($_SESSION['role'] != "Admin") {
                     }
 
                 });
+        }
+
+        function openUserModal(id, image, first, last, email, contact, address, role, status) {
+
+            document.getElementById("modalUserId").innerText = id;
+            document.getElementById("modalUserFirstName").innerText = first;
+            document.getElementById("modalUserLastName").innerText = last;
+            document.getElementById("modalUserEmail").innerText = email;
+            document.getElementById("modalUserContact").innerText = contact;
+            document.getElementById("modalUserAddress").innerText = address;
+            document.getElementById("modalUserImage").src = image;
+
+            /* ROLE */
+            let roleElement = document.getElementById("modalUserRole");
+            roleElement.innerText = role;
+            roleElement.className = "pill";
+
+            if (role === "Librarian") {
+                roleElement.classList.add("pill-role-librarian");
+            } else if (role === "User") {
+                roleElement.classList.add("pill-role-user");
+            } else if (role === "Admin") {
+                roleElement.classList.add("pill-role-admin");
+            }
+
+            /* STATUS */
+            let statusElement = document.getElementById("modalUserStatus");
+            statusElement.innerText = status;
+            statusElement.className = "pill";
+
+            if (status === "Active") {
+                statusElement.classList.add("pill-active");
+            } else if (status === "Inactive") {
+                statusElement.classList.add("pill-inactive");
+            }
+
+            document.getElementById("userModal").style.display = "flex";
+        }
+
+        function closeUserModal() {
+            document.getElementById("userModal").style.display = "none";
         }
     </script>
 
