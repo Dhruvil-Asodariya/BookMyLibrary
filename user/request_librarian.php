@@ -577,12 +577,13 @@ $latestRequest = mysqli_fetch_assoc($latestRequestQuery);
     <?php if ($error != "") { ?>
         <script>
             Swal.fire({
+                toast: true,
+                position: 'top',
                 icon: 'error',
-                title: 'Request Failed',
-                text: '<?php echo addslashes($error); ?>',
-                confirmButtonColor: '#2563eb',
-                background: '#1e293b',
-                color: '#fff'
+                title: '<?php echo addslashes($error); ?>',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
             });
         </script>
     <?php } ?>
@@ -590,12 +591,13 @@ $latestRequest = mysqli_fetch_assoc($latestRequestQuery);
     <?php if ($success != "") { ?>
         <script>
             Swal.fire({
+                toast: true,
+                position: 'top',
                 icon: 'success',
-                title: 'Success',
-                text: '<?php echo addslashes($success); ?>',
-                confirmButtonColor: '#2563eb',
-                background: '#1e293b',
-                color: '#fff'
+                title: '<?php echo addslashes($success); ?>',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
             });
         </script>
     <?php } ?>
