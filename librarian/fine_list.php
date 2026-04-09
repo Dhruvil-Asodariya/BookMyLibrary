@@ -775,6 +775,56 @@ if ($_SESSION['role'] != "Librarian") {
         .btn-area {
             justify-content: flex-end;
         }
+
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            padding-top: 50px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-content {
+            display: block;
+            margin: auto;
+            max-width: 80%;
+            max-height: 80%;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            animation: zoomIn 0.3s ease;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            color: #fff;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            color: #38bdf8;
+        }
+
+        /* Animation */
+        @keyframes zoomIn {
+            from {
+                transform: scale(0.7);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
     </style>
 
 </head>
@@ -835,7 +885,10 @@ if ($_SESSION['role'] != "Librarian") {
                         <th>Payment Status</th>
                         <th>Payment Method</th>
                         <th>Payment Date</th>
-                        <!-- <th>Actions</th> -->
+                        <th>Verify Status</th>
+                        <th>UTR/Transation ID</th>
+                        <th>Proof Image</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -845,6 +898,14 @@ if ($_SESSION['role'] != "Librarian") {
                     $fine = mysqli_query($con, "SELECT * FROM payment_history WHERE library_id = {$library_id['library_id']} AND payment_status = 'Paid' ORDER BY payment_date DESC");
                     $i = 1;
                     foreach ($fine as $row) {
+
+                        if ($row['verify_status'] == "Approved") {
+                            $statusClass = "paid";
+                            $statusText  = "Approved";
+                        } else {
+                            $statusClass = "unpaid";
+                            $statusText  = "Pending";
+                        }
 
                         $book_id = mysqli_fetch_assoc(mysqli_query($con, "SELECT book_id FROM issue WHERE issue_id = '{$row['issue_id']}'"));
                         $book_data = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM book_list WHERE book_id = '{$book_id['book_id']}'"));
@@ -886,13 +947,36 @@ if ($_SESSION['role'] != "Librarian") {
                                         </span>
                                     </td>
                                 <td>{$row['amount']}</td>
-                                <td><span class='status paid'>Paid</span></td>
+                                <td><span class='status paid'>Paid</span></td>\
                                 <td>{$row['payment_method']}</td>
                                 <td>{$row['payment_date']}</td>
-                                <!-- <td>
-                                    <a href='edit_fine.php?fine_id=24842354'><button class='btn btn-edit'>Edit</button></a>
-                                    <button class='btn btn-delete' onclick='openDeleteModal()'>Delete</button><br>
-                                </td> -->
+                                <td><span id='status_{$row['payment_id']}' 
+                                        class='status {$statusClass}'>
+                                        {$statusText}
+                                    </span>
+                                </td>
+                                <td>{$row['utr_no']}</td>
+                                <td>
+                                    <img src='../payment_screenshot/{$row['screenshot']}' 
+                                        alt='Proof Image'
+                                        class='cover'
+                                        onclick='openImage(this.src)'>
+                                </td>
+                                <td>
+                                ";
+                        if ($row['verify_status'] == "Pending") {
+                            echo "
+                                            <button 
+                                                class='btn btn-toggle'
+                                                onclick='toggleStatus({$row['payment_id']}, " . json_encode($statusText) . ", this)'>
+                                                Approve
+                                            </button>
+                                        ";
+                        } else {
+                            echo "--";
+                        }
+                        echo "
+                            </td>
                             </tr>";
 
                         $i++;
@@ -1086,6 +1170,12 @@ if ($_SESSION['role'] != "Librarian") {
             </div>
         </div>
     </div>
+
+    <div id="imageModal" class="image-modal">
+        <span class="close-btn" onclick="closeImage()">×</span>
+        <img class="modal-content" id="modalImg">
+    </div>
+
     <?php include 'footer.php'; ?>
 
     <!-- Scripts -->
@@ -1257,6 +1347,110 @@ if ($_SESSION['role'] != "Librarian") {
 
         function closeUserModal() {
             document.getElementById("userModal").style.display = "none";
+        }
+    </script>
+
+    <script>
+        function toggleStatus(payment_id, current_status, btn) {
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you want to approve this payment?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#16a34a',
+                cancelButtonColor: '#dc2626',
+                confirmButtonText: 'Yes, Approve!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+
+                    // 👉 Only runs after confirmation
+                    fetch("payment_status_update.php", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/x-www-form-urlencoded"
+                            },
+                            body: "payment_id=" + payment_id + "&current_status=" + current_status
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+
+                            if (data.status === "success") {
+
+                                Swal.fire({
+                                    toast: true,
+                                    position: 'top',
+                                    icon: 'success',
+                                    title: 'Status Updated Successfully!',
+                                    showConfirmButton: false,
+                                    timer: 2000,
+                                    timerProgressBar: true
+                                });
+
+                                // Update onclick
+                                btn.setAttribute("onclick",
+                                    "toggleStatus(" + payment_id + ", '" + data.newStatus + "', this)");
+
+                                // Update UI
+                                let statusSpan = document.getElementById("status_" + payment_id);
+                                statusSpan.innerText = data.newStatus;
+
+                                statusSpan.classList.remove("paid", "unpaid");
+
+                                if (data.newStatus === "Approved") {
+                                    statusSpan.classList.add("paid");
+                                } else {
+                                    statusSpan.classList.add("unpaid");
+                                }
+
+                            } else {
+                                Swal.fire({
+                                    toast: true,
+                                    position: 'top',
+                                    icon: 'error',
+                                    title: 'Failed to update status!',
+                                    showConfirmButton: false,
+                                    timer: 2000,
+                                    timerProgressBar: true
+                                });
+                            }
+
+                        });
+
+                } else {
+                    // Optional cancel toast
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'info',
+                        title: 'Action cancelled',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+
+            });
+        }
+    </script>
+
+    <script>
+        function openImage(src) {
+            document.getElementById("imageModal").style.display = "block";
+            document.getElementById("modalImg").src = src;
+        }
+
+        function closeImage() {
+            document.getElementById("imageModal").style.display = "none";
+        }
+
+        // Close when clicking outside image
+        window.onclick = function(event) {
+            const modal = document.getElementById("imageModal");
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
         }
     </script>
 

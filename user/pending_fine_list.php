@@ -816,7 +816,7 @@ if ($_SESSION['role'] != "User") {
                                         data-book='{$book_id}'
                                         data-library='{$row['library_id']}'
                                         data-amount='{$row['amount']}'>
-                                        Pay ₹{$row['amount']}
+                                        Pay ₹{$row['amount']} (UPI QR)
                                     </button>
                                 </td>
                             </tr>";
@@ -983,13 +983,24 @@ if ($_SESSION['role'] != "User") {
 
             </div>
 
-            <form method="post">
+            <form method="post" enctype="multipart/form-data">
                 <input type="hidden" name="issue_id" id="issueId">
                 <input type="hidden" name="library_id" id="libraryId">
                 <input type="hidden" name="amount" id="amount">
+
+                <div style="padding: 15px 20px;">
+                    <label style="display:block; margin-bottom:8px; font-weight:bold;">UTR / Transaction ID</label>
+                    <input type="text" name="utr_no" placeholder="Enter UTR / Transaction ID" required
+                        style="width:100%; padding:10px; border:1px solid #ccc; border-radius:8px; margin-bottom:15px;">
+
+                    <label style="display:block; margin-bottom:8px; font-weight:bold;">Upload Payment Screenshot</label>
+                    <input type="file" name="payment_screenshot" accept="image/*,.pdf" required
+                        style="width:100%; padding:10px; border:1px solid #ccc; border-radius:8px; background:#fff;">
+                </div>
+
                 <div class="upi-footer">
                     <button type="button" class="upi-cancel" onclick="closeUPIModal()">Cancel</button>
-                    <button class="upi-paid" name="paid_btn">I have paid</button>
+                    <button class="upi-paid" name="paid_btn">Submit Payment Proof</button>
                 </div>
             </form>
 
@@ -1001,14 +1012,36 @@ if ($_SESSION['role'] != "User") {
 
     if (isset($_POST['paid_btn'])) {
 
-        $issue_id = (int) $_POST['issue_id'];
+        $issue_id   = intval($_POST['issue_id']);
+        $library_id = intval($_POST['library_id']);
+        $amount     = intval($_POST['amount']);
+        $utr_no     = trim($_POST['utr_no']);
+        $user_id    = $_SESSION['id'];
+
+        if ($utr_no == "") {
+            echo "<script>
+            document.addEventListener('DOMContentLoaded', function(){
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'error',
+                    title: 'Please enter UTR number.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true
+                });
+            });
+        </script>";
+            exit;
+        }
 
         // Get issue + user + book details
         $details_query = mysqli_query($con, "
         SELECT 
             i.issue_id,
             i.return_date,
-            i.user_id,
+            i.book_id,
+            u.user_id,
             u.first_name,
             u.last_name,
             u.email,
@@ -1016,7 +1049,7 @@ if ($_SESSION['role'] != "User") {
         FROM issue i
         INNER JOIN user u ON i.user_id = u.user_id
         INNER JOIN book_list b ON i.book_id = b.book_id
-        WHERE i.issue_id = '$issue_id'
+        WHERE i.issue_id = '$issue_id' AND i.user_id = '$user_id'
         LIMIT 1
     ");
 
@@ -1039,48 +1072,155 @@ if ($_SESSION['role'] != "User") {
             exit;
         }
 
-        $payment_method = "UPI";
-        $payment_status = "Paid";
+        // Check duplicate UTR
+        $check_utr = mysqli_query($con, "SELECT * FROM payment_history WHERE utr_no='$utr_no' LIMIT 1");
+        if (mysqli_num_rows($check_utr) > 0) {
+            echo "<script>
+            document.addEventListener('DOMContentLoaded', function(){
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'error',
+                    title: 'This UTR number is already used.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true
+                });
+            });
+        </script>";
+            exit;
+        }
+
+        // Upload screenshot
+        $screenshot_name = "";
+        if (isset($_FILES['payment_screenshot']) && $_FILES['payment_screenshot']['error'] == 0) {
+            $upload_dir = "../payment_screenshot/";
+
+            if (!is_dir($upload_dir)) {
+                mkdir($upload_dir, 0777, true);
+            }
+
+            $file_tmp  = $_FILES['payment_screenshot']['tmp_name'];
+            $file_name = $_FILES['payment_screenshot']['name'];
+            $file_size = $_FILES['payment_screenshot']['size'];
+
+            $ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+            $allowed = ['jpg', 'jpeg', 'png', 'pdf'];
+
+            if (!in_array($ext, $allowed)) {
+                echo "<script>
+                document.addEventListener('DOMContentLoaded', function(){
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'error',
+                        title: 'Only JPG, JPEG, PNG, PDF files allowed.',
+                        showConfirmButton: false,
+                        timer: 2200,
+                        timerProgressBar: true
+                    });
+                });
+            </script>";
+                exit;
+            }
+
+            if ($file_size > 5 * 1024 * 1024) {
+                echo "<script>
+                document.addEventListener('DOMContentLoaded', function(){
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'error',
+                        title: 'File size must be less than 5MB.',
+                        showConfirmButton: false,
+                        timer: 2200,
+                        timerProgressBar: true
+                    });
+                });
+            </script>";
+                exit;
+            }
+
+            $screenshot_name = "payment_" . time() . "_" . rand(1000, 9999) . "." . $ext;
+            $target_file = $upload_dir . $screenshot_name;
+
+            if (!move_uploaded_file($file_tmp, $target_file)) {
+                echo "<script>
+                document.addEventListener('DOMContentLoaded', function(){
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'error',
+                        title: 'Screenshot upload failed.',
+                        showConfirmButton: false,
+                        timer: 2200,
+                        timerProgressBar: true
+                    });
+                });
+            </script>";
+                exit;
+            }
+        } else {
+            echo "<script>
+            document.addEventListener('DOMContentLoaded', function(){
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'error',
+                    title: 'Please upload payment screenshot.',
+                    showConfirmButton: false,
+                    timer: 2200,
+                    timerProgressBar: true
+                });
+            });
+        </script>";
+            exit;
+        }
+
+        // Generate unique payment_id
+        do {
+            $payment_id = rand(10000, 99999);
+            $check_query = mysqli_query($con, "SELECT payment_id FROM payment_history WHERE payment_id='$payment_id'");
+        } while (mysqli_num_rows($check_query) > 0);
+
+        $verify_status = "Pending";
         $payment_date   = date("Y-m-d");
 
-        $payment_update = mysqli_query(
-            $con,
-            "UPDATE payment_history 
-         SET payment_method = '$payment_method',
-             payment_status = '$payment_status',
-             payment_date = '$payment_date'
-         WHERE issue_id = '$issue_id'"
-        );
-
-        if ($payment_update) {
-
-            $issue_update = mysqli_query($con, "
-            UPDATE issue 
-            SET fine_amount = 0,
-                status = 'Return at library'
+        // Update    payment record
+        $update_payment = mysqli_query($con, "
+            UPDATE payment_history 
+            SET 
+                payment_method = 'UPI',
+                payment_status = 'Paid',
+                payment_date = '$payment_date',
+                utr_no = '$utr_no',
+                screenshot = '$screenshot_name',
+                verify_status = 'Pending'
             WHERE issue_id = '$issue_id'
         ");
 
-            if ($issue_update) {
+        if ($update_payment) {
 
-                $formattedReturnDate = date("d M Y", strtotime($details['return_date']));
+            $formattedReturnDate = date("d M Y", strtotime($details['return_date']));
 
-                $mailSent = sendLibraryMail(
+            $update = mysqli_query($con, "
+            UPDATE issue 
+            SET fine_amount = 0,
+                status = 'Return at library',
+                last_mailed_status = 'Return at library'
+            WHERE issue_id = '$issue_id'
+        ");
+
+            if ($update) {
+
+                sendLibraryMail(
                     $details['email'],
                     $details['first_name'] . ' ' . $details['last_name'],
                     $details['book_title'],
                     'Return at library',
-                    $formattedReturnDate
+                    $formattedReturnDate,
+                    $amount
                 );
-
-                // Update mailed status only if mail sent successfully
-                if ($mailSent) {
-                    mysqli_query($con, "
-                    UPDATE issue
-                    SET last_mailed_status = 'Return at library'
-                    WHERE issue_id = '$issue_id'
-                ");
-                }
 
                 echo "<script>
                 document.addEventListener('DOMContentLoaded', function(){
@@ -1088,9 +1228,9 @@ if ($_SESSION['role'] != "User") {
                         toast: true,
                         position: 'top',
                         icon: 'success',
-                        title: 'Payment Successfully!',
+                        title: 'Payment proof submitted. Waiting for verification.',
                         showConfirmButton: false,
-                        timer: 2000,
+                        timer: 2200,
                         timerProgressBar: true
                     }).then(() => {
                         window.location.href = 'fine_list.php';
@@ -1104,9 +1244,9 @@ if ($_SESSION['role'] != "User") {
                         toast: true,
                         position: 'top',
                         icon: 'error',
-                        title: 'Payment updated but issue status failed.',
+                        title: 'Payment saved but issue update failed.',
                         showConfirmButton: false,
-                        timer: 2000,
+                        timer: 2500,
                         timerProgressBar: true
                     });
                 });
@@ -1119,16 +1259,15 @@ if ($_SESSION['role'] != "User") {
                     toast: true,
                     position: 'top',
                     icon: 'error',
-                    title: 'Payment failed. Please try again.',
+                    title: 'Failed to save payment details.',
                     showConfirmButton: false,
-                    timer: 2000,
+                    timer: 2200,
                     timerProgressBar: true
                 });
             });
         </script>";
         }
     }
-
     ?>
 
     <?php include 'footer.php'; ?>
@@ -1225,17 +1364,15 @@ if ($_SESSION['role'] != "User") {
 
                 const amount = parseInt(this.dataset.amount);
                 const issueId = parseInt(this.dataset.issue);
-                const bookId = parseInt(this.dataset.book);
-                const libraryId = parseInt(this.dataset.library); // now we define bookId properly
+                const libraryId = parseInt(this.dataset.library);
 
-                const upiLink = `upi://pay?pa=test@upi&pn=BookMyLibrary&am=${amount}&cu=INR&tn=Book My Library`;
+                const upiLink = `upi://pay?pa=asodariyadhruvil80@pingpay&pn=BookMyLibrary&am=${amount}&cu=INR&tn=Library Fine Payment`;
 
                 const qrURL = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" + encodeURIComponent(upiLink);
 
                 document.getElementById("upiQR").src = qrURL;
                 document.getElementById("upiAmount").textContent = amount;
 
-                // Set hidden form inputs
                 document.getElementById("issueId").value = issueId;
                 document.getElementById("libraryId").value = libraryId;
                 document.getElementById("amount").value = amount;

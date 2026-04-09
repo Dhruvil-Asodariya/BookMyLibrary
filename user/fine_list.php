@@ -663,6 +663,7 @@ if ($_SESSION['role'] != "User") {
                         <th>Book ID</th>
                         <th>Fine Amount</th>
                         <th>Payment Status</th>
+                        <th>Verify Status</th>
                         <th>Payment Method</th>
                         <th>Payment Date</th>
                         <!-- <th>Actions</th> -->
@@ -698,6 +699,7 @@ if ($_SESSION['role'] != "User") {
                                 </td>
                                 <td>{$row['amount']}</td>
                                 <td><span class='status paid'>Paid</span></td>
+                                <td><span class='status " . ($row['verify_status'] == 'Pending' ? 'unpaid' : 'paid') . "'>{$row['verify_status']}</span></td>
                                 <td>{$row['payment_method']}</td>
                                 <td>{$row['payment_date']}</td>
                                 <!-- <td>
