@@ -661,6 +661,7 @@ if ($_SESSION['role'] != "Admin") {
                         <th>Open At</th>
                         <th>Close At</th>
                         <th>Library Location</th>
+                        <th>UPI ID</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -731,7 +732,7 @@ if ($_SESSION['role'] != "Admin") {
                                     <td>{$row['open_at']}</td>
                                     <td>{$row['close_at']}</td>
                                     <td>{$row['library_location']}</td>
-
+                                    <td>{$row['upi_id']}</td>
                                     <td>
                                         <span id='status_{$row['library_id']}' class='status {$statusClass}'>
                                             {$statusText}

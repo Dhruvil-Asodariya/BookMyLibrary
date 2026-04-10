@@ -1270,7 +1270,8 @@ if ($_SESSION['role'] != "User") {
                                     data-issue='{$row['issue_id']}'
                                     data-book='{$row['book_id']}'
                                     data-library='{$row['library_id']}'
-                                    data-amount='{$row['fine_amount']}'>
+                                    data-amount='{$row['fine_amount']}'
+                                    data-upi='{$library_data['upi_id']}'>
                                     Pay ₹{$row['fine_amount']} (UPI QR)
                                 </button>";
                         }
@@ -1888,8 +1889,9 @@ if ($_SESSION['role'] != "User") {
                 const amount = parseInt(this.dataset.amount);
                 const issueId = parseInt(this.dataset.issue);
                 const libraryId = parseInt(this.dataset.library);
+                const upiId = this.dataset.upi;
 
-                const upiLink = `upi://pay?pa=asodariyadhruvil80@pingpay&pn=BookMyLibrary&am=${amount}&cu=INR&tn=Library Fine Payment`;
+                const upiLink = `upi://pay?pa=${upiId}&pn=BookMyLibrary&am=${amount}&cu=INR&tn=Library Fine Payment`;
 
                 const qrURL = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" + encodeURIComponent(upiLink);
 

@@ -648,6 +648,11 @@ if ($_SESSION['role'] != "Librarian") {
                         <p class="p" id="viewLibraryLocation"><?php echo $library_data['library_location'] ?></p>
                     </div>
 
+                    <div class="form-group">
+                        <label>UPI ID</label>
+                        <p class="p" id="viewUPIId"><?php echo $library_data['upi_id'] ?></p>
+                    </div>
+
                 </div>
 
                 <div class="edit-actions">
@@ -700,6 +705,12 @@ if ($_SESSION['role'] != "Librarian") {
                             <span id="libraryLocationError" class="error"></span>
                         </div>
 
+                        <div class="form-group full-width">
+                            <label>UPI ID</label>
+                            <input type="text" id="editUPIId" name="upi_id" placeholder="Enter UPI ID">
+                            <span id="UPIIdError" class="error"></span>
+                        </div>
+
                     </div>
 
                     <div class="edit-actions">
@@ -722,13 +733,15 @@ if ($_SESSION['role'] != "Librarian") {
             $open_at = $_POST['open_at'];
             $close_at = $_POST['close_at'];
             $library_location = $_POST['library_location'];
+            $upi_id = $_POST['upi_id'];
 
             $update_query = "UPDATE library SET 
                             library_name='$library_name',
                             library_owner_name='$library_owner_name',
                             open_at='$open_at',
                             close_at='$close_at',
-                            library_location='$library_location'
+                            library_location='$library_location',
+                            upi_id='$upi_id'
                         WHERE user_id=$user_id";
 
             if (mysqli_query($con, $update_query)) {
@@ -1239,6 +1252,9 @@ if ($_SESSION['role'] != "Librarian") {
 
             document.getElementById("editLibraryLocation").value =
                 document.getElementById("viewLibraryLocation").innerText;
+
+            document.getElementById("editUPIId").value =
+                document.getElementById("viewUPIId").innerText;
         }
 
         function cancelLibraryEdit() {
@@ -1251,6 +1267,7 @@ if ($_SESSION['role'] != "Librarian") {
         document.getElementById("editOpenAt").addEventListener("input", validateLibraryTime);
         document.getElementById("editCloseAt").addEventListener("change", validateLibraryTime);
         document.getElementById("editLibraryLocation").addEventListener("input", validateLibraryLocation);
+        document.getElementById("editUPIId").addEventListener("input", validateUPIId);
 
         function saveLibraryEdit() {
             if (!validateLibraryForm()) return false;
@@ -1377,13 +1394,31 @@ if ($_SESSION['role'] != "Librarian") {
             return true;
         }
 
+        function validateUPIId() {
+            let upiId = document.getElementById("editUPIId");
+            let value = upiId.value.trim();
+            let regex = /^[\w.-]+@[\w.-]+$/;
+
+            if (value === "") {
+                libraryShowError(upiId, "UPIIdError", "UPI ID is required");
+                return false;
+            } else if (!regex.test(value)) {
+                libraryShowError(upiId, "UPIIdError", "Enter valid UPI ID (e.g. name@bank)");
+                return false;
+            }
+
+            libraryShowSuccess(upiId, "UPIIdError");
+            return true;
+        }
+
         function validateLibraryForm() {
             return (
                 validateLibraryName() &&
                 validateLibraryOwnerName() &&
                 validateLibraryEmail() &&
                 validateLibraryTime() &&
-                validateLibraryLocation()
+                validateLibraryLocation() &&
+                validateUPIId()
             );
         }
 

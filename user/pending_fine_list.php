@@ -800,6 +800,7 @@ if ($_SESSION['role'] != "User") {
                     foreach ($pending_fine as $row) {
 
                         $book_id = mysqli_fetch_assoc(mysqli_query($con, "SELECT book_id FROM issue WHERE issue_id = '{$row['issue_id']}'"))['book_id'];
+                        $library_data = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM library WHERE library_id = '{$row['library_id']}'"));
 
                         echo "<tr>
                                 <td>{$i}</td>
@@ -815,7 +816,8 @@ if ($_SESSION['role'] != "User") {
                                         data-issue='{$row['issue_id']}'
                                         data-book='{$book_id}'
                                         data-library='{$row['library_id']}'
-                                        data-amount='{$row['amount']}'>
+                                        data-amount='{$row['amount']}'
+                                        data-upi='{$library_data['upi_id']}'>
                                         Pay ₹{$row['amount']} (UPI QR)
                                     </button>
                                 </td>
@@ -1365,8 +1367,9 @@ if ($_SESSION['role'] != "User") {
                 const amount = parseInt(this.dataset.amount);
                 const issueId = parseInt(this.dataset.issue);
                 const libraryId = parseInt(this.dataset.library);
+                const upiId = this.dataset.upi;
 
-                const upiLink = `upi://pay?pa=asodariyadhruvil80@pingpay&pn=BookMyLibrary&am=${amount}&cu=INR&tn=Library Fine Payment`;
+                const upiLink = `upi://pay?pa=${upiId}&pn=BookMyLibrary&am=${amount}&cu=INR&tn=Library Fine Payment`;
 
                 const qrURL = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" + encodeURIComponent(upiLink);
 
