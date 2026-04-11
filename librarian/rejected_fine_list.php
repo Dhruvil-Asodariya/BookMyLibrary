@@ -11,7 +11,7 @@ if ($_SESSION['role'] != "Librarian") {
 
 <head>
     <meta charset="UTF-8">
-    <title>Fine List | Library System</title>
+    <title>Pending Fine List | Library System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- DataTables CSS -->
@@ -775,56 +775,6 @@ if ($_SESSION['role'] != "Librarian") {
         .btn-area {
             justify-content: flex-end;
         }
-
-        .image-modal {
-            display: none;
-            position: fixed;
-            z-index: 9999;
-            padding-top: 50px;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 23, 42, 0.9);
-            backdrop-filter: blur(8px);
-        }
-
-        .modal-content {
-            display: block;
-            margin: auto;
-            max-width: 80%;
-            max-height: 80%;
-            border-radius: 12px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-            animation: zoomIn 0.3s ease;
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 20px;
-            right: 35px;
-            color: #fff;
-            font-size: 35px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .close-btn:hover {
-            color: #38bdf8;
-        }
-
-        /* Animation */
-        @keyframes zoomIn {
-            from {
-                transform: scale(0.7);
-                opacity: 0;
-            }
-
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
     </style>
 
 </head>
@@ -835,15 +785,15 @@ if ($_SESSION['role'] != "Librarian") {
         <nav class="breadcrumb">
             <a href="home.php" class="dashboard">Dashboard</a>
             <span class="separator">›</span>
-            <span class="current">Fine List</span>
+            <span class="current">Pending Fine List</span>
         </nav>
     </div>
     <div class="container">
         <div class="card">
             <div class="top-actions">
                 <div class="title-area">
-                    <h3>Fine Details</h3>
-                    <div class="subtitle">Manage your fine data</div>
+                    <h3>Pending Fine Details</h3>
+                    <div class="subtitle">Manage your pending fine data</div>
                 </div>
                 <div class="advanced-filters">
                     <div class="filter-box">
@@ -853,18 +803,6 @@ if ($_SESSION['role'] != "Librarian") {
                     <div class="filter-box">
                         <label>User ID</label>
                         <input type="text" id="filterUserID" placeholder="Filter by User ID" maxlength="8">
-                    </div>
-                    <div class="filter-box">
-                        <label>Payment Method</label>
-                        <select id="filterPaymentMethod">
-                            <option value="">All Methods</option>
-                            <option value="Cash">Cash</option>
-                            <option value="UPI">UPI</option>
-                        </select>
-                    </div>
-                    <div class="filter-box">
-                        <label>Payment Date</label>
-                        <input type="date" id="filterPaymentDate" placeholder="Filter by Payment Date">
                     </div>
 
                     <div class="filter-box btn-area">
@@ -883,29 +821,17 @@ if ($_SESSION['role'] != "Librarian") {
                         <th>User ID</th>
                         <th>Fine Amount</th>
                         <th>Payment Status</th>
-                        <th>Payment Method</th>
-                        <th>Payment Date</th>
                         <th>Verify Status</th>
-                        <th>UTR/Transation ID</th>
-                        <th>Proof Image</th>
-                        <th>Actions</th>
+                        <!-- <th>Actions</th> -->
                     </tr>
                 </thead>
                 <tbody>
                     <?php
                     $user_id = $_SESSION['id'];
                     $library_id = mysqli_fetch_assoc(mysqli_query($con, "SELECT library_id FROM library WHERE user_id = $user_id"));
-                    $fine = mysqli_query($con, "SELECT * FROM payment_history WHERE library_id = {$library_id['library_id']} AND payment_status = 'Paid' ORDER BY payment_date DESC");
+                    $pending_fine = mysqli_query($con, "SELECT * FROM payment_history WHERE library_id = {$library_id['library_id']} AND payment_status = 'Unpaid' AND verify_status = 'Rejected' ORDER BY payment_id DESC");
                     $i = 1;
-                    foreach ($fine as $row) {
-
-                        if ($row['verify_status'] == "Approved") {
-                            $statusClass = "paid";
-                            $statusText  = "Approved";
-                        } else {
-                            $statusClass = "unpaid";
-                            $statusText  = "Pending";
-                        }
+                    foreach ($pending_fine as $row) {
 
                         $book_id = mysqli_fetch_assoc(mysqli_query($con, "SELECT book_id FROM issue WHERE issue_id = '{$row['issue_id']}'"));
                         $book_data = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM book_list WHERE book_id = '{$book_id['book_id']}'"));
@@ -946,48 +872,15 @@ if ($_SESSION['role'] != "Librarian") {
                                         {$row['user_id']}
                                         </span>
                                     </td>
-                                <td>{$row['amount']}</td>
-                                <td><span class='status paid'>Paid</span></td>
-                                <td>{$row['payment_method']}</td>
-                                <td>{$row['payment_date']}</td>
-                                <td><span id='status_{$row['payment_id']}' 
-                                        class='status {$statusClass}'>
-                                        {$statusText}
-                                    </span>
-                                </td>
-                                <td>{$row['utr_no']}</td>
-                                <td>
-                                    <img src='../payment_screenshot/{$row['screenshot']}' 
-                                        alt='Proof Image'
-                                        class='cover'
-                                        onclick='openImage(this.src)'>
-                                </td>
-                                <td>
-                                ";
-                        if ($row['verify_status'] == "Pending") {
-                            echo "
-                                            <button 
-                                                class='btn btn-toggle'
-                                                onclick='toggleStatus({$row['payment_id']}, " . json_encode($statusText) . ", this)'>
-                                                Approve
-                                            </button>
-                                            <button 
-                                                class='btn btn-delete'
-                                                onclick='toggleStatusReject({$row['payment_id']}, " . json_encode($statusText) . ", this)'>
-                                                Reject
-                                            </button>
-                                        ";
-                        } else {
-                            echo "--";
-                        }
-                        echo "
-                            </td>
+                                <td>₹ {$row['amount']}</td>
+                                <td><span class='status unpaid'>Unpaid</span></td>
+                                <td><span class='status unpaid'>Rejected</span></td>
+                                
                             </tr>";
 
                         $i++;
                     }
                     ?>
-
                 </tbody>
             </table>
         </div>
@@ -1098,66 +991,6 @@ if ($_SESSION['role'] != "Librarian") {
         </div>
     </div>
 
-    <div class="l-modal-backdrop" id="libraryModal">
-        <div class="l-modal-card">
-
-            <div class="l-modal-header-p">
-                <div class="l-header-left">
-                    <h3>Library Details</h3>
-
-                    <div class="l-pill-group">
-                        <span class="l-pill pill-active">Active</span>
-                        <!-- <span class="pill pill-inactive">Inactive</span> -->
-                    </div>
-                </div>
-                <span class="close-icon" onclick="closeLibraryModal()">×</span>
-            </div>
-
-            <div class="l-modal-body-p">
-
-                <div class="l-book-details">
-                    <div class="l-detail">
-                        <span>Library ID</span>
-                        <p>24842354</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Library Name</span>
-                        <p>Central City Library</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Library Owner Name</span>
-                        <p>James Gosling</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Table capacity</span>
-                        <p>120</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Chair Capacity</span>
-                        <p>240</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Open At</span>
-                        <p>08:00 AM</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Close At</span>
-                        <p>09:00 PM</p>
-                    </div>
-                    <div class="l-detail">
-                        <span>Library Location</span>
-                        <p>Downtown, Rajkot</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="l-modal-footer">
-                <button class="l-btn-secondary" onclick="closeLibraryModal()">Close</button>
-            </div>
-
-        </div>
-    </div>
-
     <div class="modal-overlay" id="deleteModal">
         <div class="modal-box">
             <div class="modal-header">
@@ -1175,12 +1008,6 @@ if ($_SESSION['role'] != "Librarian") {
             </div>
         </div>
     </div>
-
-    <div id="imageModal" class="image-modal">
-        <span class="close-btn" onclick="closeImage()">×</span>
-        <img class="modal-content" id="modalImg">
-    </div>
-
     <?php include 'footer.php'; ?>
 
     <!-- Scripts -->
@@ -1199,31 +1026,28 @@ if ($_SESSION['role'] != "Librarian") {
         var table = $('#bookTable').DataTable({
             responsive: true,
             dom: 'Brtip',
+
             columnDefs: [{
-                targets: 0,
+                targets: 0, // Sr No column
                 orderable: false,
                 searchable: false
             }],
-
-            order: [
-                [1, 'asc']
-            ],
             buttons: [{
                     extend: 'excelHtml5',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8] // column indexes you want
+                        columns: [0, 1, 2, 3, 4, 5, 6] // column indexes you want
                     }
                 },
                 {
                     extend: 'pdfHtml5',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+                        columns: [0, 1, 2, 3, 4, 5, 6]
                     }
                 },
                 {
                     extend: 'print',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+                        columns: [0, 1, 2, 3, 4, 5, 6]
                     }
                 }
             ],
@@ -1245,22 +1069,6 @@ if ($_SESSION['role'] != "Librarian") {
                 });
         }).draw();
 
-        // STATUS filter
-        $('#filterPaymentMethod').on('change', function() {
-            var value = this.value;
-
-            if (value) {
-                table.column(6).search('^' + value + '$', true, false).draw();
-            } else {
-                table.column(6).search('').draw();
-            }
-        });
-
-        // Issue filter
-        $('#filterPaymentDate').on('change', function() {
-            table.column(7).search(this.value).draw();
-        });
-
         // LOCATION filter
         $('#filterBookID').on('keyup', function() {
             table.column(2).search(this.value).draw();
@@ -1273,8 +1081,6 @@ if ($_SESSION['role'] != "Librarian") {
 
         // RESET filters
         function resetFilters() {
-            $('#filterPaymentDate').val('');
-            $('#filterPaymentMethod').val('');
             $('#filterBookID').val('');
             $('#filterUserID').val('');
 
@@ -1352,198 +1158,6 @@ if ($_SESSION['role'] != "Librarian") {
 
         function closeUserModal() {
             document.getElementById("userModal").style.display = "none";
-        }
-    </script>
-
-    <script>
-        function toggleStatus(payment_id, current_status, btn) {
-
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "Do you want to approve this payment?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#16a34a',
-                cancelButtonColor: '#dc2626',
-                confirmButtonText: 'Yes, Approve!',
-                cancelButtonText: 'Cancel'
-            }).then((result) => {
-
-                if (result.isConfirmed) {
-
-                    // 👉 Only runs after confirmation
-                    fetch("payment_status_update.php", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/x-www-form-urlencoded"
-                            },
-                            body: "payment_id=" + payment_id + "&current_status=" + current_status
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-
-                            if (data.status === "success") {
-
-                                Swal.fire({
-                                    toast: true,
-                                    position: 'top',
-                                    icon: 'success',
-                                    title: 'Status Updated Successfully!',
-                                    showConfirmButton: false,
-                                    timer: 2000,
-                                    timerProgressBar: true
-                                });
-
-                                // Update onclick
-                                btn.setAttribute("onclick",
-                                    "toggleStatus(" + payment_id + ", '" + data.newStatus + "', this)");
-
-                                // Update UI
-                                let statusSpan = document.getElementById("status_" + payment_id);
-                                statusSpan.innerText = data.newStatus;
-
-                                statusSpan.classList.remove("paid", "unpaid");
-
-                                if (data.newStatus === "Approved") {
-                                    statusSpan.classList.add("paid");
-                                } else {
-                                    statusSpan.classList.add("unpaid");
-                                }
-
-                                // ✅ ADD THIS (Reload after toast finishes)
-                                setTimeout(() => {
-                                    location.reload();
-                                }, 2000);
-
-
-                            } else {
-                                Swal.fire({
-                                    toast: true,
-                                    position: 'top',
-                                    icon: 'error',
-                                    title: 'Failed to update status!',
-                                    showConfirmButton: false,
-                                    timer: 2000,
-                                    timerProgressBar: true
-                                });
-                            }
-
-                        });
-
-                } else {
-                    // Optional cancel toast
-                    Swal.fire({
-                        toast: true,
-                        position: 'top',
-                        icon: 'info',
-                        title: 'Action cancelled',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                }
-
-            });
-        }
-    </script>
-
-    <script>
-        function toggleStatusReject(payment_id, current_status, btn) {
-
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "Do you want to reject this payment?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#16a34a',
-                cancelButtonColor: '#dc2626',
-                confirmButtonText: 'Yes, Reject!',
-                cancelButtonText: 'Cancel'
-            }).then((result) => {
-
-                if (result.isConfirmed) {
-
-                    // 👉 Only runs after confirmation
-                    fetch("payment_status_update_reject.php", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/x-www-form-urlencoded"
-                            },
-                            body: "payment_id=" + payment_id + "&current_status=" + current_status
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-
-                            if (data.status === "success") {
-
-                                Swal.fire({
-                                    toast: true,
-                                    position: 'top',
-                                    icon: 'success',
-                                    title: 'Status Updated Successfully!',
-                                    showConfirmButton: false,
-                                    timer: 2000,
-                                    timerProgressBar: true
-                                });
-
-                                // Update onclick
-                                btn.setAttribute("onclick",
-                                    "toggleStatus(" + payment_id + ", '" + data.newStatus + "', this)");
-
-                                // Update UI
-                                let statusSpan = document.getElementById("status_" + payment_id);
-                                statusSpan.innerText = data.newStatus;
-
-                                // ✅ ADD THIS (Reload after toast finishes)
-                                setTimeout(() => {
-                                    location.reload();
-                                }, 2000);
-
-                            } else {
-                                Swal.fire({
-                                    toast: true,
-                                    position: 'top',
-                                    icon: 'error',
-                                    title: 'Failed to update status!',
-                                    showConfirmButton: false,
-                                    timer: 2000,
-                                    timerProgressBar: true
-                                });
-                            }
-
-                        });
-
-                } else {
-                    // Optional cancel toast
-                    Swal.fire({
-                        toast: true,
-                        position: 'top',
-                        icon: 'info',
-                        title: 'Action cancelled',
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                }
-
-            });
-        }
-    </script>
-
-    <script>
-        function openImage(src) {
-            document.getElementById("imageModal").style.display = "block";
-            document.getElementById("modalImg").src = src;
-        }
-
-        function closeImage() {
-            document.getElementById("imageModal").style.display = "none";
-        }
-
-        // Close when clicking outside image
-        window.onclick = function(event) {
-            const modal = document.getElementById("imageModal");
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
         }
     </script>
 

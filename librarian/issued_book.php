@@ -921,6 +921,7 @@ if ($_SESSION['role'] != "Librarian") {
                         $book_data = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM book_list WHERE book_id = '{$row['book_id']}'"));
                         $user_data = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM user WHERE user_id = '{$row['user_id']}'"));
                         $library_data = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM library WHERE library_id = '{$row['library_id']}'"));
+                        $payment_history = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM payment_history WHERE issue_id = '{$row['issue_id']}'"));
 
                         echo "<tr>
                                 <td>{$i}</td>
@@ -960,7 +961,7 @@ if ($_SESSION['role'] != "Librarian") {
                                 <td>₹ {$row['fine_amount']}</td>
                                 <td><span class='status {$statusClass}'>{$statusText}</span></td>
                                 <td>";
-                        if ($row['status'] == "Return at library") {
+                        if ($row['status'] == "Return at library" && $payment_history['verify_status'] == "Approved") {
                             echo "<button class='btn btn-renew' onclick='returnBook(\"{$row['issue_id']}\")'>Return</button>";
                         } elseif ($row['status'] == "Pending") {
                             echo "<button class='btn btn-renew' onclick='issueBook(\"{$row['issue_id']}\")'>Issue</button>";

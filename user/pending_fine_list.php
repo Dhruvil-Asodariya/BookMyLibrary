@@ -795,7 +795,7 @@ if ($_SESSION['role'] != "User") {
                 <tbody>
                     <?php
                     $user_id = $_SESSION['id'];
-                    $pending_fine = mysqli_query($con, "SELECT * FROM payment_history WHERE user_id = $user_id AND payment_status = 'Unpaid'");
+                    $pending_fine = mysqli_query($con, "SELECT * FROM payment_history WHERE user_id = $user_id AND payment_status = 'Unpaid' AND verify_status = 'Pending' ORDER BY payment_id DESC");
                     $i = 1;
                     foreach ($pending_fine as $row) {
 

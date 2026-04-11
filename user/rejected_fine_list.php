@@ -1,7 +1,7 @@
 <?php
 require "../session_check.php";
 
-if ($_SESSION['role'] != "Librarian") {
+if ($_SESSION['role'] != "User") {
     header("Location: ../login.php");
     exit();
 }
@@ -583,167 +583,6 @@ if ($_SESSION['role'] != "Librarian") {
             }
         }
 
-        /* Backdrop */
-        .l-modal-backdrop {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.65);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /* Card */
-        .l-modal-card {
-            background: #ffffff;
-            width: 700px;
-            max-width: 95%;
-            border-radius: 14px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-            overflow: hidden;
-            animation: fadeSlide 0.25s ease;
-        }
-
-        @keyframes fadeSlide {
-            from {
-                opacity: 0;
-                transform: translateY(15px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Header */
-        .l-modal-header-p {
-            padding: 16px 20px;
-            border-bottom: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .l-modal-header-p h3 {
-            font-size: 18px;
-            color: #0f172a;
-        }
-
-        .l-header-left {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        /* Pills container */
-        .l-pill-group {
-            display: flex;
-            gap: 8px;
-        }
-
-        /* Base pill */
-        .l-pill {
-            padding: 6px 14px;
-            border-radius: 999px;
-            font-size: 13px;
-            font-weight: 600;
-            line-height: 1;
-        }
-
-        /* Status pills */
-        .l-pill-active {
-            background-color: #dcfce7;
-            color: #166534;
-        }
-
-        .l-pill-inactive {
-            background-color: #fee2e2;
-            color: #991b1b;
-        }
-
-        /* Close */
-        .l-close-icon {
-            font-size: 22px;
-            cursor: pointer;
-            color: #64748b;
-        }
-
-        .l-close-icon:hover {
-            color: #ef4444;
-        }
-
-        /* Body */
-        .l-modal-body-p {
-            display: grid;
-            grid-template-columns: 580px 1fr;
-            gap: 20px;
-            padding: 20px;
-        }
-
-        /* Image */
-        .l-book-image img {
-            width: 100%;
-            height: 240px;
-            object-fit: cover;
-            border-radius: 10px;
-            border: 1px solid #e5e7eb;
-        }
-
-        /* Details */
-        .l-book-details {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-        }
-
-        .l-detail span {
-            font-size: 12px;
-            color: #64748b;
-            text-transform: uppercase;
-        }
-
-        .l-detail p {
-            margin-top: 4px;
-            font-size: 15px;
-            font-weight: 600;
-            color: #1e293b;
-        }
-
-        /* Footer */
-        .l-modal-footer {
-            padding: 14px 20px;
-            border-top: 1px solid #e5e7eb;
-            text-align: right;
-        }
-
-        /* Buttons */
-        .l-btn-secondary {
-            padding: 8px 16px;
-            border-radius: 8px;
-            border: 1px solid #cbd5f5;
-            background: #f8fafc;
-            color: #1e293b;
-            cursor: pointer;
-        }
-
-        .l-btn-secondary:hover {
-            background: #e0e7ff;
-        }
-
-        /* Responsive */
-        @media (max-width: 640px) {
-            .l-modal-body {
-                grid-template-columns: 1fr;
-                text-align: center;
-            }
-
-            .l-book-details {
-                grid-template-columns: 1fr;
-            }
-        }
-
         .advanced-filters {
             display: flex;
             flex-wrap: wrap;
@@ -775,6 +614,139 @@ if ($_SESSION['role'] != "Librarian") {
         .btn-area {
             justify-content: flex-end;
         }
+
+        .btn-pay {
+            background: #16a34a;
+            color: #fff;
+            display: inline-block;
+        }
+
+        .btn-pay:hover {
+            background: #15803d;
+        }
+
+        .upi-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(6px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: fadeIn .25s ease;
+        }
+
+        .upi-card {
+            width: 360px;
+            background: linear-gradient(145deg, #ffffff, #f4f4f4);
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, .3);
+            animation: slideUp .3s ease;
+        }
+
+        .upi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .upi-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .upi-close {
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .upi-body {
+            text-align: center;
+        }
+
+        .upi-qr-box {
+            background: #fff;
+            padding: 12px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, .15);
+        }
+
+        .upi-qr-box img {
+            width: 220px;
+        }
+
+        .upi-amount {
+            font-size: 26px;
+            font-weight: 700;
+            margin: 15px 0 5px;
+        }
+
+        .upi-text {
+            color: #666;
+            font-size: 13px;
+        }
+
+        .upi-apps {
+            margin-top: 10px;
+        }
+
+        .upi-apps span {
+            background: #eee;
+            padding: 6px 10px;
+            margin: 0 4px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .upi-footer {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .upi-cancel,
+        .upi-paid {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .upi-cancel {
+            background: #e5e5e5;
+        }
+
+        .upi-paid {
+            background: #16a34a;
+            color: #fff;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(40px);
+                opacity: 0
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0
+            }
+
+            to {
+                opacity: 1
+            }
+        }
     </style>
 
 </head>
@@ -793,16 +765,12 @@ if ($_SESSION['role'] != "Librarian") {
             <div class="top-actions">
                 <div class="title-area">
                     <h3>Pending Fine Details</h3>
-                    <div class="subtitle">Manage your pending fine data</div>
+                    <div class="subtitle">Manage your rejected fine data</div>
                 </div>
                 <div class="advanced-filters">
                     <div class="filter-box">
                         <label>Book ID</label>
                         <input type="text" id="filterBookID" placeholder="Filter by Book ID" maxlength="8">
-                    </div>
-                    <div class="filter-box">
-                        <label>User ID</label>
-                        <input type="text" id="filterUserID" placeholder="Filter by User ID" maxlength="8">
                     </div>
 
                     <div class="filter-box btn-area">
@@ -818,67 +786,49 @@ if ($_SESSION['role'] != "Librarian") {
                         <th>Sr No.</th>
                         <th>Fine ID</th>
                         <th>Book ID</th>
-                        <th>User ID</th>
+                        <!-- <th>User ID</th> -->
                         <th>Fine Amount</th>
                         <th>Payment Status</th>
-                        <!-- <th>Actions</th> -->
+                        <th>Verify Status</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php
                     $user_id = $_SESSION['id'];
-                    $library_id = mysqli_fetch_assoc(mysqli_query($con, "SELECT library_id FROM library WHERE user_id = $user_id"));
-                    $pending_fine = mysqli_query($con, "SELECT * FROM payment_history WHERE library_id = {$library_id['library_id']} AND payment_status = 'Unpaid' AND verify_status = 'Pending' ORDER BY payment_id DESC");
+                    $pending_fine = mysqli_query($con, "SELECT * FROM payment_history WHERE user_id = $user_id AND payment_status = 'Unpaid' AND verify_status = 'Rejected' ORDER BY payment_id DESC");
                     $i = 1;
                     foreach ($pending_fine as $row) {
 
-                        $book_id = mysqli_fetch_assoc(mysqli_query($con, "SELECT book_id FROM issue WHERE issue_id = '{$row['issue_id']}'"));
-                        $book_data = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM book_list WHERE book_id = '{$book_id['book_id']}'"));
+                        $book_id = mysqli_fetch_assoc(mysqli_query($con, "SELECT book_id FROM issue WHERE issue_id = '{$row['issue_id']}'"))['book_id'];
                         $library_data = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM library WHERE library_id = '{$row['library_id']}'"));
-                        $user_data = mysqli_fetch_assoc(mysqli_query($con, "SELECT * FROM user WHERE user_id = '{$row['user_id']}'"));
 
                         echo "<tr>
                                 <td>{$i}</td>
                                 <td>{$row['payment_id']}</td>
-                                <td>
-                                    <span class='model-link'
-                                    onclick=\"openBookModal(
-                                    '{$book_data['book_id']}',
-                                    '../book_images/{$book_data['image']}',
-                                    '" . htmlspecialchars($book_data['title'], ENT_QUOTES) . "',
-                                    '" . htmlspecialchars($book_data['author'], ENT_QUOTES) . "',
-                                    '" . htmlspecialchars($book_data['category'], ENT_QUOTES) . "',
-                                    '{$book_data['year']}',
-                                    '" . htmlspecialchars($library_data['library_name'], ENT_QUOTES) . "'
-                                    )\">
-                                    {$book_id['book_id']}
-                                    </span>
-                                    </td>
-
-                                    <td>
-                                        <span class='model-link'
-                                        onclick=\"openUserModal(
-                                        '{$user_data['user_id']}',
-                                        '../image/{$user_data['image']}',
-                                        '" . htmlspecialchars($user_data['first_name'], ENT_QUOTES) . "',
-                                        '" . htmlspecialchars($user_data['last_name'], ENT_QUOTES) . "',
-                                        '" . htmlspecialchars($user_data['email'], ENT_QUOTES) . "',
-                                        '" . htmlspecialchars($user_data['contact_no'], ENT_QUOTES) . "',
-                                        '" . htmlspecialchars($user_data['address'], ENT_QUOTES) . "',
-                                        '" . htmlspecialchars($user_data['role'], ENT_QUOTES) . "',
-                                        '" . htmlspecialchars($user_data['status'], ENT_QUOTES) . "'
-                                        )\">
-                                        {$row['user_id']}
-                                        </span>
-                                    </td>
+                                <td class='model-link' onclick='openBookModal()'>{$book_id}</td>
+                                <!-- <td class='model-link' onclick='openUserModal()'>24842353</td> -->
                                 <td>₹ {$row['amount']}</td>
                                 <td><span class='status unpaid'>Unpaid</span></td>
-                                
+                                <td><span class='status unpaid'>Rejected</span></td>
+                                <td>
+                                    <!-- <a href='edit_fine.php?fine_id=24842354'><button class='btn btn-edit'>Edit</button></a>
+                                    <button class='btn btn-delete' onclick='openDeleteModal()'>Delete</button><br> -->
+                                    <button class='btn btn-pay'
+                                        data-issue='{$row['issue_id']}'
+                                        data-book='{$book_id}'
+                                        data-library='{$row['library_id']}'
+                                        data-amount='{$row['amount']}'
+                                        data-upi='{$library_data['upi_id']}'>
+                                        Pay ₹{$row['amount']} (UPI QR)
+                                    </button>
+                                </td>
                             </tr>";
 
                         $i++;
                     }
                     ?>
+
                 </tbody>
             </table>
         </div>
@@ -894,33 +844,33 @@ if ($_SESSION['role'] != "Librarian") {
 
             <div class="modal-body-p">
                 <div class="book-image">
-                    <img id="modalBookImage" src="" alt="Book Image">
+                    <img src="../image/91xUz2EuYdL._AC_UF1000,1000_QL80_.jpg" alt="Book Image">
                 </div>
 
                 <div class="book-details">
                     <div class="detail">
                         <span>Book ID</span>
-                        <p id="modalBookId"></p>
+                        <p>24842354</p>
                     </div>
                     <div class="detail">
                         <span>Title</span>
-                        <p id="modalBookTitle"></p>
+                        <p>Introduction to Java</p>
                     </div>
                     <div class="detail">
                         <span>Author</span>
-                        <p id="modalBookAuthor"></p>
+                        <p>James Gosling</p>
                     </div>
                     <div class="detail">
                         <span>Category</span>
-                        <p id="modalBookCategory"></p>
+                        <p>Programming</p>
                     </div>
                     <div class="detail">
                         <span>Publish Year</span>
-                        <p id="modalBookYear"></p>
+                        <p>2020</p>
                     </div>
                     <div class="detail">
                         <span>Library Name</span>
-                        <p id="modalBookLibrary"></p>
+                        <p>Main Library</p>
                     </div>
                 </div>
             </div>
@@ -940,8 +890,10 @@ if ($_SESSION['role'] != "Librarian") {
                     <h3>User Details</h3>
 
                     <div class="pill-group">
-                        <span id="modalUserRole" class="pill"></span>
-                        <span id="modalUserStatus" class="pill"></span>
+                        <span class="pill pill-role-librarian">Librarian</span>
+                        <!-- <span class="pill pill-role-user">User</span> -->
+                        <!-- <span class="pill pill-role-admin">Admin</span> -->
+                        <span class="pill pill-active">Active</span>
                         <!-- <span class="pill pill-inactive">Inactive</span> -->
                     </div>
                 </div>
@@ -951,33 +903,33 @@ if ($_SESSION['role'] != "Librarian") {
 
             <div class="modal-body-p">
                 <div class="book-image">
-                    <img id="modalUserImage" src="" alt="User Image">
+                    <img src="../image/default_profile.png" alt="Book Image">
                 </div>
 
                 <div class="book-details">
                     <div class="detail">
                         <span>User ID</span>
-                        <p id="modalUserId"></p>
+                        <p>24842354</p>
                     </div>
                     <div class="detail">
                         <span>First Name</span>
-                        <p id="modalUserFirstName"></p>
+                        <p>John</p>
                     </div>
                     <div class="detail">
                         <span>Last Name</span>
-                        <p id="modalUserLastName"></p>
+                        <p>Doe</p>
                     </div>
                     <div class="detail">
                         <span>Email ID</span>
-                        <p id="modalUserEmail"></p>
+                        <p>john.doe@example.com </p>
                     </div>
                     <div class="detail">
                         <span>Contact Number</span>
-                        <p id="modalUserContact"></p>
+                        <p>9876543210</p>
                     </div>
                     <div class="detail">
                         <span>Address</span>
-                        <p id="modalUserAddress"></p>
+                        <p>123 Main St, Cityville</p>
                     </div>
                 </div>
             </div>
@@ -1006,6 +958,322 @@ if ($_SESSION['role'] != "Librarian") {
             </div>
         </div>
     </div>
+
+    <div id="upiModal" class="upi-modal">
+
+        <div class="upi-card">
+
+            <div class="upi-header">
+                <h2>Complete Payment</h2>
+                <span class="upi-close" onclick="closeUPIModal()">×</span>
+            </div>
+
+            <div class="upi-body">
+
+                <div class="upi-qr-box">
+                    <img id="upiQR" src="" alt="UPI QR">
+                </div>
+
+                <div class="upi-details">
+                    <p class="upi-amount">₹ <span id="upiAmount">100</span></p>
+                    <p class="upi-text">Scan QR using any UPI app</p>
+
+                    <div class="upi-apps">
+                        <span>GPay</span>
+                        <span>PhonePe</span>
+                        <span>Paytm</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <form method="post" enctype="multipart/form-data">
+                <input type="hidden" name="issue_id" id="issueId">
+                <input type="hidden" name="library_id" id="libraryId">
+                <input type="hidden" name="amount" id="amount">
+
+                <div style="padding: 15px 20px;">
+                    <label style="display:block; margin-bottom:8px; font-weight:bold;">UTR / Transaction ID</label>
+                    <input type="text" name="utr_no" placeholder="Enter UTR / Transaction ID" required
+                        style="width:100%; padding:10px; border:1px solid #ccc; border-radius:8px; margin-bottom:15px;">
+
+                    <label style="display:block; margin-bottom:8px; font-weight:bold;">Upload Payment Screenshot</label>
+                    <input type="file" name="payment_screenshot" accept="image/*,.pdf" required
+                        style="width:100%; padding:10px; border:1px solid #ccc; border-radius:8px; background:#fff;">
+                </div>
+
+                <div class="upi-footer">
+                    <button type="button" class="upi-cancel" onclick="closeUPIModal()">Cancel</button>
+                    <button class="upi-paid" name="paid_btn">Submit Payment Proof</button>
+                </div>
+            </form>
+
+        </div>
+
+    </div>
+
+    <?php
+
+    if (isset($_POST['paid_btn'])) {
+
+        $issue_id   = intval($_POST['issue_id']);
+        $library_id = intval($_POST['library_id']);
+        $amount     = intval($_POST['amount']);
+        $utr_no     = trim($_POST['utr_no']);
+        $user_id    = $_SESSION['id'];
+
+        if ($utr_no == "") {
+            echo "<script>
+            document.addEventListener('DOMContentLoaded', function(){
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'error',
+                    title: 'Please enter UTR number.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true
+                });
+            });
+        </script>";
+            exit;
+        }
+
+        // Get issue + user + book details
+        $details_query = mysqli_query($con, "
+        SELECT 
+            i.issue_id,
+            i.return_date,
+            i.book_id,
+            u.user_id,
+            u.first_name,
+            u.last_name,
+            u.email,
+            b.title AS book_title
+        FROM issue i
+        INNER JOIN user u ON i.user_id = u.user_id
+        INNER JOIN book_list b ON i.book_id = b.book_id
+        WHERE i.issue_id = '$issue_id' AND i.user_id = '$user_id'
+        LIMIT 1
+    ");
+
+        $details = mysqli_fetch_assoc($details_query);
+
+        if (!$details) {
+            echo "<script>
+            document.addEventListener('DOMContentLoaded', function(){
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'error',
+                    title: 'Issue details not found.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true
+                });
+            });
+        </script>";
+            exit;
+        }
+
+        // Check duplicate UTR
+        $check_utr = mysqli_query($con, "SELECT * FROM payment_history WHERE utr_no='$utr_no' LIMIT 1");
+        if (mysqli_num_rows($check_utr) > 0) {
+            echo "<script>
+            document.addEventListener('DOMContentLoaded', function(){
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'error',
+                    title: 'This UTR number is already used.',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true
+                });
+            });
+        </script>";
+            exit;
+        }
+
+        // Upload screenshot
+        $screenshot_name = "";
+        if (isset($_FILES['payment_screenshot']) && $_FILES['payment_screenshot']['error'] == 0) {
+            $upload_dir = "../payment_screenshot/";
+
+            if (!is_dir($upload_dir)) {
+                mkdir($upload_dir, 0777, true);
+            }
+
+            $file_tmp  = $_FILES['payment_screenshot']['tmp_name'];
+            $file_name = $_FILES['payment_screenshot']['name'];
+            $file_size = $_FILES['payment_screenshot']['size'];
+
+            $ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+            $allowed = ['jpg', 'jpeg', 'png', 'pdf'];
+
+            if (!in_array($ext, $allowed)) {
+                echo "<script>
+                document.addEventListener('DOMContentLoaded', function(){
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'error',
+                        title: 'Only JPG, JPEG, PNG, PDF files allowed.',
+                        showConfirmButton: false,
+                        timer: 2200,
+                        timerProgressBar: true
+                    });
+                });
+            </script>";
+                exit;
+            }
+
+            if ($file_size > 5 * 1024 * 1024) {
+                echo "<script>
+                document.addEventListener('DOMContentLoaded', function(){
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'error',
+                        title: 'File size must be less than 5MB.',
+                        showConfirmButton: false,
+                        timer: 2200,
+                        timerProgressBar: true
+                    });
+                });
+            </script>";
+                exit;
+            }
+
+            $screenshot_name = "payment_" . time() . "_" . rand(1000, 9999) . "." . $ext;
+            $target_file = $upload_dir . $screenshot_name;
+
+            if (!move_uploaded_file($file_tmp, $target_file)) {
+                echo "<script>
+                document.addEventListener('DOMContentLoaded', function(){
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'error',
+                        title: 'Screenshot upload failed.',
+                        showConfirmButton: false,
+                        timer: 2200,
+                        timerProgressBar: true
+                    });
+                });
+            </script>";
+                exit;
+            }
+        } else {
+            echo "<script>
+            document.addEventListener('DOMContentLoaded', function(){
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'error',
+                    title: 'Please upload payment screenshot.',
+                    showConfirmButton: false,
+                    timer: 2200,
+                    timerProgressBar: true
+                });
+            });
+        </script>";
+            exit;
+        }
+
+        // Generate unique payment_id
+        do {
+            $payment_id = rand(10000, 99999);
+            $check_query = mysqli_query($con, "SELECT payment_id FROM payment_history WHERE payment_id='$payment_id'");
+        } while (mysqli_num_rows($check_query) > 0);
+
+        $verify_status = "Pending";
+        $payment_date   = date("Y-m-d");
+
+        // Update    payment record
+        $update_payment = mysqli_query($con, "
+            UPDATE payment_history 
+            SET 
+                payment_method = 'UPI',
+                payment_status = 'Paid',
+                payment_date = '$payment_date',
+                utr_no = '$utr_no',
+                screenshot = '$screenshot_name',
+                verify_status = 'Pending'
+            WHERE issue_id = '$issue_id'
+        ");
+
+        if ($update_payment) {
+
+            $formattedReturnDate = date("d M Y", strtotime($details['return_date']));
+
+            $update = mysqli_query($con, "
+            UPDATE issue 
+            SET fine_amount = 0,
+                status = 'Return at library',
+                last_mailed_status = 'Return at library'
+            WHERE issue_id = '$issue_id'
+        ");
+
+            if ($update) {
+
+                sendLibraryMail(
+                    $details['email'],
+                    $details['first_name'] . ' ' . $details['last_name'],
+                    $details['book_title'],
+                    'Return at library',
+                    $formattedReturnDate,
+                    $amount
+                );
+
+                echo "<script>
+                document.addEventListener('DOMContentLoaded', function(){
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'success',
+                        title: 'Payment proof submitted. Waiting for verification.',
+                        showConfirmButton: false,
+                        timer: 2200,
+                        timerProgressBar: true
+                    }).then(() => {
+                        window.location.href = 'fine_list.php';
+                    });
+                });
+            </script>";
+            } else {
+                echo "<script>
+                document.addEventListener('DOMContentLoaded', function(){
+                    Swal.fire({
+                        toast: true,
+                        position: 'top',
+                        icon: 'error',
+                        title: 'Payment saved but issue update failed.',
+                        showConfirmButton: false,
+                        timer: 2500,
+                        timerProgressBar: true
+                    });
+                });
+            </script>";
+            }
+        } else {
+            echo "<script>
+            document.addEventListener('DOMContentLoaded', function(){
+                Swal.fire({
+                    toast: true,
+                    position: 'top',
+                    icon: 'error',
+                    title: 'Failed to save payment details.',
+                    showConfirmButton: false,
+                    timer: 2200,
+                    timerProgressBar: true
+                });
+            });
+        </script>";
+        }
+    }
+    ?>
+
     <?php include 'footer.php'; ?>
 
     <!-- Scripts -->
@@ -1024,28 +1292,22 @@ if ($_SESSION['role'] != "Librarian") {
         var table = $('#bookTable').DataTable({
             responsive: true,
             dom: 'Brtip',
-
-            columnDefs: [{
-                targets: 0, // Sr No column
-                orderable: false,
-                searchable: false
-            }],
             buttons: [{
                     extend: 'excelHtml5',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6] // column indexes you want
+                        columns: [0, 1, 2, 3, 4] // column indexes you want
                     }
                 },
                 {
                     extend: 'pdfHtml5',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6]
+                        columns: [0, 1, 2, 3, 4]
                     }
                 },
                 {
                     extend: 'print',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4, 5, 6]
+                        columns: [0, 1, 2, 3, 4]
                     }
                 }
             ],
@@ -1055,32 +1317,14 @@ if ($_SESSION['role'] != "Librarian") {
             scrollCollapse: true
         });
 
-        // ✅ AUTO UPDATE SERIAL NUMBER
-        table.on('order.dt search.dt draw.dt', function() {
-            table.column(0, {
-                    search: 'applied',
-                    order: 'applied'
-                })
-                .nodes()
-                .each(function(cell, i) {
-                    cell.innerHTML = i + 1;
-                });
-        }).draw();
-
         // LOCATION filter
         $('#filterBookID').on('keyup', function() {
             table.column(2).search(this.value).draw();
         });
 
-        // OWNER filter
-        $('#filterUserID').on('keyup', function() {
-            table.column(3).search(this.value).draw();
-        });
-
         // RESET filters
         function resetFilters() {
             $('#filterBookID').val('');
-            $('#filterUserID').val('');
 
             table.columns().search('').draw();
         }
@@ -1101,15 +1345,7 @@ if ($_SESSION['role'] != "Librarian") {
             // Here you can remove the row or call backend later
         }
 
-        function openBookModal(bookId, image, title, author, category, year, library) {
-            document.getElementById("modalBookId").innerText = bookId;
-            document.getElementById("modalBookImage").src = image;
-            document.getElementById("modalBookTitle").innerText = title;
-            document.getElementById("modalBookAuthor").innerText = author;
-            document.getElementById("modalBookCategory").innerText = category;
-            document.getElementById("modalBookYear").innerText = year;
-            document.getElementById("modalBookLibrary").innerText = library;
-
+        function openBookModal() {
             document.getElementById("bookModal").style.display = "flex";
         }
 
@@ -1117,45 +1353,41 @@ if ($_SESSION['role'] != "Librarian") {
             document.getElementById("bookModal").style.display = "none";
         }
 
-        function openUserModal(id, image, first, last, email, contact, address, role, status) {
-
-            document.getElementById("modalUserId").innerText = id;
-            document.getElementById("modalUserFirstName").innerText = first;
-            document.getElementById("modalUserLastName").innerText = last;
-            document.getElementById("modalUserEmail").innerText = email;
-            document.getElementById("modalUserContact").innerText = contact;
-            document.getElementById("modalUserAddress").innerText = address;
-            document.getElementById("modalUserImage").src = image;
-
-            /* ROLE */
-            let roleElement = document.getElementById("modalUserRole");
-            roleElement.innerText = role;
-            roleElement.className = "pill";
-
-            if (role === "Librarian") {
-                roleElement.classList.add("pill-role-librarian");
-            } else if (role === "User") {
-                roleElement.classList.add("pill-role-user");
-            } else if (role === "Admin") {
-                roleElement.classList.add("pill-role-admin");
-            }
-
-            /* STATUS */
-            let statusElement = document.getElementById("modalUserStatus");
-            statusElement.innerText = status;
-            statusElement.className = "pill";
-
-            if (status === "Active") {
-                statusElement.classList.add("pill-active");
-            } else if (status === "Inactive") {
-                statusElement.classList.add("pill-inactive");
-            }
-
+        function openUserModal() {
             document.getElementById("userModal").style.display = "flex";
         }
 
         function closeUserModal() {
             document.getElementById("userModal").style.display = "none";
+        }
+    </script>
+
+    <script>
+        document.querySelectorAll(".btn-pay").forEach(btn => {
+            btn.addEventListener("click", function() {
+
+                const amount = parseInt(this.dataset.amount);
+                const issueId = parseInt(this.dataset.issue);
+                const libraryId = parseInt(this.dataset.library);
+                const upiId = this.dataset.upi;
+
+                const upiLink = `upi://pay?pa=${upiId}&pn=BookMyLibrary&am=${amount}&cu=INR&tn=Library Fine Payment`;
+
+                const qrURL = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" + encodeURIComponent(upiLink);
+
+                document.getElementById("upiQR").src = qrURL;
+                document.getElementById("upiAmount").textContent = amount;
+
+                document.getElementById("issueId").value = issueId;
+                document.getElementById("libraryId").value = libraryId;
+                document.getElementById("amount").value = amount;
+
+                document.getElementById("upiModal").style.display = "flex";
+            });
+        });
+
+        function closeUPIModal() {
+            document.getElementById("upiModal").style.display = "none";
         }
     </script>
 

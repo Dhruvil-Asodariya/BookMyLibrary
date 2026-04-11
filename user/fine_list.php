@@ -699,7 +699,7 @@ if ($_SESSION['role'] != "User") {
                                 </td>
                                 <td>{$row['amount']}</td>
                                 <td><span class='status paid'>Paid</span></td>
-                                <td><span class='status " . ($row['verify_status'] == 'Pending' ? 'unpaid' : 'paid') . "'>{$row['verify_status']}</span></td>
+                                <td><span class='status " . ($row['verify_status'] == 'Pending' || $row['verify_status'] == 'Rejected' ? 'unpaid' : 'paid') . "'>{$row['verify_status']}</span></td>
                                 <td>{$row['payment_method']}</td>
                                 <td>{$row['payment_date']}</td>
                                 <!-- <td>

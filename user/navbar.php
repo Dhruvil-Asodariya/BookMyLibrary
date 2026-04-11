@@ -226,6 +226,7 @@ include '../update_status.php';
                 <div class="dropdown-content">
                     <a href="fine_list.php">Fine List</a>
                     <a href="pending_fine_list.php">Fine Pending</a>
+                    <a href="rejected_fine_list.php">Fine Rejected</a>
                 </div>
             </div>
 
