@@ -8,14 +8,64 @@ include "db_config.php";
 include "send_mail.php";
 date_default_timezone_set('Asia/Kolkata');
 
+if (!isset($_SESSION['id']) || !isset($_SESSION['role'])) {
+    exit();
+}
+
 $user_id = $_SESSION['id'];
+$role = $_SESSION['role'];
+
 $today = date("Y-m-d");
 $now = date("Y-m-d H:i:s");
 
-$issues = mysqli_query($con, "SELECT * FROM issue WHERE user_id='$user_id'");
-$user_data = mysqli_query($con, "SELECT * FROM user WHERE user_id='$user_id'");
-$user_data_fetch = mysqli_fetch_assoc($user_data);
+/* =========================
+   FETCH ISSUES BASED ON ROLE
+========================= */
+if ($role == "User") {
 
+    $issues = mysqli_query($con, "
+        SELECT i.*, u.first_name, u.last_name, u.email, b.title AS book_title
+        FROM issue i
+        INNER JOIN user u ON i.user_id = u.user_id
+        INNER JOIN book_list b ON i.book_id = b.book_id
+        WHERE i.user_id='$user_id'
+    ");
+} elseif ($role == "Librarian") {
+
+    // Fetch library_id from DB
+    $getLibrary = mysqli_query($con, "
+        SELECT library_id 
+        FROM library 
+        WHERE user_id='$user_id'
+    ");
+
+    $libData = mysqli_fetch_assoc($getLibrary);
+    $library_id = $libData['library_id'] ?? 0;
+
+    $issues = mysqli_query(
+        $con,
+        "
+        SELECT i.*, u.first_name, u.last_name, u.email, b.title AS book_title
+        FROM issue i
+        INNER JOIN user u ON i.user_id = u.user_id
+        INNER JOIN book_list b ON i.book_id = b.book_id
+        WHERE i.library_id='$library_id'"
+    );
+} elseif ($role == "Admin") {
+
+    $issues = mysqli_query($con, "
+        SELECT i.*, u.first_name, u.last_name, u.email, b.title AS book_title
+        FROM issue i
+        INNER JOIN user u ON i.user_id = u.user_id
+        INNER JOIN book_list b ON i.book_id = b.book_id
+    ");
+} else {
+    exit();
+}
+
+/* =========================
+   ISSUE STATUS UPDATE LOOP
+========================= */
 while ($update_data = mysqli_fetch_assoc($issues)) {
 
     $issue_id = $update_data['issue_id'];
@@ -25,12 +75,9 @@ while ($update_data = mysqli_fetch_assoc($issues)) {
     $returnDate = $update_data['return_date'];
     $graceDate = date("Y-m-d", strtotime($returnDate . " +2 days"));
 
-    $book_title = mysqli_query($con, "SELECT * FROM book_list WHERE book_id='{$book_id}'");
-    $book_title_fetch = mysqli_fetch_assoc($book_title);
-
-    $bookName = $book_title_fetch['title'];
-    $userName = $user_data_fetch['first_name'] . " " . $user_data_fetch['last_name'];
-    $userEmail = $user_data_fetch['email'];
+    $bookName = $update_data['book_title'];
+    $userName = $update_data['first_name'] . " " . $update_data['last_name'];
+    $userEmail = $update_data['email'];
 
     $newStatus = $oldStatus;
     $fine = 0;
@@ -40,19 +87,13 @@ while ($update_data = mysqli_fetch_assoc($issues)) {
     ========================= */
     if ($oldStatus == 'Pending') {
 
-        // change created_at to your actual datetime column name if different
         $pendingTime = $update_data['created_at'];
 
         if (!empty($pendingTime)) {
 
             $expireTime = date("Y-m-d H:i:s", strtotime($pendingTime . " +24 hours"));
 
-            // DEBUG (optional)
-            // echo "Now: $now | Expire: $expireTime <br>";
-
             if (strtotime($now) >= strtotime($expireTime)) {
-
-                // ✅ Only delete AFTER 24 hours
 
                 mysqli_query($con, "
                     UPDATE book_list 
@@ -65,12 +106,11 @@ while ($update_data = mysqli_fetch_assoc($issues)) {
                     WHERE issue_id='$issue_id'
                 ");
 
-                // 📧 Send cancellation mail
                 sendLibraryMail(
                     $userEmail,
                     $userName,
                     $bookName,
-                    "Cancelled",   // 👈 new status for mail
+                    "Cancelled",
                     date("d M Y", strtotime($pendingTime)),
                     0
                 );
@@ -79,7 +119,6 @@ while ($update_data = mysqli_fetch_assoc($issues)) {
             }
         }
 
-        // keep last_mailed_status same as current status
         if ($lastMailedStatus != $oldStatus) {
             mysqli_query($con, "
                 UPDATE issue
@@ -91,7 +130,9 @@ while ($update_data = mysqli_fetch_assoc($issues)) {
         continue;
     }
 
-    // Final statuses should not be changed again
+    /* =========================
+       FINAL STATUS DON'T CHANGE
+    ========================= */
     if ($oldStatus == 'Returned' || $oldStatus == 'Return at library') {
 
         if ($lastMailedStatus != $oldStatus) {
@@ -105,7 +146,9 @@ while ($update_data = mysqli_fetch_assoc($issues)) {
         continue;
     }
 
-    // Decide new status
+    /* =========================
+       DECIDE NEW STATUS
+    ========================= */
     if ($today < $returnDate) {
         $newStatus = 'Issued';
         $fine = 0;
@@ -154,7 +197,9 @@ while ($update_data = mysqli_fetch_assoc($issues)) {
         }
     }
 
-    // Update issue only if needed
+    /* =========================
+       UPDATE ISSUE IF NEEDED
+    ========================= */
     if ($oldStatus != $newStatus || $update_data['fine_amount'] != $fine) {
         mysqli_query($con, "
             UPDATE issue 
@@ -163,15 +208,35 @@ while ($update_data = mysqli_fetch_assoc($issues)) {
         ");
     }
 
-    // Send mail only once when status changes
+    /* =========================
+       SEND MAIL ONLY ONCE
+    ========================= */
     if ($oldStatus != $newStatus && $lastMailedStatus != $newStatus) {
 
         if ($newStatus == "Yet to return") {
-            sendLibraryMail($userEmail, $userName, $bookName, $newStatus, date("d M Y", strtotime($graceDate)), $fine);
+            sendLibraryMail(
+                $userEmail,
+                $userName,
+                $bookName,
+                $newStatus,
+                date("d M Y", strtotime($graceDate)),
+                $fine
+            );
         } else {
-            sendLibraryMail($userEmail, $userName, $bookName, $newStatus, date("d M Y", strtotime($returnDate)), $fine);
+            sendLibraryMail(
+                $userEmail,
+                $userName,
+                $bookName,
+                $newStatus,
+                date("d M Y", strtotime($returnDate)),
+                $fine
+            );
         }
 
-        mysqli_query($con, "UPDATE issue SET last_mailed_status='$newStatus' WHERE issue_id='$issue_id'");
+        mysqli_query($con, "
+            UPDATE issue 
+            SET last_mailed_status='$newStatus' 
+            WHERE issue_id='$issue_id'
+        ");
     }
 }
