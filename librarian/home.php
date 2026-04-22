@@ -573,6 +573,9 @@ include '../update_status.php';
         $books = mysqli_query($con, "SELECT * FROM book_list WHERE library_id = $library_id");
         $book_count = mysqli_num_rows($books);
 
+        $available_copy = mysqli_query($con, "SELECT SUM(available_copy) AS total FROM book_list WHERE library_id = $library_id");
+        $available_data = mysqli_fetch_assoc($available_copy);
+
         $issue = mysqli_query($con, "SELECT * FROM issue WHERE (status = 'Issued' OR status = 'Overdue' OR status = 'Yet to Return' OR status = 'Return at library') AND library_id = $library_id ");
         $issue_count = mysqli_num_rows($issue);
 
@@ -584,10 +587,19 @@ include '../update_status.php';
 
         ?>
         <div class="dashboard">
+
+            <div class="card books" style="display: none;">
+                <div class="card-content">
+                    <h2>Total Registered Books</h2>
+                    <div class="value" id="totalBooks"><?php echo isset($available_data['total']) ? $available_data['total'] : 0 ?></div>
+                    <div class="sub">All books in system</div>
+                </div>
+            </div>
+
             <div class="card books" onclick="card_book()">
                 <div class="card-content">
                     <h2>Total Registered Books</h2>
-                    <div class="value" id="totalBooks"><?php echo $book_count; ?></div>
+                    <div class="value"><?php echo $book_count; ?></div>
                     <div class="sub">All books in system</div>
                 </div>
             </div>
