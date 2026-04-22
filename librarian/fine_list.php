@@ -960,7 +960,8 @@ if ($_SESSION['role'] != "Librarian") {
                                     <img src='../payment_screenshot/{$row['screenshot']}' 
                                         alt='Proof Image'
                                         class='cover'
-                                        onclick='openImage(this.src)'>
+                                        onclick='openImage(this.src)'
+                                        style='cursor: pointer'>
                                 </td>
                                 <td>
                                 ";
